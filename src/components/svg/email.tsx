@@ -19,8 +19,8 @@ export default function Email() {
         height="14"
         rx="2"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   )
