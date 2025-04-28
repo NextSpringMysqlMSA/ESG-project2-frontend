@@ -45,7 +45,7 @@ export default function HomeNavbar({profileImage}: HomeNavbarProps) {
                 <p className="text-lg font-bold">김지현</p>
                 <p className="text-sm text-gray-500">부장</p>
                 <p className="text-sm text-gray-500">jh123@google.com</p>
-                <p className="text-sm text-gray-500">010-1234-5678</p>
+                <p className="text-sm text-gray-500">전화번호 없음</p>
               </div>
             </div>
           </HoverCardContent>

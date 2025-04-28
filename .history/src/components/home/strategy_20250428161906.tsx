@@ -21,7 +21,7 @@ export default function Strategy() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/official">ESG 공시</BreadcrumbLink>
+              <BreadcrumbLink href="/esg disclosure">ESG 공시</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

@@ -35,7 +35,7 @@ export default function HomeNavbar({profileImage}: HomeNavbarProps) {
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </HoverCardTrigger>
-          <HoverCardContent className="w-64 transition-all duration-300 ease-in-out">
+          <HoverCardContent className="w-64">
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
                 <AvatarImage src={profileImage} />
