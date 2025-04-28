@@ -36,7 +36,7 @@ export default function SignUp() {
         />
         <div className="flex flex-col items-center w-full space-y-4">
           <Link href="/home">
-            <button className="w-28 text-xl text-white bg-[#1890FF] rounded-3xl h-12 hover:cursor-pointer">
+            <button className="h-12 text-xl text-white w-28 bg-customG rounded-3xl hover:cursor-pointer">
               회원가입
             </button>
           </Link>

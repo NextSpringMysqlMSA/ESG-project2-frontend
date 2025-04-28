@@ -1,6 +1,8 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import Committee from './governanceTabs/committee'
 import KPI from './governanceTabs/kpi'
+import Education from './governanceTabs/education'
+import Meeting from './governanceTabs/meeting'
 
 export default function Governance() {
   return (
@@ -26,11 +28,15 @@ export default function Governance() {
           <TabsContent value="committee">
             <Committee />
           </TabsContent>
-          <TabsContent value="meeting"></TabsContent>
+          <TabsContent value="meeting">
+            <Meeting />
+          </TabsContent>
           <TabsContent value="kpi">
             <KPI />
           </TabsContent>
-          <TabsContent value="education">Change your password here.</TabsContent>
+          <TabsContent value="education">
+            <Education />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
