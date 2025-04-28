@@ -1,4 +1,4 @@
-import Strategy from '@/components/home/strategy'
+import Strategy from '@/components/IFRS/strategy'
 
 export default function home() {
   return (

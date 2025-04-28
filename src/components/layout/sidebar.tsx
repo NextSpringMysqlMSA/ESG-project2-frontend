@@ -24,20 +24,20 @@ export default function Sidebar() {
     <aside
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`flex flex-col items-start h-full overflow-hidden text-black transition-all duration-300 ease-in-out bg-white border-r group/sidebar ${
+      className={`flex flex-col items-start h-full overflow-hidden text-white transition-all duration-300 ease-in-out bg-white border-r group/sidebar ${
         hovered ? 'w-60' : 'w-[65px]'
       }`}>
       <nav className="flex flex-col w-full space-y-2">
         <a
           href="/home"
-          className="group flex flex-row p-2 hover:bg-[#1890FF] hover:text-white rounded items-center gap-4">
+          className="flex flex-row items-center gap-4 p-2 px-4 rounded group text-primary hover:bg-customG hover:text-white">
           <HomeIcon />
           <span className="whitespace-nowrap">Home</span>
         </a>
         <div className="w-full">
           <button
             onClick={() => setOpenParent(!openParent)}
-            className="group flex flex-row p-2 hover:bg-[#1890FF] hover:text-white rounded items-center justify-between w-full text-left">
+            className="flex flex-row items-center justify-between w-full p-2 px-4 text-left rounded group text-primary hover:bg-customG hover:text-white">
             <div className="flex flex-row items-center w-full gap-4">
               <Message />
               <span className="whitespace-nowrap">ESG 공시</span>
@@ -54,7 +54,7 @@ export default function Sidebar() {
             }`}>
             <button
               onClick={() => setOpenChild(!openChild)}
-              className="group flex flex-row p-2 hover:bg-[#1890FF] hover:text-white rounded items-center justify-between w-full">
+              className="flex flex-row items-center justify-between w-full p-2 rounded group text-primary hover:bg-customG hover:text-white">
               IFRS S2
               <Arrow open={openChild} />
             </button>
@@ -64,32 +64,38 @@ export default function Sidebar() {
                   ? 'max-h-40 opacity-100 translate-y-0'
                   : 'max-h-0 opacity-0 -translate-y-2'
               }`}>
-              <Link href="/governance" className="hover:underline">
+              <Link
+                href="/governance"
+                className="hover:underline hover:text-customG text-primary">
                 거버넌스
               </Link>
-              <Link href="/strategy" className="hover:underline">
+              <Link
+                href="/strategy"
+                className="hover:underline hover:text-customG text-primary">
                 전략
               </Link>
-              <Link href="/goal" className="hover:underline">
+              <Link
+                href="/goal"
+                className="hover:underline hover:text-customG text-primary">
                 목표 및 지표
               </Link>
             </div>
             <a
               href="/"
-              className="flex flex-row p-2 hover:bg-[#1890FF] hover:text-white rounded items-center justify-between w-full text-left">
+              className="flex flex-row items-center justify-between w-full p-2 text-left rounded text-primary hover:bg-customG hover:text-white">
               GRI
             </a>
           </div>
         </div>
         <a
           href="/dashboard/environmental"
-          className="group flex flex-row p-2 hover:bg-[#1890FF] hover:text-white rounded items-center gap-4">
+          className="flex flex-row items-center gap-4 p-2 px-4 rounded group text-primary hover:bg-customG hover:text-white">
           <Email />
           <span className="whitespace-nowrap">OO 관리</span>
         </a>
         <a
           href="/dashboard/social"
-          className="group flex flex-row p-2 hover:bg-[#1890FF] hover:text-white rounded items-center gap-4">
+          className="flex flex-row items-center gap-4 p-2 px-4 rounded group text-primary hover:bg-customG hover:text-white">
           <Avatar />
           <span className="whitespace-nowrap">OO 관리</span>
         </a>

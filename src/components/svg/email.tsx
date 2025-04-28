@@ -1,7 +1,7 @@
 export default function Email() {
   return (
     <svg
-      className="text-black min-w-12 min-h-12 max-w-12 max-h-12 group-hover:text-white"
+      className="text-primary min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg">

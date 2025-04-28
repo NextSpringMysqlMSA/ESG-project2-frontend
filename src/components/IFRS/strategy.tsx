@@ -8,7 +8,6 @@ export default function Strategy() {
     <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8 space-y-4">
       <div className="flex flex-row px-4">ESG 공시 &gt; IFRS S2</div>
       <div className="flex flex-row px-4 space-x-4">
-        <button> &larr;</button>
         <div className="flex flex-row items-center w-full gap-x-4">
           <span className="text-xl font-bold">IFRS S2</span>
           <span className="text-gray-500">TCFD</span>

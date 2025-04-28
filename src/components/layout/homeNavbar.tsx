@@ -13,10 +13,10 @@ import Arrow from '../svg/arrow'
 export default function HomeNavbar() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="z-40 flex flex-row items-center justify-between w-full p-2 shadow-sm">
+    <div className="z-40 flex flex-row items-center justify-between w-full p-2 bg-white shadow-sm">
       <Link href="/" className="flex flex-row items-center">
         <img src="/dash.svg" alt="logo" className="w-12 mr-4" />
-        <span className="text-3xl font-bold">NSMM</span>
+        <span className="text-3xl font-bold text-customG">NSMM</span>
       </Link>
       <div className="flex flex-row items-center gap-4">
         <Avatar>
@@ -25,7 +25,7 @@ export default function HomeNavbar() {
         </Avatar>
 
         <DropdownMenu open={open} onOpenChange={setOpen}>
-          <DropdownMenuTrigger className="flex flex-row items-center justify-between w-48 h-10 px-2 border">
+          <DropdownMenuTrigger className="flex flex-row items-center justify-between w-48 h-10 px-2 border text-primary">
             관리자 김지현님
             <Arrow open={open} />
           </DropdownMenuTrigger>
