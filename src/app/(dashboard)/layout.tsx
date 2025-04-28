@@ -1,5 +1,6 @@
 import HomeNavbar from '@/components/layout/homeNavbar'
 import Sidebar from '@/components/layout/sidebar'
+
 export default function Layout({
   children
 }: Readonly<{
