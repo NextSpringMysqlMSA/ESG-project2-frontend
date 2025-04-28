@@ -5,10 +5,10 @@ export default function HomeNavbar() {
     <div className="flex flex-row items-center justify-between w-full p-2 shadow-sm">
       <Link href="/" className="flex flex-row items-center">
         <img src="/dash.svg" alt="logo" className="w-12 mr-4" />
-        <span className="text-3xl font-bold">_______</span>
+        <span className="text-3xl font-bold">NSMM</span>
       </Link>
       <div className="flex flex-row gap-4">
-        <Link href="/">
+        <Link href="/login">
           <button className="flex items-center justify-center w-24 h-12 text-white bg-[#1890FF] rounded-3xl hover:cursor-pointer">
             로그아웃
           </button>

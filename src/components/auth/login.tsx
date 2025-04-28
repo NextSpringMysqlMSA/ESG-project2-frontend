@@ -2,20 +2,23 @@ import Link from 'next/link'
 
 export default function Login() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full space-y-6">
-      <span className="text-4xl font-bold">______에 로그인하세요</span>
-      <div className="grid p-4 space-y-4 bg-white shadow-xl grid-rows rounded-3xl w-120">
+    <div className="flex flex-col items-center justify-center w-full h-full space-y-10">
+      {/* 헤더============================================================================ */}
+      <span className="text-4xl font-bold">NSMM</span>
+      {/* 로그인 폼======================================================================== */}
+      <div className="grid px-12 py-8 space-y-4 bg-white border shadow-xl w-[400px] grid-rows rounded-3xl">
+        <span className="text-4xl font-bold text-center">로그인</span>
         <input
-          className="w-full pl-4 text-2xl border-1 rounded-3xl h-14 text-start"
-          placeholder="아이디"
+          className="w-full pl-4 text-xl border-b-2 h-14 text-start"
+          placeholder="이메일"
         />
         <input
-          className="w-full pl-4 text-2xl border-1 rounded-3xl h-14 text-start"
+          className="w-full pl-4 text-xl border-b-2 h-14 text-start"
           placeholder="비밀번호"
         />
         <div className="flex flex-col items-center w-full space-y-4">
           <Link href="/home">
-            <button className="w-40 text-2xl text-white bg-[#1890FF] rounded-3xl h-14 hover:cursor-pointer">
+            <button className="w-28 text-xl text-white bg-[#1890FF] rounded-3xl h-12 hover:cursor-pointer">
               로그인
             </button>
           </Link>
