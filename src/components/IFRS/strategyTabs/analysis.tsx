@@ -1,6 +1,6 @@
 export default function Analysis() {
   return (
-    <div className="flex flex-col w-full px-4 bg-white border">
+    <div className="flex flex-col w-full px-4 bg-white">
       <span className="mb-4 text-xl font-bold">분석 결과</span>
       <table className="w-full text-center border-b-2 table-fixed border-b-black">
         <thead>

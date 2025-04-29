@@ -10,14 +10,14 @@ import {
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hover-card'
 import {useState} from 'react'
+import {useProfile} from '@/contexts/ProfileContext'
 import Arrow from '../svg/arrow'
 
-interface HomeNavbarProps {
-  profileImage: string
-}
-
-export default function HomeNavbar({profileImage}: HomeNavbarProps) {
+export default function HomeNavbar() {
+  const {profileImage} = useProfile()
   const [open, setOpen] = useState(false)
+
+  const defaultProfile = 'https://github.com/shadcn.png'
 
   return (
     <div className="z-40 flex flex-row items-center justify-between w-full p-2 bg-white shadow-sm">
@@ -31,14 +31,14 @@ export default function HomeNavbar({profileImage}: HomeNavbarProps) {
         <HoverCard>
           <HoverCardTrigger asChild>
             <Avatar className="cursor-pointer">
-              <AvatarImage src={profileImage} />
+              <AvatarImage src={profileImage || defaultProfile} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </HoverCardTrigger>
           <HoverCardContent className="w-64 transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
-                <AvatarImage src={profileImage} />
+                <AvatarImage src={profileImage || defaultProfile} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
