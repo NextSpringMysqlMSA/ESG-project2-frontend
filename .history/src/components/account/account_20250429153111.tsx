@@ -62,7 +62,7 @@ export default function Account() {
         {/* 오른쪽: 개인정보 + 비밀번호 */}
         <div className="flex flex-col w-full bg-white p-8 rounded-2xl shadow-lg">
           {/* 개인정보 */}
-          <div className="flex flex-col divide-y divide-gray-200">
+          <div className="flex flex-col divide-y">
             {[
               {label: '이름', value: '김지현'},
               {label: '이메일', value: 'jh123@google.com'},
@@ -70,7 +70,7 @@ export default function Account() {
               {label: '회사명', value: '애플코리아'},
               {label: '직급', value: '부장'}
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center h-14">
+              <div key={idx} className="flex items-center py-3">
                 <div className="w-1/3 font-medium text-gray-700">{item.label}</div>
                 <div className="flex-1 font-semibold">{item.value}</div>
               </div>
@@ -78,13 +78,13 @@ export default function Account() {
           </div>
 
           {/* 비밀번호 변경 */}
-          <div className="flex flex-col divide-y divide-gray-200 mt-4">
+          <div className="flex flex-col divide-y mt-4">
             {[
               {label: '현재 비밀번호', placeholder: '현재 비밀번호를 입력하세요'},
               {label: '새 비밀번호', placeholder: '새 비밀번호를 입력하세요'},
               {label: '새 비밀번호 확인', placeholder: '새 비밀번호를 다시 입력하세요'}
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center h-14">
+              <div key={idx} className="flex items-center py-3">
                 <div className="w-1/3 font-medium text-gray-700">{item.label}</div>
                 <input
                   type="password"

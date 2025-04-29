@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function SignUp() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full space-y-6 bg-[#F9FBFF]">
+    <div className="flex flex-col items-center justify-center w-full h-full space-y-6">
       <div className="flex flex-col px-8 py-8 space-y-4 w-[400px] bg-white border shadow-xl rounded-2xl">
         <div className="text-2xl font-bold text-center">회원가입</div>
 
@@ -74,14 +74,14 @@ export default function SignUp() {
         </label>
 
         {/* 계정 생성 버튼 */}
-        <button className="w-full h-12 bg-customG text-white text-base rounded-lg hover:bg-white hover:text-customG border border-customG transition-all duration-300">
+        <button className="w-full h-12 text-base text-white bg-customG rounded-lg hover:bg-white hover:text-customG border border-customG transition-all duration-300">
           계정 생성
         </button>
 
         {/* 로그인 링크 */}
         <div className="text-center text-sm">
           이미 계정이 있으신가요?{' '}
-          <Link href="/login" className="text-customG font-semibold hover:underline">
+          <Link href="/login" className="text-customG font-semibold">
             로그인
           </Link>
         </div>

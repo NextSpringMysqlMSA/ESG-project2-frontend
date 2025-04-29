@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function Login() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full space-y-6 bg-[#F9FBFF]">
+    <div className="flex flex-col items-center justify-center w-full h-full space-y-6">
       <div className="flex flex-col px-8 py-8 space-y-4 w-[400px] bg-white border shadow-xl rounded-2xl">
         <div className="text-2xl font-bold text-center">로그인</div>
 
