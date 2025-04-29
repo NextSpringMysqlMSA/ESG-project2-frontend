@@ -1,0 +1,126 @@
+'use client'
+
+import {useProfile} from '@/contexts/ProfileContext'
+import {useRef} from 'react'
+import {useRouter} from 'next/navigation'
+
+export default function Account() {
+  const {profileImage, setProfileImage} = useProfile()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+
+  const handleEditClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const fileUrl = URL.createObjectURL(file)
+      setProfileImage(fileUrl)
+    }
+  }
+
+  return (
+    <div className="flex flex-col w-full bg-[#F9FBFF] px-4 py-8 min-h-screen">
+      {/* 뒤로가기 버튼 */}
+      <div className="self-start px-6 mb-8">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center justify-center w-10 h-10 bg-customG text-white border border-customG rounded-xl hover:bg-white hover:text-customG hover:border-customG transition-all duration-200 font-bold text-xl">
+          ←
+        </button>
+      </div>
+
+      {/* 프로필 + 개인정보 입력 영역 */}
+      <div className="flex flex-row gap-20 items-start w-full max-w-6xl mx-auto">
+        {/* 왼쪽 프로필 */}
+        <div className="flex flex-col items-center gap-6 w-1/3 pt-6">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-customG shadow-md hover:scale-105 hover:ring-4 hover:ring-customG/30 transition-transform duration-300">
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="object-cover w-full h-full"
+            />
+          </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+
+          <button
+            onClick={handleEditClick}
+            className="px-6 py-2 bg-customG text-white text-base rounded-lg hover:bg-white hover:text-customG border border-customG transition-all duration-300">
+            프로필 변경
+          </button>
+        </div>
+
+        {/* 오른쪽 개인정보 입력폼 */}
+        <div className="flex flex-col w-2/3 h-full bg-white p-10 rounded-2xl shadow-md">
+          <div className="flex flex-col divide-y divide-gray-200">
+            {/* 기본 정보 */}
+            <div className="flex justify-between py-3">
+              <span className="font-medium text-gray-700">이름</span>
+              <span className="font-semibold">김지현</span>
+            </div>
+            <div className="flex justify-between py-3">
+              <span className="font-medium text-gray-700">이메일</span>
+              <span className="font-semibold">jh123@google.com</span>
+            </div>
+            <div className="flex justify-between py-3">
+              <span className="font-medium text-gray-700">전화번호</span>
+              <span className="font-semibold">010-1234-5678</span>
+            </div>
+            <div className="flex justify-between py-3">
+              <span className="font-medium text-gray-700">회사명</span>
+              <span className="font-semibold">애플코리아</span>
+            </div>
+            <div className="flex justify-between py-3">
+              <span className="font-medium text-gray-700">직급</span>
+              <span className="font-semibold">부장</span>
+            </div>
+
+            {/* 비밀번호 변경 */}
+            <div className="flex items-center justify-between py-3">
+              <label className="font-medium text-gray-700 w-40">현재 비밀번호</label>
+              <input
+                type="password"
+                placeholder="현재 비밀번호를 입력하세요"
+                className="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customG"
+              />
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <label className="font-medium text-gray-700 w-40">새 비밀번호</label>
+              <input
+                type="password"
+                placeholder="새 비밀번호를 입력하세요"
+                className="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customG"
+              />
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <label className="font-medium text-gray-700 w-40">새 비밀번호 확인</label>
+              <input
+                type="password"
+                placeholder="새 비밀번호를 다시 입력하세요"
+                className="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customG"
+              />
+            </div>
+          </div>
+
+          {/* 저장 버튼 */}
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => alert('저장되었습니다!')}
+              className="px-8 py-2 bg-customG text-white text-lg rounded-lg hover:bg-white hover:text-customG border border-customG transition-all duration-300">
+              저장
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
