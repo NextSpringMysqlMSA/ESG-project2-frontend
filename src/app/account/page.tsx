@@ -1,6 +1,4 @@
-'use client'
-
-import Account from '@/components/account/account'
+import Account from './account'
 
 export default function AccountPage() {
   return (

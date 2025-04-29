@@ -1,6 +1,6 @@
-import Governance from '@/components/IFRS/governance'
+import Governance from '@/app/(dashboard)/(IFRS)/governance/governance'
 
-export default function home() {
+export default function governance() {
   return (
     <div className="w-full h-full">
       <Governance />

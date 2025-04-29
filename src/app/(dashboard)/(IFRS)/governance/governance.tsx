@@ -1,8 +1,8 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
-import Committee from './governanceTabs/committee'
-import KPI from './governanceTabs/kpi'
-import Education from './governanceTabs/education'
-import Meeting from './governanceTabs/meeting'
+import Committee from './committee'
+import KPI from './kpi'
+import Education from './education'
+import Meeting from './meeting'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,7 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator
-} from '../ui/breadcrumb'
+} from '../../../../components/ui/breadcrumb'
 
 export default function Governance() {
   return (

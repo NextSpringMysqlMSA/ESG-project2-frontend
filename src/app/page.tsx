@@ -1,4 +1,4 @@
-import Main from '../components/main'
+import Main from './main'
 
 export default function main() {
   return (

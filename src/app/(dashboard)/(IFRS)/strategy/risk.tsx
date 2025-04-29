@@ -8,6 +8,8 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import {useState} from 'react'
+import DashButton from '@/components/dashButton'
+import InputBox from '@/components/inputBox'
 
 export default function Risk() {
   const [selectedRiskType, setSelectedRiskType] = useState<
@@ -41,9 +43,7 @@ export default function Risk() {
               ))}
             </SelectContent>
           </Select>
-          <input
-            placeholder="리스크 요인 (예: 산불, 산사태, 폭염, 전기요금 상승 등)"
-            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+          <InputBox placeholder="리스크 요인 (예: 산불, 산사태, 폭염, 전기요금 상승 등)" />
           <Select>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="영향도" />
@@ -56,9 +56,7 @@ export default function Risk() {
               ))}
             </SelectContent>
           </Select>
-          <input
-            placeholder="사업 모헙 및 가치 사슬에 대한 영향"
-            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+          <InputBox placeholder="사업 모헙 및 가치 사슬에 대한 영향" />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
           {selectedRiskType && (
@@ -99,18 +97,12 @@ export default function Risk() {
               ))}
             </SelectContent>
           </Select>
-          <input
-            placeholder="내용 현황 및 계획"
-            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+          <InputBox placeholder="내용 현황 및 계획" />
         </div>
       </div>
-      <button className="flex items-center justify-center p-2 text-white rounded-xl w-36 bg-customG">
-        + 리스크 항목 추가
-      </button>
+      <DashButton width="w-36">+ 리스크 항목 추가</DashButton>
       <div className="flex flex-row justify-center w-full">
-        <button className="flex items-center justify-center w-24 p-2 text-white rounded-xl bg-customG">
-          저장
-        </button>
+        <DashButton width="w-24">저장</DashButton>
       </div>
     </div>
   )

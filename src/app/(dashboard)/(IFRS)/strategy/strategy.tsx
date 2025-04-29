@@ -1,7 +1,8 @@
 'use client'
 import {useState} from 'react'
-import Scenario from './strategyTabs/scenario'
-import Risk from './strategyTabs/risk'
+import Scenario from './scenario'
+import Risk from './risk'
+import Analysis from './analysis'
 
 import {
   Breadcrumb,
@@ -11,8 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '../ui/tabs'
-import Analysis from './strategyTabs/analysis'
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 
 export default function Strategy() {
   const [open, setOpen] = useState(false)

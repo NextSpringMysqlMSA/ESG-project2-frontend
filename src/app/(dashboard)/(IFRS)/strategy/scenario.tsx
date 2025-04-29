@@ -1,5 +1,3 @@
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
-import Analysis from './analysis'
 import {
   Select,
   SelectContent,
@@ -7,6 +5,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import DashButton from '@/components/dashButton'
+import InputBox from '@/components/inputBox'
 
 export default function Scenario() {
   const regions = [
@@ -71,9 +71,7 @@ export default function Scenario() {
                 ))}
               </SelectContent>
             </Select>
-            <input
-              placeholder="경도 (예: 126.97)"
-              className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+            <InputBox placeholder="경도 (예: 126.97)" />
             <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="온난화 수준" />
@@ -98,14 +96,10 @@ export default function Scenario() {
                 ))}
               </SelectContent>
             </Select>
-            <input
-              placeholder="분석 기준 연도 (예: 2030)"
-              className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+            <InputBox placeholder="분석 기준 연도 (예: 2030)" />
           </div>
           <div className="flex flex-col w-[50%] ml-2 space-y-4">
-            <input
-              placeholder="위도 (예: 37.56)"
-              className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+            <InputBox placeholder="위도 (예: 37.56)" />
             <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="SSP 시나리오" />
@@ -142,19 +136,13 @@ export default function Scenario() {
                 ))}
               </SelectContent>
             </Select>
-            <input
-              placeholder="단위 피해 단가 (예: ₩/일 또는 ₩/mm)"
-              className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+            <InputBox placeholder="단위 피해 단가 (예: ₩/일 또는 ₩/mm)" />
           </div>
         </div>
-        <input
-          placeholder="대응 전략, 가정, 참고사항 입력 (예: RE100 전략, 저지대 배수로 개선 등)"
-          className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"></input>
+        <InputBox placeholder="대응 전략, 가정, 참고사항 입력 (예: RE100 전략, 저지대 배수로 개선 등)" />
       </div>
       <div className="flex flex-row justify-center w-full">
-        <button className="flex items-center justify-center w-24 p-2 text-white rounded-xl bg-customG">
-          저장
-        </button>
+        <DashButton width="w-24">저장</DashButton>
       </div>
     </div>
   )
