@@ -21,7 +21,7 @@ export default function Strategy() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/official">ESG 공시</BreadcrumbLink>
+              <BreadcrumbLink href="/esg">ESG 공시</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -32,6 +32,7 @@ export default function Strategy() {
       </div>
 
       <div className="flex flex-row px-4 space-x-4">
+        <button> &larr;</button>
         <div className="flex flex-row items-center w-full gap-x-4">
           <span className="text-xl font-bold">IFRS S2</span>
           <span className="text-gray-500">TCFD</span>
