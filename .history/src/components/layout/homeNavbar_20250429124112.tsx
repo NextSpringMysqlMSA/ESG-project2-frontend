@@ -59,12 +59,10 @@ export default function HomeNavbar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <Link href="/account">
-              <DropdownMenuItem className="hover:cursor-pointer">설정</DropdownMenuItem>
+              <DropdownMenuItem>설정</DropdownMenuItem>
             </Link>
             <Link href="/login">
-              <DropdownMenuItem className="hover:cursor-pointer">
-                로그아웃
-              </DropdownMenuItem>
+              <DropdownMenuItem>로그아웃</DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
         </DropdownMenu>

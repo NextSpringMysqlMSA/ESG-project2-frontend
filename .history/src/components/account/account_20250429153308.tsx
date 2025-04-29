@@ -59,10 +59,10 @@ export default function Account() {
           </button>
         </div>
 
-        {/* 오른쪽: 개인정보 + 비밀번호 */}
+        {/* 오른쪽: 회원정보 + 비밀번호 */}
         <div className="flex flex-col w-full bg-white p-8 rounded-2xl shadow-lg">
-          {/* 개인정보 */}
-          <div className="flex flex-col divide-y divide-gray-200">
+          <div className="flex flex-col gap-4">
+            {/* 개인정보 (읽기전용 input) */}
             {[
               {label: '이름', value: '김지현'},
               {label: '이메일', value: 'jh123@google.com'},
@@ -70,32 +70,39 @@ export default function Account() {
               {label: '회사명', value: '애플코리아'},
               {label: '직급', value: '부장'}
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center h-14">
-                <div className="w-1/3 font-medium text-gray-700">{item.label}</div>
-                <div className="flex-1 font-semibold">{item.value}</div>
+              <div key={idx}>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {item.label}
+                </label>
+                <input
+                  type="text"
+                  value={item.value}
+                  readOnly
+                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 text-base focus:outline-none"
+                />
               </div>
             ))}
-          </div>
 
-          {/* 비밀번호 변경 */}
-          <div className="flex flex-col divide-y divide-gray-200 mt-4">
+            {/* 비밀번호 변경 (수정가능) */}
             {[
               {label: '현재 비밀번호', placeholder: '현재 비밀번호를 입력하세요'},
               {label: '새 비밀번호', placeholder: '새 비밀번호를 입력하세요'},
               {label: '새 비밀번호 확인', placeholder: '새 비밀번호를 다시 입력하세요'}
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center h-14">
-                <div className="w-1/3 font-medium text-gray-700">{item.label}</div>
+              <div key={idx}>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {item.label}
+                </label>
                 <input
                   type="password"
                   placeholder={item.placeholder}
-                  className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-customG text-base"
+                  className="w-full p-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-customG"
                 />
               </div>
             ))}
           </div>
 
-          {/* 저장 버튼 (오른쪽 정렬) */}
+          {/* 저장 버튼 */}
           <div className="flex justify-end mt-8">
             <button
               onClick={() => alert('저장되었습니다!')}

@@ -10,11 +10,13 @@ import {
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hover-card'
 import {useState} from 'react'
-import {useProfile} from '@/contexts/ProfileContext'
 import Arrow from '../svg/arrow'
 
-export default function HomeNavbar() {
-  const {profileImage} = useProfile()
+interface HomeNavbarProps {
+  profileImage: string
+}
+
+export default function HomeNavbar({profileImage}: HomeNavbarProps) {
   const [open, setOpen] = useState(false)
 
   const defaultProfile = 'https://github.com/shadcn.png'
@@ -59,12 +61,10 @@ export default function HomeNavbar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <Link href="/account">
-              <DropdownMenuItem className="hover:cursor-pointer">설정</DropdownMenuItem>
+              <DropdownMenuItem>설정</DropdownMenuItem>
             </Link>
             <Link href="/login">
-              <DropdownMenuItem className="hover:cursor-pointer">
-                로그아웃
-              </DropdownMenuItem>
+              <DropdownMenuItem>로그아웃</DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
         </DropdownMenu>
