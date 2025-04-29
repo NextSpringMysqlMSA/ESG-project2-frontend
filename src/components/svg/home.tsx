@@ -1,14 +1,14 @@
 export default function HomeIcon() {
   return (
     <svg
-      className="text-black min-w-11 min-h-11 max-w-11 max-h-11 group-hover:text-white"
+      className="text-primary min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white"
       viewBox="-1 0 19 19"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg">
       <title>home [#1393]</title>
       <desc>Created with Sketch.</desc>
       <defs></defs>
-      <g id="Page-1" stroke="none" strokeWidth="2" fill="none" fillRule="evenodd">
+      <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g
           id="Dribbble-Light-Preview"
           transform="translate(-341.000000, -720.000000)"
