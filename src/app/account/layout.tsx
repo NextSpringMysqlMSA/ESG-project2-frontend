@@ -23,7 +23,7 @@ export default function AccountLayout() {
       <div className="px-4 py-2">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-blue-500 hover:underline">
+          className="flex items-center px-2 py-1 text-white rounded bg-customG">
           ←
         </button>
       </div>

@@ -59,10 +59,12 @@ export default function HomeNavbar({profileImage}: HomeNavbarProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <Link href="/account">
-              <DropdownMenuItem>설정</DropdownMenuItem>
+              <DropdownMenuItem className="hover:cursor-pointer">설정</DropdownMenuItem>
             </Link>
             <Link href="/login">
-              <DropdownMenuItem>로그아웃</DropdownMenuItem>
+              <DropdownMenuItem className="hover:cursor-pointer">
+                로그아웃
+              </DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
         </DropdownMenu>
