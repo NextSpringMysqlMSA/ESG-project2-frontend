@@ -1,6 +1,7 @@
 'use client'
 import {useState} from 'react'
 import Scenario from './strategyTabs/scenario'
+import Risk from './strategyTabs/risk'
 
 import {
   Breadcrumb,
@@ -11,6 +12,7 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '../ui/tabs'
+import Analysis from './strategyTabs/analysis'
 
 export default function Strategy() {
   const [open, setOpen] = useState(false)
@@ -41,19 +43,29 @@ export default function Strategy() {
         <span className="text-gray-500">TCFD</span>
       </div>
 
-      <div className="flex flex-row items-center justify-between w-full h-12 px-4 bg-white border border-b-2">
+      <div className="flex flex-row items-center justify-between w-full h-12 px-4 py-2 bg-white border border-b-2">
         <span className="text-xl font-bold">전략</span>
       </div>
       <div className="flex flex-col w-full h-full p-4 bg-white border">
         <Tabs defaultValue="scenario" className="w-full">
-          <TabsList>
-            <TabsTrigger value="scenario">시나리오 분석</TabsTrigger>
-            <TabsTrigger value="risk">물리/전환 리스크 및 기회요인</TabsTrigger>
-          </TabsList>
+          <div className="flex flex-row justify-between w-full">
+            <TabsList>
+              <TabsTrigger value="scenario">시나리오 분석</TabsTrigger>
+              <TabsTrigger value="risk">물리/전환 리스크 및 기회요인</TabsTrigger>
+            </TabsList>
+            <TabsList>
+              <TabsTrigger value="analysis">분석 실행</TabsTrigger>
+            </TabsList>
+          </div>
           <TabsContent value="scenario">
             <Scenario />
           </TabsContent>
-          <TabsContent value="risk"></TabsContent>
+          <TabsContent value="risk">
+            <Risk />
+          </TabsContent>
+          <TabsContent value="analysis">
+            <Analysis />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
