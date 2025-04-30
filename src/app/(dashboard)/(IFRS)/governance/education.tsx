@@ -10,7 +10,7 @@ export default function Education() {
       <InputBox placeholder="일자 및 참석자 수 (예: 2025.03.15/900명)" />
       <InputBox placeholder="교육 주요 내용 (예: 온실가스. 기후리스 대응 등)" />
       <DatePickerForm>
-        <DashButton type="submit" width="w-24">
+        <DashButton type="submit" width="w-26">
           + 교육 추가
         </DashButton>
       </DatePickerForm>
