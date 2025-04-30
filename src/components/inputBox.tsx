@@ -1,12 +1,43 @@
+'use client'
+
+import {useState} from 'react'
+
 type InputBoxProps = {
-  placeholder?: string
+  label?: string
+  className?: string
+  id?: string
 }
 
-export default function InputBox({placeholder}: InputBoxProps) {
+export default function InputBox({
+  label = '',
+  className = '',
+  id = 'input-box'
+}: InputBoxProps) {
+  const [value, setValue] = useState('')
+  const [isFocused, setIsFocused] = useState(false)
+
+  const shouldFloat = value.length > 0 || isFocused
+
   return (
-    <input
-      placeholder={placeholder}
-      className="flex items-center justify-between w-full px-3 py-2 text-sm bg-transparent border rounded-md shadow-sm h-9 whitespace-nowrap border-input ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-    />
+    <div className="relative w-full">
+      <input
+        type="text"
+        id={id}
+        value={value}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onChange={e => setValue(e.target.value)}
+        className={`peer block w-full appearance-none rounded-lg border border-input bg-transparent px-2.5 pb-2.5 pt-4 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-0 dark:text-white dark:focus:border-blue-500 ${className}`}
+      />
+      <label
+        htmlFor={id}
+        className={`pointer-events-none absolute start-1 z-10 origin-[0] bg-white px-2 text-sm text-muted-foreground transition-all dark:bg-gray-900 ${
+          shouldFloat
+            ? 'top-0 scale-75 -translate-y-2.5'
+            : 'top-1/2 scale-100 -translate-y-1/2'
+        }`}>
+        {label}
+      </label>
+    </div>
   )
 }
