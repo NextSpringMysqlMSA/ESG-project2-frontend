@@ -1,5 +1,3 @@
-'use client'
-
 import {ReactNode} from 'react'
 import {ProfileProvider} from '@/contexts/ProfileContext'
 import HomeNavbar from '@/components/layout/homeNavbar'

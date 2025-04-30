@@ -1,6 +1,6 @@
-import Strategy from '@/components/IFRS/strategy'
+import Strategy from './strategy'
 
-export default function home() {
+export default function strategy() {
   return (
     <div className="w-full h-full">
       <Strategy />
