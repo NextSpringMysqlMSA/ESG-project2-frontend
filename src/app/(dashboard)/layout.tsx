@@ -9,11 +9,13 @@ export default function Layout({
 }>) {
   return (
     <ProfileProvider>
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col w-full h-screen bg-[#F9FBFF]">
         <HomeNavbar />
-        <div className="flex flex-row w-full h-full">
+        <div className="flex flex-row w-full h-full mt-16">
           <Sidebar />
-          {children}
+          <div className="flex justify-center w-full ml-[65px]">
+            <div className="flex flex-col w-full max-w-screen-lg">{children}</div>
+          </div>
         </div>
       </div>
     </ProfileProvider>
