@@ -1,12 +1,6 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
+import CustomSelect from '@/components/customSelect'
 
 export default function Scenario() {
   const regions = [
@@ -59,83 +53,41 @@ export default function Scenario() {
       <div className="flex flex-col w-full space-y-4">
         <div className="flex flex-row w-full">
           <div className="flex flex-col w-[50%] pr-2 space-y-4">
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="행정구역 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                {regions.map(regions => (
-                  <SelectItem key={regions} value={regions}>
-                    {regions}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CustomSelect
+              placeholder="행정구역 선택"
+              options={regions}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
             <InputBox placeholder="경도 (예: 126.97)" />
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="온난화 수준" />
-              </SelectTrigger>
-              <SelectContent>
-                {warming.map(warming => (
-                  <SelectItem key={warming} value={warming}>
-                    {warming}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="산업 분야" />
-              </SelectTrigger>
-              <SelectContent>
-                {industry.map(industry => (
-                  <SelectItem key={industry} value={industry}>
-                    {industry}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CustomSelect
+              placeholder="온난화 수준"
+              options={warming}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
+            <CustomSelect
+              placeholder="산업 분야"
+              options={industry}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
             <InputBox placeholder="분석 기준 연도 (예: 2030)" />
           </div>
           <div className="flex flex-col w-[50%] ml-2 space-y-4">
             <InputBox placeholder="위도 (예: 37.56)" />
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="SSP 시나리오" />
-              </SelectTrigger>
-              <SelectContent>
-                {scenario.map(scenario => (
-                  <SelectItem key={scenario} value={scenario}>
-                    {scenario}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="기후 지표" />
-              </SelectTrigger>
-              <SelectContent>
-                {climate.map(climate => (
-                  <SelectItem key={climate} value={climate}>
-                    {climate}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="자료 포맷" />
-              </SelectTrigger>
-              <SelectContent>
-                {format.map(format => (
-                  <SelectItem key={format} value={format}>
-                    {format}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CustomSelect
+              placeholder="SSP 시나리오"
+              options={scenario}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
+            <CustomSelect
+              placeholder="기후 지표"
+              options={climate}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
+            <CustomSelect
+              placeholder="자료 포맷"
+              options={format}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
             <InputBox placeholder="단위 피해 단가 (예: ₩/일 또는 ₩/mm)" />
           </div>
         </div>

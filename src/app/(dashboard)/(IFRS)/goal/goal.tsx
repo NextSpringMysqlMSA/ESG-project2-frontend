@@ -1,5 +1,8 @@
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
+import KPIGoal from './kpiGoal'
+import NetZero from './netZero'
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -43,8 +46,12 @@ export default function Goal() {
             <TabsTrigger value="netZero">넷제로 목표 시뮬레이션</TabsTrigger>
             <TabsTrigger value="kpiGoal">KPI 목표 설정</TabsTrigger>
           </TabsList>
-          <TabsContent value="netZero"></TabsContent>
-          <TabsContent value="kpiGoal"></TabsContent>
+          <TabsContent value="netZero">
+            <NetZero />
+          </TabsContent>
+          <TabsContent value="kpiGoal">
+            <KPIGoal />
+          </TabsContent>
         </Tabs>
       </div>
     </div>

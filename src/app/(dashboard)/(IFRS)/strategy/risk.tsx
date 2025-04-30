@@ -10,6 +10,7 @@ import {
 import {useState} from 'react'
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
+import CustomSelect from '@/components/customSelect'
 
 export default function Risk() {
   const [selectedRiskType, setSelectedRiskType] = useState<
@@ -31,72 +32,37 @@ export default function Risk() {
       <span className="flex flex-row font-bold">리스크 식별 및 대응</span>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-[50%] pr-2 space-y-4">
-          <Select onValueChange={value => setSelectedRiskType(value)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="리스크 종류" />
-            </SelectTrigger>
-            <SelectContent>
-              {riskType.map(riskType => (
-                <SelectItem key={riskType} value={riskType}>
-                  {riskType}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CustomSelect
+            placeholder="리스크 종류"
+            options={riskType}
+            onValueChange={value => setSelectedRiskType(value)}
+          />
           <InputBox placeholder="리스크 요인 (예: 산불, 산사태, 폭염, 전기요금 상승 등)" />
-          <Select>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="영향도" />
-            </SelectTrigger>
-            <SelectContent>
-              {impact.map(impact => (
-                <SelectItem key={impact} value={impact}>
-                  {impact}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CustomSelect
+            placeholder="영향도"
+            options={impact}
+            onValueChange={value => console.log('선택된 값:', value)}
+          />
           <InputBox placeholder="사업 모헙 및 가치 사슬에 대한 영향" />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
           {selectedRiskType && (
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="리스크 유형" />
-              </SelectTrigger>
-              <SelectContent>
-                {riskCategory[selectedRiskType]?.map(riskCategory => (
-                  <SelectItem key={riskCategory} value={riskCategory}>
-                    {riskCategory}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CustomSelect
+              placeholder="리스크 유형"
+              options={riskCategory[selectedRiskType] ?? []}
+              onValueChange={value => console.log('선택된 값:', value)}
+            />
           )}
-          <Select>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="시점" />
-            </SelectTrigger>
-            <SelectContent>
-              {time.map(time => (
-                <SelectItem key={time} value={time}>
-                  {time}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="잠재적 재무 영향" />
-            </SelectTrigger>
-            <SelectContent>
-              {financialImpact.map(financialImpact => (
-                <SelectItem key={financialImpact} value={financialImpact}>
-                  {financialImpact}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CustomSelect
+            placeholder="시점"
+            options={time}
+            onValueChange={value => console.log('선택된 값:', value)}
+          />
+          <CustomSelect
+            placeholder="잠재적 재무 영향"
+            options={financialImpact}
+            onValueChange={value => console.log('선택된 값:', value)}
+          />
           <InputBox placeholder="내용 현황 및 계획" />
         </div>
       </div>
