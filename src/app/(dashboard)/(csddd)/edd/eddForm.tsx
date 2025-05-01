@@ -28,7 +28,9 @@ export default function EDDForm() {
           className={`flex flex-wrap items-center justify-between gap-6 py-2 ${
             isLMOQuestion ? '' : 'border-b'
           } md:flex-nowrap`}>
-          <p className="font-medium max-w-[65%] whitespace-nowrap">{item.text}</p>
+          <p className="font-medium max-w-[75%] break-words whitespace-pre-wrap">
+            {item.text}
+          </p>
           <RadioGroup orientation="horizontal" className="flex space-x-1">
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="yes" id={`${id}-yes`} />
@@ -55,7 +57,7 @@ export default function EDDForm() {
       },
       {
         type: 'question',
-        text: '환경경영을 담당하는 별도의 조직을 마련하고 있으며, 환경경영과 관련된 안건은 최고경영진에 게까지 보고되고 있습니까?'
+        text: '환경경영을 담당하는 별도의 조직을 마련하고 있으며, 환경경영과 관련된 안건은 최고경영진에게까지 보고되고 있습니까?'
       },
       {
         type: 'question',
@@ -236,7 +238,7 @@ export default function EDDForm() {
                 className="p-4 mb-6 space-y-4 bg-white border rounded-lg">
                 {section}
                 {step === 8 && (
-                  <p className="pt-2 text-xs text-right text-gray-500">
+                  <p className="pt-2 text-xs text-left text-gray-500">
                     * 생명공학에 의해 생산된 유전자변형생물체(LMOs, Living Modified
                     Organisms)
                   </p>
