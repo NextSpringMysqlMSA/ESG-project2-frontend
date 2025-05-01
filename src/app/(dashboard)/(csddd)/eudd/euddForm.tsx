@@ -31,8 +31,8 @@ export default function EDDForm() {
       return (
         <div
           key={id}
-          className="flex flex-wrap items-center justify-between gap-6 py-2 border-b md:flex-nowrap">
-          <p className="font-medium max-w-[65%] whitespace-nowrap">{item.text}</p>
+          className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b">
+          <p className="font-medium md:max-w-[80%]">{item.text}</p>
           <RadioGroup orientation="horizontal" className="flex space-x-1">
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="yes" id={`${id}-yes`} />

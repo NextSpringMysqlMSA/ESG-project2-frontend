@@ -10,14 +10,16 @@ import Link from 'next/link'
 
 export default function Sidebar() {
   const [openParent, setOpenParent] = useState(false)
-  const [openChild, setOpenChild] = useState(false)
+  const [openESGChild, setOpenESGChild] = useState(false)
+  const [openSupplyChild, setOpenSupplyChild] = useState(false)
   const [hovered, setHovered] = useState(false)
 
   const handleMouseEnter = () => setHovered(true)
   const handleMouseLeave = () => {
     setHovered(false)
     setOpenParent(false)
-    setOpenChild(false)
+    setOpenESGChild(false)
+    setOpenSupplyChild(false)
   }
 
   return (
@@ -53,14 +55,14 @@ export default function Sidebar() {
                 : 'max-h-0 opacity-0 -translate-y-2'
             }`}>
             <button
-              onClick={() => setOpenChild(!openChild)}
+              onClick={() => setOpenESGChild(!openESGChild)}
               className="flex flex-row items-center justify-between w-full p-2 rounded group text-primary hover:bg-customG hover:text-white">
               IFRS S2
-              <Arrow open={openChild} />
+              <Arrow open={openESGChild} />
             </button>
             <div
-              className={`flex flex-col ml-4 overflow-hidden transition-all duration-300 gap-y-2 w-full items-start ${
-                openChild
+              className={`flex flex-col ml-7 overflow-hidden transition-all duration-300 gap-y-2 w-full items-start ${
+                openESGChild
                   ? 'max-h-40 opacity-100 translate-y-0'
                   : 'max-h-0 opacity-0 -translate-y-2'
               }`}>
@@ -87,20 +89,20 @@ export default function Sidebar() {
             </a>
           </div>
         </div>
-        <div className="w-full mt-2">
+        <div className="w-full">
           <button
-            onClick={() => setOpenChild(!openChild)}
+            onClick={() => setOpenSupplyChild(!openSupplyChild)}
             className="flex flex-row items-center justify-between w-full p-2 px-4 text-left rounded group text-primary hover:bg-customG hover:text-white">
             <div className="flex flex-row items-center w-full gap-4">
               <Email />
               <span className="whitespace-nowrap">공급망 실사</span>
             </div>
-            <Arrow open={openChild} />
+            <Arrow open={openSupplyChild} />
           </button>
 
           <div
-            className={`flex flex-col ml-4 overflow-hidden transition-all duration-300 gap-y-2 w-full items-start ${
-              openChild
+            className={`flex flex-col ml-7 overflow-hidden transition-all duration-300 gap-y-2 w-full items-start ${
+              openSupplyChild
                 ? 'max-h-40 opacity-100 translate-y-0'
                 : 'max-h-0 opacity-0 -translate-y-2'
             }`}>
