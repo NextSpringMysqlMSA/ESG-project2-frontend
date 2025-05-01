@@ -1,5 +1,5 @@
-import DashButton from '@/components/dashButton'
-import InputBox from '@/components/inputBox'
+import DashButton from '@/components/tools/dashButton'
+import InputBox from '@/components/tools/inputBox'
 
 export default function KPI() {
   return (

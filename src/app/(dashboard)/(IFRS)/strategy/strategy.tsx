@@ -67,8 +67,8 @@ export default function Strategy() {
       <div className="flex flex-row items-center justify-between w-full h-12 px-4 py-2 bg-white border border-b-2">
         <span className="text-xl font-bold">전략</span>
       </div>
-      <div className="flex flex-col w-full h-full p-4 bg-white border">
-        <Accordion type="single" collapsible>
+      <div className="flex flex-col w-full h-full px-4 pb-2 bg-white border rounded">
+        <Accordion type="multiple">
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-base">
               SSP 시나리오 분석 결과
@@ -81,10 +81,7 @@ export default function Strategy() {
               />
             </AccordionContent>
           </AccordionItem>
-        </Accordion>
-
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
+          <AccordionItem value="item-2">
             <AccordionTrigger className="text-base">
               물리/전환 리스크 및 기회요인
             </AccordionTrigger>

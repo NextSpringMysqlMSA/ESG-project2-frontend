@@ -3,7 +3,7 @@
 import {useState} from 'react'
 import type {JSX} from 'react'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
-import DashButton from '@/components/dashButton'
+import DashButton from '@/components/tools/dashButton'
 
 export default function EDDForm() {
   const [step, setStep] = useState(1)
@@ -11,7 +11,7 @@ export default function EDDForm() {
   const next = () => setStep(prev => Math.min(prev + 1, 7))
   const prev = () => setStep(prev => Math.max(prev - 1, 1))
 
-  const renderItem = (item: {type: string; text: string}, id: string) => {
+  const renderItem = (item: {type: string; text: string}, id: string): JSX.Element => {
     if (item.type === 'title') {
       return (
         <h2 key={id} className="text-base font-semibold text-gray-600">
@@ -31,8 +31,8 @@ export default function EDDForm() {
       return (
         <div
           key={id}
-          className="flex flex-wrap items-center justify-between gap-6 py-2 border-b md:flex-nowrap">
-          <p className="font-medium max-w-[65%] whitespace-nowrap">{item.text}</p>
+          className="flex flex-col justify-between gap-4 py-2 border-b md:flex-row md:items-center">
+          <p className="font-medium md:max-w-[80%]">{item.text}</p>
           <RadioGroup orientation="horizontal" className="flex space-x-1">
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="yes" id={`${id}-yes`} />
@@ -47,7 +47,7 @@ export default function EDDForm() {
       )
     }
 
-    return null
+    return <></>
   }
 
   const questions: Record<
@@ -312,7 +312,7 @@ export default function EDDForm() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       <div className="w-full mx-auto max-w-7xl">
         <h1 className="text-lg font-bold text-center">
           환경 실사 지침 요구사항 이행 자가진단
@@ -375,7 +375,7 @@ export default function EDDForm() {
             이전
           </DashButton>
         ) : (
-          <div className="w-24" />
+          <></>
         )}
         {step < 7 ? (
           <DashButton onClick={next} width="w-24">

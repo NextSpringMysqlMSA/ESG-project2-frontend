@@ -12,12 +12,22 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hover-card'
 import {useProfileStore} from '@/stores/profileStore'
 import Arrow from '../svg/arrow'
+import {useAuthStore} from '@/stores/authStore'
+import {useRouter} from 'next/navigation'
 
 const defaultProfile = 'https://github.com/shadcn.png'
 
 export default function HomeNavbar() {
   const {profile, fetchProfile} = useProfileStore()
+  const {logout} = useAuthStore()
   const [open, setOpen] = useState(false)
+  const router = useRouter()
+
+  const handleLogout = () => {
+    logout() // 상태 초기화
+    localStorage.removeItem('auth-storage') // zustand persist key
+    router.push('/login') // 로그인 페이지로 이동
+  }
 
   useEffect(() => {
     fetchProfile() // 함수 호출로 사용자 정보 불러오기
@@ -64,7 +74,7 @@ export default function HomeNavbar() {
                 <DropdownMenuItem className="hover:cursor-pointer">설정</DropdownMenuItem>
               </Link>
               <Link href="/login">
-                <DropdownMenuItem className="hover:cursor-pointer">
+                <DropdownMenuItem onClick={handleLogout} className="hover:cursor-pointer">
                   로그아웃
                 </DropdownMenuItem>
               </Link>

@@ -3,7 +3,7 @@
 import {useState} from 'react'
 import type {JSX} from 'react'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
-import DashButton from '@/components/dashButton'
+import DashButton from '@/components/tools/dashButton'
 
 export default function HRDDForm() {
   const [step, setStep] = useState(1)
@@ -11,7 +11,7 @@ export default function HRDDForm() {
   const next = () => setStep(prev => Math.min(prev + 1, 9))
   const prev = () => setStep(prev => Math.max(prev - 1, 1))
 
-  const renderItem = (item: {type: string; text: string}, id: string) => {
+  const renderItem = (item: {type: string; text: string}, id: string): JSX.Element => {
     if (item.type === 'title') {
       return (
         <h2 key={id} className="text-base font-semibold text-gray-600">
@@ -24,14 +24,14 @@ export default function HRDDForm() {
       return (
         <div
           key={id}
-          className="flex flex-wrap items-center justify-between gap-6 py-2 border-b md:flex-nowrap">
-          <p className="font-medium max-w-[65%] whitespace-nowrap">{item.text}</p>
-          <RadioGroup orientation="horizontal" className="flex space-x-1">
-            <div className="flex items-center space-x-2">
+          className="flex flex-wrap items-start justify-between gap-4 py-2 border-b md:flex-nowrap">
+          <p className="font-medium md:max-w-[75%]">{item.text}</p>
+          <RadioGroup orientation="horizontal" className="flex space-x-3 md:pt-1">
+            <div className="flex items-center space-x-1">
               <RadioGroupItem value="yes" id={`${id}-yes`} />
               <label htmlFor={`${id}-yes`}>예</label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <RadioGroupItem value="no" id={`${id}-no`} />
               <label htmlFor={`${id}-no`}>아니요</label>
             </div>
@@ -40,7 +40,7 @@ export default function HRDDForm() {
       )
     }
 
-    return null
+    return <></>
   }
 
   const questions: Record<string, {type: 'title' | 'question'; text: string}[]> = {
@@ -82,7 +82,7 @@ export default function HRDDForm() {
       {type: 'question', text: '전체 임직원을 대상으로 건강진단을 실시하고 있습니까?'},
       {
         type: 'question',
-        text: '안전사고 발생 시, 사고조사 및 재발 방지 대책을 수립하고 있습니까?'
+        text: '정기적으로 사업장의 위험성 평가*를 수행하고 있습니까?'
       },
       {
         type: 'question',
@@ -289,7 +289,7 @@ export default function HRDDForm() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       <div className="w-full mx-auto max-w-7xl">
         <h1 className="text-lg font-bold text-center">
           인권 실사 지침 요구사항 이행 자가진단
@@ -326,6 +326,37 @@ export default function HRDDForm() {
                 key={`section-final`}
                 className="p-4 mb-6 space-y-4 bg-white border rounded-lg">
                 {section}
+                {step === 1 && (
+                  <p className="pt-2 text-xs text-left text-gray-500">
+                    * 위험성평가: &lt;사전준비-유해·위험요인파악-위험성결정- 위험성
+                    감소대책 수립 및 실시 - 공유·기록&gt;의 순으로 수행되는 사업주가
+                    스스로 유해ᆞ위험요인을 파악하고 해당 유해ᆞ위험요인의 위험성 수준을
+                    결정하여, 위험성을 낮추기 위한 적절한 조치를 마련하고 실행하는 과정
+                  </p>
+                )}
+                {step === 3 && (
+                  <p className="pt-2 text-xs text-left text-gray-500">
+                    * 연소자: 15세 미만인 자(「초·중등교육법」에 따른 중학교에 재학 중인
+                    18세 미만인 자를 포함)
+                  </p>
+                )}
+                {step === 5 && (
+                  <>
+                    <p className="pt-2 text-xs text-left text-gray-500">
+                      * 필수 기재사항: 임금의 구성항목, 임금 지급방법, 소정근로 시간,
+                      주휴일과 공휴적용휴일, 연차 유급휴가, 취업장소와 종사업무
+                    </p>
+                    <p className="pt-2 text-xs text-left text-gray-500">
+                      * 연장근로에 대한 보상: 보상휴가 제공, 추가수당 제공 등
+                    </p>
+                  </>
+                )}
+                {step === 6 && (
+                  <p className="pt-2 text-xs text-left text-gray-500">
+                    * 결사의 자유와 단체교섭의 자유: 노동조합 설립 허용, 노동조합 부재 시
+                    독립적인 노동관련 문제를 토론할 수 있는 대안적인 조치 허용 등
+                  </p>
+                )}
               </div>
             )
           }
@@ -339,7 +370,7 @@ export default function HRDDForm() {
             이전
           </DashButton>
         ) : (
-          <div className="w-24" />
+          <></>
         )}
         {step < 9 ? (
           <DashButton onClick={next} width="w-24">
