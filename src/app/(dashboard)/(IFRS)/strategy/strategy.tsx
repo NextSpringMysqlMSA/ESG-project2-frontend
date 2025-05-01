@@ -1,9 +1,5 @@
-'use client'
-import {useState} from 'react'
 import Scenario from './scenario'
 import Risk from './risk'
-import Analysis from './analysis'
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import CollapsibleWindow from '@/components/collapsibleWindow'
 import {
   Accordion,
@@ -22,7 +17,6 @@ import {
 } from '@/components/ui/accordion'
 
 export default function Strategy() {
-  const [open, setOpen] = useState(false)
   const scenarioHeader = [
     '행정구역',
     '시나리오',
@@ -103,26 +97,6 @@ export default function Strategy() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        {/* <Tabs defaultValue="scenario" className="w-full">
-          <div className="flex flex-row justify-between w-full">
-            <TabsList>
-              <TabsTrigger value="scenario">시나리오 분석</TabsTrigger>
-              <TabsTrigger value="risk">물리/전환 리스크 및 기회요인</TabsTrigger>
-            </TabsList>
-            <TabsList>
-              <TabsTrigger value="analysis">분석 실행</TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="scenario">
-            <Scenario />
-          </TabsContent>
-          <TabsContent value="risk">
-            <Risk />
-          </TabsContent>
-          <TabsContent value="analysis">
-            <Analysis />
-          </TabsContent>
-        </Tabs> */}
       </div>
     </div>
   )

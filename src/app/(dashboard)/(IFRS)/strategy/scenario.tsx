@@ -1,3 +1,5 @@
+'use client'
+
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
 import CustomSelect from '@/components/customSelect'

@@ -27,7 +27,7 @@ export default function InputBox({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onChange={e => setValue(e.target.value)}
-        className={`peer block w-full appearance-none rounded-lg border border-input bg-transparent px-2.5 pb-2.5 pt-4 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-0 dark:text-white dark:focus:border-blue-500 ${className}`}
+        className={`peer block w-full h-9 appearance-none rounded-lg border border-input bg-transparent px-2.5 pb-2.5 pt-4 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-0 dark:text-white dark:focus:border-blue-500 ${className}`}
       />
       <label
         htmlFor={id}

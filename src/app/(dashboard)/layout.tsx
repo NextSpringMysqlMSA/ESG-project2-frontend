@@ -9,7 +9,7 @@ export default function Layout({
 }>) {
   return (
     <ProfileProvider>
-      <div className="flex flex-col w-full h-screen bg-[#F9FBFF]">
+      <div className="flex flex-col w-full h-full bg-[#F9FBFF]">
         <HomeNavbar />
         <div className="flex flex-row w-full h-full mt-16">
           <Sidebar />

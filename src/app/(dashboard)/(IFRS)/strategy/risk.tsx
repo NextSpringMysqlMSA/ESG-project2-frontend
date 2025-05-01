@@ -1,12 +1,5 @@
 'use client'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import {useState} from 'react'
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
