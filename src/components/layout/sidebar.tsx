@@ -24,7 +24,7 @@ export default function Sidebar() {
     <aside
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`flex flex-col items-start h-full overflow-hidden text-white transition-all duration-300 ease-in-out bg-white border-r group/sidebar ${
+      className={`fixed items-start h-full overflow-hidden text-white transition-all duration-300 ease-in-out bg-white border-r group/sidebar ${
         hovered ? 'w-60' : 'w-[65px]'
       }`}>
       <nav className="flex flex-col w-full space-y-2">

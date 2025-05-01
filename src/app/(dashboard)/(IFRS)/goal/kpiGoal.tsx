@@ -11,7 +11,6 @@ export default function KPIGoal() {
 
   return (
     <div className="flex flex-col w-full h-full mt-4 space-y-4">
-      <span className="flex flex-row font-bold">KPI 목표 설정</span>
       <div className="flex flex-col w-[50%] pr-2 space-y-4">
         <CustomSelect
           placeholder="지표"
@@ -21,9 +20,9 @@ export default function KPIGoal() {
       </div>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-[50%] pr-2 space-y-4">
-          <InputBox placeholder="단위" />
-          <InputBox placeholder="기준 연도" />
-          <InputBox placeholder="목표 수치" />
+          <InputBox label="단위" />
+          <InputBox label="기준 연도" />
+          <InputBox label="목표 수치" />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
           <CustomSelect
@@ -43,7 +42,6 @@ export default function KPIGoal() {
           />
         </div>
       </div>
-      <DashButton width="w-24">+ 목표 추가</DashButton>
       <div className="flex flex-row justify-center w-full">
         <DashButton width="w-24">저장</DashButton>
       </div>
