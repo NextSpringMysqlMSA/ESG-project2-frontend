@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from './ui/dialog'
+} from '../ui/dialog'
 
 type CollapsibleWindowProps = {
   headers: string[]
