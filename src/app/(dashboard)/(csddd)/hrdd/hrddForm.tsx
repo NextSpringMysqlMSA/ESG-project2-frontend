@@ -24,7 +24,7 @@ export default function HRDDForm() {
       return (
         <div
           key={id}
-          className="flex flex-wrap md:flex-nowrap items-start justify-between gap-4 py-2 border-b">
+          className="flex flex-wrap items-start justify-between gap-4 py-2 border-b md:flex-nowrap">
           <p className="font-medium md:max-w-[75%]">{item.text}</p>
           <RadioGroup orientation="horizontal" className="flex space-x-3 md:pt-1">
             <div className="flex items-center space-x-1">
@@ -289,7 +289,7 @@ export default function HRDDForm() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       <div className="w-full mx-auto max-w-7xl">
         <h1 className="text-lg font-bold text-center">
           인권 실사 지침 요구사항 이행 자가진단

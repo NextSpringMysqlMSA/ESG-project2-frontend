@@ -31,7 +31,7 @@ export default function EDDForm() {
       return (
         <div
           key={id}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b">
+          className="flex flex-col justify-between gap-4 py-2 border-b md:flex-row md:items-center">
           <p className="font-medium md:max-w-[80%]">{item.text}</p>
           <RadioGroup orientation="horizontal" className="flex space-x-1">
             <div className="flex items-center space-x-2">
@@ -312,7 +312,7 @@ export default function EDDForm() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       <div className="w-full mx-auto max-w-7xl">
         <h1 className="text-lg font-bold text-center">
           환경 실사 지침 요구사항 이행 자가진단

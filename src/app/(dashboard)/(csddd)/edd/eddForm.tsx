@@ -201,7 +201,7 @@ export default function EDDForm() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       <div className="w-full mx-auto max-w-7xl">
         <h1 className="text-lg font-bold text-center">
           환경 실사 지침 요구사항 이행 자가진단

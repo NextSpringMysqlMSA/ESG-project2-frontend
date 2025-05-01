@@ -21,7 +21,7 @@ export default function Goal() {
   const netZeroHeader = ['']
   const kpiGoalHeader = ['']
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       <div className="flex flex-row px-4 mb-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -43,11 +43,11 @@ export default function Goal() {
         <span className="text-xl font-bold">IFRS S2</span>
         <span className="text-gray-500">TCFD</span>
       </div>
-      <div className="flex flex-row items-center justify-between w-full h-12 px-4 py-2 bg-white border border-b-2">
+      <div className="flex flex-row items-center justify-between w-full h-12 px-4 py-2 bg-white border border-b-2 rounded">
         <span className="text-xl font-bold">목표 및 지표</span>
       </div>
-      <div className="flex flex-col w-full h-full p-4 bg-white border">
-        <Accordion type="single" collapsible>
+      <div className="flex flex-col w-full h-full px-4 pb-2 bg-white border rounded">
+        <Accordion type="multiple">
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-base">넷제로 분석 결과</AccordionTrigger>
             <AccordionContent>
@@ -58,10 +58,7 @@ export default function Goal() {
               />
             </AccordionContent>
           </AccordionItem>
-        </Accordion>
-
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
+          <AccordionItem value="item-2">
             <AccordionTrigger className="text-base">KPI 목표</AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
