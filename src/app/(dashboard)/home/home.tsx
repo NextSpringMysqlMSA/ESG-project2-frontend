@@ -1,9 +1,8 @@
 'use client'
-import { Pie } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js'
+import {Pie} from 'react-chartjs-2'
+import {Chart as ChartJS, ArcElement, Tooltip, Legend, Title} from 'chart.js'
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title)
-
 
 export default function Home() {
   const data = {
@@ -39,30 +38,31 @@ export default function Home() {
   }
 
   return (
-  <div className="flex flex-col justify-items-center w-full h-full bg-[#F9FBFF] p-8">
-    <div className="flex flex-row w-full h-full p-4 mb-4 bg-white">
-      <div className='grid grid-rows-2 w-full h-full gap-2'>
-        <div className="grid grid-cols-2 w-full gap-1">
-            <div className='border-2 min-w-full min-h-full px-4'>
-            <Pie data={data} options={options} />
+    <div className="flex flex-col w-full h-full p-8 justify-items-center">
+      <div className="flex flex-row w-full h-full p-4 mb-4 bg-white">
+        <div className="flex flex-col w-full h-full space-y-2">
+          <div className="grid w-full grid-cols-2 gap-1">
+            <div className="w-full h-full px-4 border-2">
+              <Pie data={data} options={options} />
             </div>
-            <div className='border-2 min-w-full min-h-full px-4'>
-            <Pie data={data} options={options}/>
+            <div className="w-full h-full px-4 border-2">
+              <Pie data={data} options={options} />
             </div>
-        </div>  
-        <div className="grid grid-cols-3 w-full gap-1">
-            <div className='border-2 min-w-full min-h-full px-4'>
-            <Pie data={data} options={options} />
+          </div>
+
+          <div className="grid w-full h-full grid-cols-3 gap-1">
+            <div className="w-full h-full px-4 border-2">
+              <Pie data={data} options={options} />
             </div>
-            <div className='border-2 min-w-full min-h-full px-4'>
-            <Pie data={data} options={options} />
+            <div className="w-full h-full px-4 border-2">
+              <Pie data={data} options={options} />
             </div>
-            <div className='border-2 min-w-full min-h-full px-4'>
-            <Pie data={data} options={options} />
+            <div className="w-full h-full px-4 border-2">
+              <Pie data={data} options={options} />
             </div>
-        </div>  
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
 }

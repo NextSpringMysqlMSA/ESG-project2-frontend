@@ -31,20 +31,21 @@ export default function HomeNavbar() {
           <span className="text-3xl font-bold text-customG">NSMM</span>
         </Link>
 
-      <div className="flex flex-row items-center gap-4">
-        <HoverCard>
-          <HoverCardTrigger asChild>
-            <Avatar className="cursor-pointer">
-              <AvatarImage src={defaultProfile} />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-64">
-            <div className="flex items-center gap-4">
-              <Avatar className="w-16 h-16">
+        <div className="flex flex-row items-center gap-4">
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <Avatar className="cursor-pointer">
                 <AvatarImage src={defaultProfile} />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-64">
+              <div className="flex items-center gap-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={defaultProfile} />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              </div>
               <div className="flex flex-col">
                 <p className="text-lg font-bold">{profile?.name ?? '이름 없음'}</p>
                 <p className="text-sm text-gray-500">{profile?.position}</p>
@@ -53,22 +54,23 @@ export default function HomeNavbar() {
               </div>
             </HoverCardContent>
           </HoverCard>
-        <DropdownMenu open={open} onOpenChange={setOpen}>
-          <DropdownMenuTrigger className="flex flex-row items-center justify-between w-48 h-10 px-2 border text-primary">
-            {profile ? `${profile.position} ${profile.name}` : '로그인 사용자'}님
-            <Arrow open={open} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <Link href="/account">
-              <DropdownMenuItem className="hover:cursor-pointer">설정</DropdownMenuItem>
-            </Link>
-            <Link href="/login">
-              <DropdownMenuItem className="hover:cursor-pointer">
-                로그아웃
-              </DropdownMenuItem>
-            </Link>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <DropdownMenu open={open} onOpenChange={setOpen}>
+            <DropdownMenuTrigger className="flex flex-row items-center justify-between w-48 h-10 px-2 border text-primary">
+              {profile ? `${profile.position} ${profile.name}` : '로그인 사용자'}님
+              <Arrow open={open} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <Link href="/account">
+                <DropdownMenuItem className="hover:cursor-pointer">설정</DropdownMenuItem>
+              </Link>
+              <Link href="/login">
+                <DropdownMenuItem className="hover:cursor-pointer">
+                  로그아웃
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   )
