@@ -11,7 +11,7 @@ export default function HRDDForm() {
   const next = () => setStep(prev => Math.min(prev + 1, 9))
   const prev = () => setStep(prev => Math.max(prev - 1, 1))
 
-  const renderItem = (item: {type: string; text: string}, id: string) => {
+  const renderItem = (item: {type: string; text: string}, id: string): JSX.Element => {
     if (item.type === 'title') {
       return (
         <h2 key={id} className="text-base font-semibold text-gray-600">
@@ -40,7 +40,7 @@ export default function HRDDForm() {
       )
     }
 
-    return null
+    return <></>
   }
 
   const questions: Record<string, {type: 'title' | 'question'; text: string}[]> = {
