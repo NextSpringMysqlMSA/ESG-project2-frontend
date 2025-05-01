@@ -24,11 +24,12 @@ export default function HomeNavbar() {
   }, [])
 
   return (
-    <div className="z-40 flex flex-row items-center justify-between w-full p-2 bg-white shadow-sm">
-      <Link href="/" className="flex flex-row items-center">
-        <img src="/dash.svg" alt="logo" className="w-12 mr-4" />
-        <span className="text-3xl font-bold text-customG">NSMM</span>
-      </Link>
+    <div className="fixed w-full">
+      <div className="z-40 flex flex-row items-center justify-between w-full p-2 bg-white shadow-sm">
+        <Link href="/" className="flex flex-row items-center">
+          <img src="/dash.svg" alt="logo" className="w-12 mr-4" />
+          <span className="text-3xl font-bold text-customG">NSMM</span>
+        </Link>
 
       <div className="flex flex-row items-center gap-4">
         <HoverCard>
@@ -50,10 +51,8 @@ export default function HomeNavbar() {
                 <p className="text-sm text-gray-500">{profile?.email}</p>
                 <p className="text-sm text-gray-500">{profile?.phoneNumber}</p>
               </div>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
-
+            </HoverCardContent>
+          </HoverCard>
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger className="flex flex-row items-center justify-between w-48 h-10 px-2 border text-primary">
             {profile ? `${profile.position} ${profile.name}` : '로그인 사용자'}님

@@ -1,3 +1,5 @@
+'use client'
+
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
 import CustomSelect from '@/components/customSelect'
@@ -49,7 +51,6 @@ export default function Scenario() {
 
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
-      <span className="flex flex-row font-bold">SSP 시나리오 분석</span>
       <div className="flex flex-col w-full space-y-4">
         <div className="flex flex-row w-full">
           <div className="flex flex-col w-[50%] pr-2 space-y-4">
@@ -58,7 +59,7 @@ export default function Scenario() {
               options={regions}
               onValueChange={value => console.log('선택된 값:', value)}
             />
-            <InputBox placeholder="경도 (예: 126.97)" />
+            <InputBox label="경도 (예: 126.97)" />
             <CustomSelect
               placeholder="온난화 수준"
               options={warming}
@@ -69,10 +70,10 @@ export default function Scenario() {
               options={industry}
               onValueChange={value => console.log('선택된 값:', value)}
             />
-            <InputBox placeholder="분석 기준 연도 (예: 2030)" />
+            <InputBox label="분석 기준 연도 (예: 2030)" />
           </div>
           <div className="flex flex-col w-[50%] ml-2 space-y-4">
-            <InputBox placeholder="위도 (예: 37.56)" />
+            <InputBox label="위도 (예: 37.56)" />
             <CustomSelect
               placeholder="SSP 시나리오"
               options={scenario}
@@ -88,10 +89,10 @@ export default function Scenario() {
               options={format}
               onValueChange={value => console.log('선택된 값:', value)}
             />
-            <InputBox placeholder="단위 피해 단가 (예: ₩/일 또는 ₩/mm)" />
+            <InputBox label="단위 피해 단가 (예: ₩/일 또는 ₩/mm)" />
           </div>
         </div>
-        <InputBox placeholder="대응 전략, 가정, 참고사항 입력 (예: RE100 전략, 저지대 배수로 개선 등)" />
+        <InputBox label="대응 전략, 가정, 참고사항 입력 (예: RE100 전략, 저지대 배수로 개선 등)" />
       </div>
       <div className="flex flex-row justify-center w-full">
         <DashButton width="w-24">저장</DashButton>
