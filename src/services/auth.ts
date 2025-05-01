@@ -21,3 +21,21 @@ export const registerApi = async (data: {
 }) => {
   return await api.post('/auth/register', data)
 }
+
+export const changePasswordApi = async (data: {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}) => {
+  return await api.put('/auth/password', data)
+}
+
+export const uploadProfileImageApi = async (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await api.put('/auth/profile-image', formData, {
+    headers: {'Content-Type': 'multipart/form-data'}
+  })
+  return response.data // image URL
+}
