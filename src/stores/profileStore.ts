@@ -16,7 +16,6 @@ interface ProfileStore {
   fetchProfile: () => Promise<void> // 사용자 정보 가져오기 (API 호출)
   clearProfile: () => void // 로그아웃 시 상태 초기화
 }
-
 // Zustand 상태 저장소 생성
 export const useProfileStore = create<ProfileStore>(set => ({
   profile: null,
