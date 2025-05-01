@@ -1,12 +1,5 @@
 'use client'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import {useState} from 'react'
 import DashButton from '@/components/dashButton'
 import InputBox from '@/components/inputBox'
@@ -29,7 +22,6 @@ export default function Risk() {
 
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
-      <span className="flex flex-row font-bold">리스크 식별 및 대응</span>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-[50%] pr-2 space-y-4">
           <CustomSelect
@@ -37,13 +29,13 @@ export default function Risk() {
             options={riskType}
             onValueChange={value => setSelectedRiskType(value)}
           />
-          <InputBox placeholder="리스크 요인 (예: 산불, 산사태, 폭염, 전기요금 상승 등)" />
+          <InputBox label="리스크 요인 (예: 산불, 폭염 등)" />
           <CustomSelect
             placeholder="영향도"
             options={impact}
             onValueChange={value => console.log('선택된 값:', value)}
           />
-          <InputBox placeholder="사업 모헙 및 가치 사슬에 대한 영향" />
+          <InputBox label="사업 모헙 및 가치 사슬에 대한 영향" />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
           {selectedRiskType && (
@@ -63,10 +55,9 @@ export default function Risk() {
             options={financialImpact}
             onValueChange={value => console.log('선택된 값:', value)}
           />
-          <InputBox placeholder="내용 현황 및 계획" />
+          <InputBox label="내용 현황 및 계획" />
         </div>
       </div>
-      <DashButton width="w-36">+ 리스크 항목 추가</DashButton>
       <div className="flex flex-row justify-center w-full">
         <DashButton width="w-24">저장</DashButton>
       </div>
