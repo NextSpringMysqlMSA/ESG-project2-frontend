@@ -1,8 +1,5 @@
-import DashButton from '@/components/dashButton'
-import InputBox from '@/components/inputBox'
 import KPIGoal from './kpiGoal'
 import NetZero from './netZero'
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,9 +8,18 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
+import CollapsibleWindow from '@/components/collapsibleWindow'
 
 export default function Goal() {
+  const netZeroHeader = ['']
+  const kpiGoalHeader = ['']
   return (
     <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
       <div className="flex flex-row px-4 mb-4">
@@ -41,18 +47,31 @@ export default function Goal() {
         <span className="text-xl font-bold">목표 및 지표</span>
       </div>
       <div className="flex flex-col w-full h-full p-4 bg-white border">
-        <Tabs defaultValue="netZero" className="w-full">
-          <TabsList>
-            <TabsTrigger value="netZero">넷제로 목표 시뮬레이션</TabsTrigger>
-            <TabsTrigger value="kpiGoal">KPI 목표 설정</TabsTrigger>
-          </TabsList>
-          <TabsContent value="netZero">
-            <NetZero />
-          </TabsContent>
-          <TabsContent value="kpiGoal">
-            <KPIGoal />
-          </TabsContent>
-        </Tabs>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-base">넷제로 분석 결과</AccordionTrigger>
+            <AccordionContent>
+              <CollapsibleWindow
+                headers={netZeroHeader}
+                formContent={<NetZero />}
+                dialogTitle="넷제로 목표 설정"
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-base">KPI 목표</AccordionTrigger>
+            <AccordionContent>
+              <CollapsibleWindow
+                headers={kpiGoalHeader}
+                formContent={<KPIGoal />}
+                dialogTitle="KPI 목표 설정"
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   )

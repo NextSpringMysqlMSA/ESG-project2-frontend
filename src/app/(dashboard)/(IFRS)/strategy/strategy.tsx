@@ -1,9 +1,5 @@
-'use client'
-import {useState} from 'react'
 import Scenario from './scenario'
 import Risk from './risk'
-import Analysis from './analysis'
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,10 +8,35 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
+import CollapsibleWindow from '@/components/collapsibleWindow'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion'
 
 export default function Strategy() {
-  const [open, setOpen] = useState(false)
+  const scenarioHeader = [
+    '행정구역',
+    '시나리오',
+    'GWL',
+    '위도/경도',
+    '지표',
+    '변화량',
+    '단가',
+    '예상 피해액',
+    '전략권고'
+  ]
+  const riskHeader = [
+    '리스크 종류',
+    '리스크 요인',
+    '영향도',
+    '사업 모헙 및 가치 사슬에 대한 영향',
+    '시점',
+    '잠재적 재무 영향',
+    '내용 현황 및 계획'
+  ]
 
   return (
     <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
@@ -47,26 +68,35 @@ export default function Strategy() {
         <span className="text-xl font-bold">전략</span>
       </div>
       <div className="flex flex-col w-full h-full p-4 bg-white border">
-        <Tabs defaultValue="scenario" className="w-full">
-          <div className="flex flex-row justify-between w-full">
-            <TabsList>
-              <TabsTrigger value="scenario">시나리오 분석</TabsTrigger>
-              <TabsTrigger value="risk">물리/전환 리스크 및 기회요인</TabsTrigger>
-            </TabsList>
-            <TabsList>
-              <TabsTrigger value="analysis">분석 실행</TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="scenario">
-            <Scenario />
-          </TabsContent>
-          <TabsContent value="risk">
-            <Risk />
-          </TabsContent>
-          <TabsContent value="analysis">
-            <Analysis />
-          </TabsContent>
-        </Tabs>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-base">
+              SSP 시나리오 분석 결과
+            </AccordionTrigger>
+            <AccordionContent>
+              <CollapsibleWindow
+                headers={scenarioHeader}
+                formContent={<Scenario />}
+                dialogTitle="SSP 시나리오 분석"
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-base">
+              물리/전환 리스크 및 기회요인
+            </AccordionTrigger>
+            <AccordionContent>
+              <CollapsibleWindow
+                headers={riskHeader}
+                formContent={<Risk />}
+                dialogTitle="리스크 식별 및 대응"
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   )

@@ -1,14 +1,23 @@
-type AuthInputBoxProps = {
-  placeholder?: string
-  type?: React.InputHTMLAttributes<HTMLInputElement>['type']
+interface AuthInputBoxProps {
+  type: string
+  placeholder: string
+  value: string
+  onChange: (value: string) => void
 }
 
-export default function AuthInputBox({placeholder, type = 'text'}: AuthInputBoxProps) {
+export default function AuthInputBox({
+  type,
+  placeholder,
+  value,
+  onChange
+}: AuthInputBoxProps) {
   return (
     <input
       type={type}
       placeholder={placeholder}
-      className="w-full p-3 text-base border rounded-lg focus:outline-none focus:ring-1 focus:ring-ring"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customG"
     />
   )
 }
