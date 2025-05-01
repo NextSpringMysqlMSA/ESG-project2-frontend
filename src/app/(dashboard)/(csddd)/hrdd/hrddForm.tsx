@@ -370,7 +370,7 @@ export default function HRDDForm() {
             이전
           </DashButton>
         ) : (
-          <div className="w-24" />
+          <></>
         )}
         {step < 9 ? (
           <DashButton onClick={next} width="w-24">

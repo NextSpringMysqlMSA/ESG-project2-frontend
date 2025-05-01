@@ -37,7 +37,7 @@ export default function Governance() {
   const educationHeader = ['교육 일자', '참석자 수', '교육 제목', '교육 주요 내용']
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
+    <div className="flex flex-col w-full h-full p-8">
       {/* Breadcrumb 부분 ======================================================================================*/}
       <div className="flex flex-row px-4 mb-4">
         <Breadcrumb>

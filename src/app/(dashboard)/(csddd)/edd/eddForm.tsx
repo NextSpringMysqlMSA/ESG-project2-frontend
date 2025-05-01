@@ -257,7 +257,7 @@ export default function EDDForm() {
             이전
           </DashButton>
         ) : (
-          <div className="w-24" />
+          <></>
         )}
         {step < 8 ? (
           <DashButton onClick={next} width="w-24">
