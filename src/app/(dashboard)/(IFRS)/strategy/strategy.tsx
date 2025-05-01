@@ -8,7 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import CollapsibleWindow from '@/components/collapsibleWindow'
+import CollapsibleWindow from '@/components/tools/collapsibleWindow'
 import {
   Accordion,
   AccordionContent,
