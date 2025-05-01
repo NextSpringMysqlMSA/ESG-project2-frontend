@@ -3,7 +3,7 @@
 import {useProfile} from '@/contexts/ProfileContext'
 import {useRef} from 'react'
 import {useRouter} from 'next/navigation'
-import DashButton from '@/components/dashButton'
+import DashButton from '@/components/tools/dashButton'
 
 export default function Account() {
   const {profileImage, setProfileImage} = useProfile()

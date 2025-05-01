@@ -2,7 +2,7 @@
 
 import {useState} from 'react'
 import Link from 'next/link'
-import AuthInputBox from '@/components/authInputBox'
+import AuthInputBox from '@/components/tools/authInputBox'
 import {registerApi} from '@/services/auth'
 import {showError, showSuccess} from '@/util/toast'
 

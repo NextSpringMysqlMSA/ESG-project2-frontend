@@ -1,8 +1,8 @@
 'use client'
 
-import DashButton from '@/components/dashButton'
-import InputBox from '@/components/inputBox'
-import CustomSelect from '@/components/customSelect'
+import DashButton from '@/components/tools/dashButton'
+import InputBox from '@/components/tools/inputBox'
+import CustomSelect from '@/components/tools/customSelect'
 
 export default function Scenario() {
   const regions = [
