@@ -1,7 +1,7 @@
 'use client'
-import InputBox from '@/components/inputBox'
-import CustomSelect from '@/components/customSelect'
-import DashButton from '@/components/dashButton'
+import InputBox from '@/components/tools/inputBox'
+import CustomSelect from '@/components/tools/customSelect'
+import DashButton from '@/components/tools/dashButton'
 
 export default function KPIGoal() {
   const characteristic = []

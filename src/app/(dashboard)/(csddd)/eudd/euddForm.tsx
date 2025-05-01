@@ -3,7 +3,7 @@
 import {useState} from 'react'
 import type {JSX} from 'react'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
-import DashButton from '@/components/dashButton'
+import DashButton from '@/components/tools/dashButton'
 
 export default function EDDForm() {
   const [step, setStep] = useState(1)

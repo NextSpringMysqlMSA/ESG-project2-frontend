@@ -2,8 +2,8 @@
 
 import React from 'react'
 import {Calendar} from '@/components/ui/calendar'
-import DashButton from '@/components/dashButton'
-import InputBox from '@/components/inputBox'
+import DashButton from '@/components/tools/dashButton'
+import InputBox from '@/components/tools/inputBox'
 
 export default function Meeting() {
   const [date, setDate] = React.useState<Date | undefined>(new Date())

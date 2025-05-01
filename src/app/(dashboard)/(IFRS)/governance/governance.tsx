@@ -13,7 +13,7 @@ import {
   BreadcrumbSeparator
 } from '../../../../components/ui/breadcrumb'
 import {useState} from 'react'
-import CollapsibleWindow from '@/components/collapsibleWindow'
+import CollapsibleWindow from '@/components/tools/collapsibleWindow'
 import {
   Accordion,
   AccordionContent,

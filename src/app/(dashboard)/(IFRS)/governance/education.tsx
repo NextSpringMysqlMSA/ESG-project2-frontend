@@ -1,6 +1,6 @@
 import {DatePickerForm} from '@/components/layout/datePicker'
-import InputBox from '@/components/inputBox'
-import DashButton from '@/components/dashButton'
+import InputBox from '@/components/tools/inputBox'
+import DashButton from '@/components/tools/dashButton'
 
 export default function Education() {
   return (
