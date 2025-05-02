@@ -1,7 +1,7 @@
 // src/stores/useCommitteeStore.ts
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
-import type {CommitteeState as CommitteeFields} from '../../../types/IFRS/governance/commitee'
+import type {committeeState as CommitteeFields} from '@/types/IFRS/governance'
 
 interface CommitteeStore extends CommitteeFields {
   setField: (key: keyof CommitteeFields, value: string) => void
