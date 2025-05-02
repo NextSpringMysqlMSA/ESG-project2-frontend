@@ -8,6 +8,7 @@ interface AuthState {
   logout: () => void // 로그아웃 시 토큰 제거
   getAuthorizationHeader: () => string | null // 요청 헤더에 사용할 Authorization 문자열 반환
 }
+//------------------------------------------------------------------------------
 
 // Zustand 상태 저장소 생성 및 로컬 스토리지에 영속(persist)
 export const useAuthStore = create(
@@ -32,3 +33,4 @@ export const useAuthStore = create(
     }
   )
 )
+//------------------------------------------------------------------------------
