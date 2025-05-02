@@ -11,7 +11,7 @@ import {FaRegUserCircle} from 'react-icons/fa'
 export default function Account() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const {profile, fetchProfile} = useProfileStore()
+  const {profile, fetchProfile, refreshProfileImage} = useProfileStore()
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -19,16 +19,8 @@ export default function Account() {
     confirmPassword: ''
   })
 
-  const [profileImage, setProfileImage] = useState<string>('')
-
   useEffect(() => {
-    fetchProfile().then(() => {
-      if (profile?.profileImageUrl) {
-        setProfileImage(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`
-        )
-      }
-    })
+    fetchProfile()
   }, [])
 
   const handleEditClick = () => {
@@ -39,9 +31,8 @@ export default function Account() {
     const file = e.target.files?.[0]
     if (file) {
       try {
-        const uploadedImageUrl = await uploadProfileImageApi(file)
-        setProfileImage(uploadedImageUrl)
-        fetchProfile() // 이미지 변경 후 프로필 재조회
+        await uploadProfileImageApi(file)
+        await refreshProfileImage()
         showSuccess('프로필 이미지가 변경되었습니다.')
       } catch (e) {
         showError('이미지 업로드 실패')
@@ -83,11 +74,12 @@ export default function Account() {
       </div>
 
       <div className="flex flex-col items-start justify-center w-full max-w-5xl gap-10 mx-auto md:flex-row">
+        {/* 프로필 사진 */}
         <div className="flex flex-col items-center gap-6">
           <div className="flex items-center justify-center w-32 h-32 overflow-hidden transition-transform duration-300 bg-white border-4 rounded-full shadow-md border-customG hover:scale-105 hover:ring-4 hover:ring-customG/30 text-customG">
-            {profileImage ? (
+            {profile?.profileImageUrl ? (
               <img
-                src={profileImage}
+                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
                 alt="Profile"
                 className="object-cover w-full h-full"
               />
@@ -102,11 +94,12 @@ export default function Account() {
             accept="image/*"
             onChange={handleFileChange}
           />
-          <DashButton onClick={handleEditClick} width="w-24">
+          <DashButton onClick={handleEditClick} width="w-25">
             프로필 변경
           </DashButton>
         </div>
 
+        {/* 프로필 정보 */}
         <div className="flex flex-col w-full p-8 bg-white shadow-lg rounded-2xl">
           <div className="flex flex-col divide-y divide-gray-200">
             {[
@@ -123,6 +116,7 @@ export default function Account() {
             ))}
           </div>
 
+          {/* 비밀번호 변경 */}
           <div className="flex flex-col mt-6 divide-y divide-gray-200">
             {[
               {label: '현재 비밀번호', name: 'currentPassword'},
