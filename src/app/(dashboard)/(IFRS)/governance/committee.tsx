@@ -43,7 +43,7 @@ export default function Committee() {
       // API 호출
       await committeeApi(committeeData)
       showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
-      router.push('/committee-list') // 성공 후 이동할 페이지
+      router.push('/governance') // 성공 후 이동할 페이지
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'

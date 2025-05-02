@@ -4,6 +4,14 @@ import {useState} from 'react'
 import type {JSX} from 'react'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import DashButton from '@/components/tools/dashButton'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb'
 
 export default function EDDForm() {
   const [step, setStep] = useState(1)
@@ -202,6 +210,19 @@ export default function EDDForm() {
 
   return (
     <div className="flex flex-col w-full h-full p-8">
+      <div className="flex flex-row px-2 mb-4 text-black text-base font-medium">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/csddd">공급망 실사</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>환경 실사</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       <div className="w-full mx-auto max-w-7xl">
         <h1 className="text-lg font-bold text-center">
           환경 실사 지침 요구사항 이행 자가진단

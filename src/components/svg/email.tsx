@@ -1,7 +1,7 @@
-export default function Email() {
+export default function Email({className = ''}: {className?: string}) {
   return (
     <svg
-      className="text-primary min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white"
+      className={`min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white ${className}`}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg">

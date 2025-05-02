@@ -1,7 +1,7 @@
-export default function Avatar() {
+export default function Avatar({className = ''}: {className?: string}) {
   return (
     <svg
-      className="text-primary min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white"
+      className={`min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white ${className}`}
       version="1.1"
       id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
