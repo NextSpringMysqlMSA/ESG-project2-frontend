@@ -127,7 +127,7 @@ export default function FinancialRiskForm() {
 
   return (
     <div className="flex flex-col w-full h-full px-8 py-6 space-y-2 bg-[#F9FBFF]">
-      <div className="flex flex-row px-2 mb-4 text-gray-700 text-sm">
+      <div className="flex flex-row px-2 mb-4 text-sm text-gray-700">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -166,15 +166,15 @@ export default function FinancialRiskForm() {
       </div>
 
       {selectedPartner ? (
-        <Card className="border rounded shadow bg-white">
+        <Card className="bg-white border rounded shadow">
           <CardContent className="p-4">
             <table className="w-full text-sm border-collapse table-fixed">
               <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="p-3 bg-gray-100 text-sm font-medium text-gray-700 border">
+                <tr className="text-left bg-gray-100">
+                  <th className="p-3 text-sm font-medium text-gray-700 bg-gray-100 border">
                     항목
                   </th>
-                  <th className="w-24 p-3 bg-gray-100 text-sm font-medium text-gray-700 border text-center whitespace-nowrap">
+                  <th className="w-24 p-3 text-sm font-medium text-center text-gray-700 bg-gray-100 border whitespace-nowrap">
                     해당 여부
                   </th>
                 </tr>
@@ -182,12 +182,12 @@ export default function FinancialRiskForm() {
               <tbody>
                 {questions.map((q, i) => (
                   <tr key={i} className="border-t">
-                    <td className="p-3 text-gray-800 border text-left align-top">{`${
+                    <td className="p-3 text-left text-gray-800 align-top border">{`${
                       i + 1
                     }. ${q}`}</td>
-                    <td className="w-24 p-3 text-center border align-middle">
+                    <td className="w-24 p-3 text-center align-middle border">
                       {partnerQuestionMap[selectedPartner]?.includes(i) ? (
-                        <Check className="mx-auto h-5 w-5 text-black-600" />
+                        <Check className="w-5 h-5 mx-auto text-black-600" />
                       ) : null}
                     </td>
                   </tr>
@@ -197,7 +197,7 @@ export default function FinancialRiskForm() {
           </CardContent>
         </Card>
       ) : (
-        <div className="flex items-center justify-center h-64 text-gray-500 text-base bg-white border rounded shadow">
+        <div className="flex items-center justify-center h-64 text-base text-gray-500 bg-white border rounded shadow">
           협력사를 선택해주세요.
         </div>
       )}
@@ -214,7 +214,7 @@ export default function FinancialRiskForm() {
               </DialogHeader>
               <iframe
                 src="https://www.sfvc.co.kr/files/data/2022%EB%85%84%EC%9E%AC%EB%AC%B4%EC%83%81%ED%83%9C%ED%91%9C.pdf"
-                className="w-full h-[90vh] rounded border"
+                className="w-full h-[80vh] rounded border"
                 allowFullScreen
               />
             </DialogContent>

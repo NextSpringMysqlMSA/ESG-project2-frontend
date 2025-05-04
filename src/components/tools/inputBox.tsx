@@ -1,35 +1,37 @@
 'use client'
 
-import {useState, useEffect} from 'react'
+import {useState} from 'react'
 
 type InputBoxProps = {
   label?: string
   className?: string
   id?: string
-  value: string // 부모에서 전달받는 value
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void // 부모에서 전달받는 onChange
+  value: string | number
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  type?: string
 }
 
 export default function InputBox({
   label = '',
   className = '',
   id = 'input-box',
-  value, // 부모로부터 value 받아옴
-  onChange // 부모로부터 onChange 받아옴
+  value,
+  onChange,
+  type = 'text'
 }: InputBoxProps) {
   const [isFocused, setIsFocused] = useState(false)
 
-  const shouldFloat = value.length > 0 || isFocused
+  const shouldFloat = value.toString().length > 0 || isFocused
 
   return (
     <div className="relative w-full">
       <input
-        type="text"
+        type={type}
         id={id}
-        value={value} // 전달받은 value 사용
+        value={value}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        onChange={onChange} // 전달받은 onChange 사용
+        onChange={onChange}
         className={`peer block w-full h-9 appearance-none rounded-lg border border-input bg-transparent px-2.5 pb-2.5 pt-4 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-0 dark:text-white dark:focus:border-blue-500 ${className}`}
       />
       <label

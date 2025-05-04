@@ -1,14 +1,14 @@
-'use client'
-
-import {useState} from 'react'
-import {useRouter} from 'next/navigation'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
 import {committeeApi} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 
-export default function Committee() {
+type MeetingProps = {
+  onClose: () => void
+}
+
+export default function Committee({onClose}: MeetingProps) {
   const {
     committeeName,
     memberName,
@@ -17,7 +17,6 @@ export default function Committee() {
     climateResponsibility,
     setField
   } = useCommitteeStore()
-  const router = useRouter()
 
   const handleSubmit = async () => {
     if (
@@ -43,7 +42,7 @@ export default function Committee() {
       // API 호출
       await committeeApi(committeeData)
       showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
-      router.push('/governance') // 성공 후 이동할 페이지
+      onClose()
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'

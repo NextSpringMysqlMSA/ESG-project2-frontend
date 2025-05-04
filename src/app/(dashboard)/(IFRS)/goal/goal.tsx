@@ -1,3 +1,5 @@
+'use client'
+
 import KPIGoal from './kpiGoal'
 import NetZero from './netZero'
 import {
@@ -14,7 +16,6 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import CollapsibleWindow from '@/components/tools/collapsibleWindow'
 
 export default function Goal() {
@@ -53,8 +54,8 @@ export default function Goal() {
             <AccordionContent>
               <CollapsibleWindow
                 headers={netZeroHeader}
-                formContent={<NetZero />}
-                dialogTitle="넷제로 목표 설정"
+                formContent={({onClose}) => <NetZero onClose={onClose} />}
+                dialogTitle="위원회 및 조직 입력"
               />
             </AccordionContent>
           </AccordionItem>
@@ -63,8 +64,8 @@ export default function Goal() {
             <AccordionContent>
               <CollapsibleWindow
                 headers={kpiGoalHeader}
-                formContent={<KPIGoal />}
-                dialogTitle="KPI 목표 설정"
+                formContent={({onClose}) => <KPIGoal onClose={onClose} />}
+                dialogTitle="위원회 및 조직 입력"
               />
             </AccordionContent>
           </AccordionItem>

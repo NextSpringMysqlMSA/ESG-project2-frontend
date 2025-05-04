@@ -71,7 +71,7 @@ export default function Governance() {
             <AccordionContent>
               <CollapsibleWindow
                 headers={committeeHeader}
-                formContent={<Committee />}
+                formContent={({onClose}) => <Committee onClose={onClose} />}
                 dialogTitle="위원회 및 조직 입력"
               />
             </AccordionContent>
@@ -81,7 +81,7 @@ export default function Governance() {
             <AccordionContent>
               <CollapsibleWindow
                 headers={meetingHeader}
-                formContent={<Meeting />}
+                formContent={({onClose}) => <Meeting onClose={onClose} />}
                 dialogTitle="회의관리"
               />
             </AccordionContent>
@@ -91,7 +91,7 @@ export default function Governance() {
             <AccordionContent>
               <CollapsibleWindow
                 headers={KPIHeader}
-                formContent={<KPI />}
+                formContent={({onClose}) => <KPI onClose={onClose} />}
                 dialogTitle="경영진 KPI 입력"
               />
             </AccordionContent>
@@ -101,7 +101,7 @@ export default function Governance() {
             <AccordionContent>
               <CollapsibleWindow
                 headers={educationHeader}
-                formContent={<Education />}
+                formContent={({onClose}) => <Education onClose={onClose} />}
                 dialogTitle="환경 교육 기록"
               />
             </AccordionContent>
