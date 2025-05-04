@@ -48,7 +48,7 @@ export default function Education({onClose}: MeetingProps) {
       <InputBox
         label="일자 및 참석자 수 (예: 2025.03.15/900명)"
         value={participantCount}
-        onChange={e => setField('participantCount', e.target.value)}
+        onChange={e => setField('participantCount', parseInt(e.target.value))}
       />
       <InputBox
         label="교육 주요 내용 (예: 온실가스. 기후리스 대응 등)"

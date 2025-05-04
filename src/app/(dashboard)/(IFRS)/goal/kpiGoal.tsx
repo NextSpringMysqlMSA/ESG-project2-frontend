@@ -3,7 +3,11 @@ import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import DashButton from '@/components/tools/dashButton'
 
-export default function KPIGoal() {
+type MeetingProps = {
+  onClose: () => void
+}
+
+export default function KPIGoal({onClose}: MeetingProps) {
   const characteristic = []
   const goalYear = ['1', '2', '3']
   const referenceValue = []

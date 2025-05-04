@@ -19,6 +19,22 @@ export const committeeApi = async (data: {
   }
 }
 
+export const meetingApi = async (data: {
+  meetingName: string
+  meetingDate: Date
+  agenda: string
+}) => {
+  try {
+    console.log('📤 회의 등록 요청 데이터:', data) // 전송 데이터 로그
+    const response = await api.post('/api/v1/tcfd/governance/meeting', data)
+    console.log('✅ 회의 등록 성공 응답:', response.data) // 응답 데이터 로그
+    return response.data
+  } catch (error) {
+    console.error('❌ 회의 등록 실패:', error)
+    throw error
+  }
+}
+
 export const KPIApi = async (data: {
   executiveName: string
   kpiName: string
@@ -36,22 +52,6 @@ export const KPIApi = async (data: {
   }
 }
 
-export const meetingApi = async (data: {
-  meetingName: string
-  meetingDate: Date
-  agenda: string
-}) => {
-  try {
-    console.log('📤 회의 등록 요청 데이터:', data) // 전송 데이터 로그
-    const response = await api.post('/api/v1/tcfd/governance/meeting', data)
-    console.log('✅ 회의 등록 성공 응답:', response.data) // 응답 데이터 로그
-    return response.data
-  } catch (error) {
-    console.error('❌ 회의 등록 실패:', error)
-    throw error
-  }
-}
-
 export const educationApi = async (data: {
   educationTitle: string
   educationDate: Date
@@ -65,6 +65,51 @@ export const educationApi = async (data: {
     return response.data
   } catch (error) {
     console.error('❌ 교육 등록 실패:', error)
+    throw error
+  }
+}
+
+export const riskApi = async (data: {
+  riskType: string
+  riskCategory: string
+  riskCause: string
+  time: string
+  impact: string
+  financialImpact: string
+  businessModelImpact: string
+  plans: string
+}) => {
+  try {
+    console.log('📤 리스크 등록 요청 데이터:', data) // 전송 데이터 로그
+    const response = await api.post('/api/v1/tcfd/strategy/risk', data)
+    console.log('✅ 리스크 등록 성공 응답:', response.data) // 응답 데이터 로그
+    return response.data
+  } catch (error) {
+    console.error('❌ 리스크 등록 실패:', error)
+    throw error
+  }
+}
+
+export const scenarioApi = async (data: {
+  regions: string
+  longitude: number
+  latitude: number
+  warming: string
+  industry: string
+  scenario: string
+  baseYear: number
+  climate: string
+  damage: number
+  format: string
+  responseStrategy: string
+}) => {
+  try {
+    console.log('📤 리스크 등록 요청 데이터:', data) // 전송 데이터 로그
+    const response = await api.post('/api/v1/tcfd/strategy/scenario', data)
+    console.log('✅ 리스크 등록 성공 응답:', response.data) // 응답 데이터 로그
+    return response.data
+  } catch (error) {
+    console.error('❌ 리스크 등록 실패:', error)
     throw error
   }
 }
