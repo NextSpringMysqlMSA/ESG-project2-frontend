@@ -27,7 +27,9 @@ export default function KPI({onClose}: MeetingProps) {
     try {
       // API 호출
       await KPIApi(kpiData)
-      showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
+      showSuccess('경영진 KPI 정보가 성공적으로 저장되었습니다.')
+      useKPIStore.getState().resetFields()
+
       onClose()
     } catch (err: any) {
       const errorMessage =

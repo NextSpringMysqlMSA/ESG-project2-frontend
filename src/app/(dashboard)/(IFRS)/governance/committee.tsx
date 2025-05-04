@@ -42,6 +42,8 @@ export default function Committee({onClose}: MeetingProps) {
       // API 호출
       await committeeApi(committeeData)
       showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
+      useCommitteeStore.getState().resetFields()
+      onClose()
       onClose()
     } catch (err: any) {
       const errorMessage =

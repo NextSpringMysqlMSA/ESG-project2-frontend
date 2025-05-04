@@ -2,21 +2,27 @@
 
 import React from 'react'
 import {Calendar} from '@/components/ui/calendar'
-import {useState} from 'react'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
 import {meetingApi} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
+import {format} from 'date-fns'
 
 type MeetingProps = {
   onClose: () => void
 }
 
 export default function Meeting({onClose}: MeetingProps) {
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
-
   const {meetingName, meetingDate, agenda, setField} = useMeetingStore()
+  const [date, setDate] = React.useState<Date | undefined>(meetingDate ?? undefined)
+
+  React.useEffect(() => {
+    // zustand에서 로딩된 값이 바뀌면 동기화
+    if (meetingDate) {
+      setDate(meetingDate)
+    }
+  }, [meetingDate])
 
   const handleSubmit = async () => {
     if (!meetingName || !meetingDate || !agenda) {
@@ -25,16 +31,17 @@ export default function Meeting({onClose}: MeetingProps) {
     }
 
     const meetingData = {
-      meetingName,
-      meetingDate: meetingDate,
-      agenda
+      meetingName: meetingName.trim(),
+      meetingDate: meetingDate ? format(meetingDate, 'yyyy-MM-dd') : '',
+      agenda: agenda.trim()
     }
 
     try {
-      // API 호출
       await meetingApi(meetingData)
-      showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
-      onClose() // 성공 후 이동할 페이지
+      showSuccess('회의 정보가 성공적으로 저장되었습니다.')
+      useMeetingStore.getState().resetFields()
+      setDate(undefined)
+      onClose()
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
@@ -50,7 +57,7 @@ export default function Meeting({onClose}: MeetingProps) {
           selected={date}
           onSelect={selectedDate => {
             setDate(selectedDate)
-            setField('meetingDate', selectedDate?.toISOString() ?? '')
+            setField('meetingDate', selectedDate ?? null) // ✅ Date 객체 그대로 저장
           }}
         />
         <div className="flex flex-col w-full h-full space-y-4">

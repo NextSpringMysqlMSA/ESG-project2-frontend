@@ -1,29 +1,34 @@
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
-import type {meetingState as meetingFields} from '@/types/IFRS/governance'
+import type {meetingState as MeetingFields} from '@/types/IFRS/governance'
 
-interface meetingStore extends meetingFields {
-  setField: (key: keyof meetingFields, value: string | number | Date) => void
+interface MeetingStore extends MeetingFields {
+  setField: (key: keyof MeetingFields, value: string | number | Date | null) => void
   resetFields: () => void
 }
 
-export const useMeetingStore = create(
-  persist<meetingStore>(
+export const useMeetingStore = create<MeetingStore>()(
+  persist<MeetingStore>(
     set => ({
       meetingName: '',
-      meetingDate: new Date(),
+      meetingDate: null,
       agenda: '',
       setField: (key, value) =>
         set(state => ({
           ...state,
           [key]: value
         })),
-      resetFields: () =>
+      resetFields: () => {
         set({
           meetingName: '',
-          meetingDate: new Date(),
+          meetingDate: null,
           agenda: ''
         })
+
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('meeting-storage')
+        }
+      }
     }),
     {
       name: 'meeting-storage'

@@ -17,7 +17,7 @@ export const useCommitteeStore = create(
       memberAffiliation: '',
       climateResponsibility: '',
       setField: (key, value) => set(state => ({...state, [key]: value})),
-      resetFields: () =>
+      resetFields: () => {
         set({
           committeeName: '',
           memberName: '',
@@ -25,6 +25,10 @@ export const useCommitteeStore = create(
           memberAffiliation: '',
           climateResponsibility: ''
         })
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('committee-storage')
+        }
+      }
     }),
     {
       name: 'committee-storage'

@@ -21,13 +21,13 @@ export const committeeApi = async (data: {
 
 export const meetingApi = async (data: {
   meetingName: string
-  meetingDate: Date
+  meetingDate: string
   agenda: string
 }) => {
   try {
-    console.log('📤 회의 등록 요청 데이터:', data) // 전송 데이터 로그
+    console.log('📤 회의 등록 요청 데이터:', data)
     const response = await api.post('/api/v1/tcfd/governance/meeting', data)
-    console.log('✅ 회의 등록 성공 응답:', response.data) // 응답 데이터 로그
+    console.log('✅ 회의 등록 성공 응답:', response.data)
     return response.data
   } catch (error) {
     console.error('❌ 회의 등록 실패:', error)
@@ -54,14 +54,14 @@ export const KPIApi = async (data: {
 
 export const educationApi = async (data: {
   educationTitle: string
-  educationDate: Date
+  educationDate: string // ✅ 문자열로 변경
   participantCount: number
   content: string
 }) => {
   try {
-    console.log('📤 교육 등록 요청 데이터:', data) // 전송 데이터 로그
+    console.log('📤 교육 등록 요청 데이터:', data)
     const response = await api.post('/api/v1/tcfd/governance/education', data)
-    console.log('✅ 교육 등록 성공 응답:', response.data) // 응답 데이터 로그
+    console.log('✅ 교육 등록 성공 응답:', response.data)
     return response.data
   } catch (error) {
     console.error('❌ 교육 등록 실패:', error)

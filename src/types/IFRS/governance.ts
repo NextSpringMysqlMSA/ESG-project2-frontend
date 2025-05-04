@@ -5,10 +5,9 @@ export interface committeeState {
   memberAffiliation: string
   climateResponsibility: string
 }
-
 export interface educationState {
   educationTitle: string
-  educationDate: Date
+  educationDate: Date | null
   participantCount: number
   content: string
 }
@@ -22,6 +21,6 @@ export interface kpiState {
 
 export interface meetingState {
   meetingName: string
-  meetingDate: Date
+  meetingDate: Date | null
   agenda: string
 }

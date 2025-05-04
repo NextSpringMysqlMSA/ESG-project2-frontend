@@ -19,13 +19,17 @@ export const useKPIStore = create(
           ...state,
           [key]: value
         })),
-      resetFields: () =>
+      resetFields: () => {
         set({
           executiveName: '',
           kpiName: '',
           targetValue: '',
           achievedValue: ''
         })
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('kpi-storage')
+        }
+      }
     }),
     {
       name: 'kpi-storage'
