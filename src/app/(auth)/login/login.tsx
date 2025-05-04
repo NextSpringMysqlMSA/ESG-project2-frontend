@@ -1,18 +1,27 @@
 'use client'
 
-import {useState} from 'react'
-import {useRouter} from 'next/navigation'
+import {useEffect, useState} from 'react'
+import {useRouter, useSearchParams} from 'next/navigation'
 import Link from 'next/link'
 import AuthInputBox from '@/components/tools/authInputBox'
 import {useAuthStore} from '@/stores/authStore'
 import {loginApi} from '@/services/auth'
 import {showError, showSuccess} from '@/util/toast'
+import toast from 'react-hot-toast'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const setAuth = useAuthStore(state => state.setAuth)
   const router = useRouter()
+
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'unauthorized') {
+      toast.error('로그인이 필요합니다.')
+    }
+  }, [searchParams])
 
   const handleLogin = async () => {
     if (!email || !password) {
