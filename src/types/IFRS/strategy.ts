@@ -1,5 +1,5 @@
 export interface riskState {
-  riskType: string | null
+  riskType: string
   riskCategory: string
   riskCause: string
   time: string
@@ -10,7 +10,7 @@ export interface riskState {
 }
 
 export interface scenarioState {
-  regions: string | null
+  regions: string
   longitude: number | null
   latitude: number | null
   warming: string

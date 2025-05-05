@@ -4,7 +4,7 @@ import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
-import {scenarioApi} from '@/services/tcfd'
+import {scenarioApi} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -100,7 +100,7 @@ export default function Scenario({onClose}: MeetingProps) {
         format,
         responseStrategy
       })
-      showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
+      showSuccess('시나리오 정보가 저장되었습니다.')
       onClose()
     } catch (err: any) {
       const errorMessage =
