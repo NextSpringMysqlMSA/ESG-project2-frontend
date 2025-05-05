@@ -4,7 +4,7 @@ import React from 'react'
 import {Calendar} from '@/components/ui/calendar'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
-import {meetingApi} from '@/services/tcfd'
+import {meetingApi, fetchMeetingList} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
 import {format} from 'date-fns'
@@ -14,7 +14,7 @@ type MeetingProps = {
 }
 
 export default function Meeting({onClose}: MeetingProps) {
-  const {meetingName, meetingDate, agenda, setField} = useMeetingStore()
+  const {meetingName, meetingDate, agenda, setField, setData} = useMeetingStore()
   const [date, setDate] = React.useState<Date | undefined>(meetingDate ?? undefined)
 
   React.useEffect(() => {
@@ -38,6 +38,12 @@ export default function Meeting({onClose}: MeetingProps) {
 
     try {
       await meetingApi(meetingData)
+      const updatedList = await fetchMeetingList()
+      const parsedList = updatedList.map(item => ({
+        ...item,
+        meetingDate: new Date(item.meetingDate)
+      }))
+      setData(parsedList)
       showSuccess('회의 정보가 성공적으로 저장되었습니다.')
       useMeetingStore.getState().resetFields()
       setDate(undefined)

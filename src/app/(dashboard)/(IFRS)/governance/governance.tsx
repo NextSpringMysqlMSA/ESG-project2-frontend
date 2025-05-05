@@ -4,6 +4,7 @@ import Committee from './committee'
 import KPI from './kpi'
 import Education from './education'
 import Meeting from './meeting'
+import {format} from 'date-fns'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,16 +23,42 @@ import {
 } from '@/components/ui/accordion'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
 import {fetchCommitteeList} from '@/services/tcfd'
+import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
+import {fetchMeetingList} from '@/services/tcfd'
+import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
+import {fetchKpiList} from '@/services/tcfd'
+import {useEducationStore} from '@/stores/IFRS/governance/useEducationStore'
+import {fetchEducationList} from '@/services/tcfd'
 
 export default function Governance() {
   const [loading, setLoading] = useState(true)
   const {data: committeeData, setData} = useCommitteeStore()
+  const {data: meetingData, setData: setMeetingData} = useMeetingStore()
+  const {data: kpiData, setData: setKpiData} = useKPIStore()
+  const {data: educationData, setData: setEducationData} = useEducationStore()
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await fetchCommitteeList()
-        setData(data)
+        const committeeData = await fetchCommitteeList()
+        setData(committeeData)
+
+        const meetingData = await fetchMeetingList()
+        const parsedMeetingData = meetingData.map(item => ({
+          ...item,
+          meetingDate: new Date(item.meetingDate)
+        }))
+        setMeetingData(parsedMeetingData)
+
+        const kpiList = await fetchKpiList()
+        setKpiData(kpiList)
+
+        const educationList = await fetchEducationList()
+        const parsedEducationList = educationList.map(item => ({
+          ...item,
+          educationDate: new Date(item.educationDate)
+        }))
+        setEducationData(parsedEducationList)
       } catch (e) {
         console.error('데이터 불러오기 실패:', e)
       } finally {
@@ -39,7 +66,7 @@ export default function Governance() {
       }
     }
     loadData()
-  }, [setData])
+  }, [setData, setMeetingData, setKpiData, setEducationData])
 
   const committeeHeader = [
     '위원회 이름',
@@ -108,7 +135,15 @@ export default function Governance() {
                 headers={meetingHeader}
                 formContent={({onClose}) => <Meeting onClose={onClose} />}
                 dialogTitle="회의관리"
-                data={[]}
+                data={
+                  loading
+                    ? []
+                    : meetingData.map(item => [
+                        item.meetingDate ? format(item.meetingDate, 'yyyy-MM-dd') : '',
+                        item.meetingName ?? '',
+                        item.agenda ?? ''
+                      ])
+                }
               />
             </AccordionContent>
           </AccordionItem>
@@ -120,7 +155,16 @@ export default function Governance() {
                 headers={KPIHeader}
                 formContent={({onClose}) => <KPI onClose={onClose} />}
                 dialogTitle="경영진 KPI 입력"
-                data={[]}
+                data={
+                  loading
+                    ? []
+                    : kpiData.map(item => [
+                        item.executiveName ?? '',
+                        item.kpiName ?? '',
+                        item.targetValue ?? '',
+                        item.achievedValue ?? ''
+                      ])
+                }
               />
             </AccordionContent>
           </AccordionItem>
@@ -132,7 +176,18 @@ export default function Governance() {
                 headers={educationHeader}
                 formContent={({onClose}) => <Education onClose={onClose} />}
                 dialogTitle="환경 교육 기록"
-                data={[]}
+                data={
+                  loading
+                    ? []
+                    : educationData.map(item => [
+                        item.educationDate
+                          ? format(item.educationDate, 'yyyy-MM-dd')
+                          : '',
+                        item.participantCount?.toString() ?? '',
+                        item.educationTitle ?? '',
+                        item.content ?? ''
+                      ])
+                }
               />
             </AccordionContent>
           </AccordionItem>
