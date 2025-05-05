@@ -56,6 +56,7 @@ export default function Goal() {
                 headers={netZeroHeader}
                 formContent={({onClose}) => <NetZero onClose={onClose} />}
                 dialogTitle="위원회 및 조직 입력"
+                data={[]} // 빈 배열로 기본값 명시
               />
             </AccordionContent>
           </AccordionItem>
@@ -66,6 +67,7 @@ export default function Goal() {
                 headers={kpiGoalHeader}
                 formContent={({onClose}) => <KPIGoal onClose={onClose} />}
                 dialogTitle="위원회 및 조직 입력"
+                data={[]} // 빈 배열로 기본값 명시
               />
             </AccordionContent>
           </AccordionItem>

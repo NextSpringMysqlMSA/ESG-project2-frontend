@@ -163,8 +163,8 @@ export default function Scenario({onClose}: MeetingProps) {
               onValueChange={value => setField('format', value)}
             />
             <InputBox
-              label="단위 피해 단가 (예: ₩/일 또는 ₩/mm)"
-              value={damage}
+              label="단위 피해(예: ₩/일 또는 ₩/mm)"
+              value={isNaN(damage) ? '' : damage}
               onChange={e => setField('damage', parseFloat(e.target.value))}
             />
           </div>

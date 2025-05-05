@@ -6,7 +6,7 @@ type InputBoxProps = {
   label?: string
   className?: string
   id?: string
-  value: string | number
+  value: string | number | null | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   type?: string
 }
@@ -21,14 +21,17 @@ export default function InputBox({
 }: InputBoxProps) {
   const [isFocused, setIsFocused] = useState(false)
 
-  const shouldFloat = value.toString().length > 0 || isFocused
+  // value가 null 또는 undefined일 때는 빈 문자열 처리
+  const inputValue = value != null ? value.toString() : ''
+
+  const shouldFloat = inputValue.length > 0 || isFocused
 
   return (
     <div className="relative w-full">
       <input
         type={type}
         id={id}
-        value={value}
+        value={inputValue}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onChange={onChange}
