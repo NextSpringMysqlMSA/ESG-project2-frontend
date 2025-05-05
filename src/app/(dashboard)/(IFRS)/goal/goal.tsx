@@ -55,7 +55,7 @@ export default function Goal() {
               <CollapsibleWindow
                 headers={netZeroHeader}
                 formContent={({onClose}) => <NetZero onClose={onClose} />}
-                dialogTitle="위원회 및 조직 입력"
+                dialogTitle="넷제로 분석 설정"
                 data={[]} // 빈 배열로 기본값 명시
               />
             </AccordionContent>
@@ -66,7 +66,7 @@ export default function Goal() {
               <CollapsibleWindow
                 headers={kpiGoalHeader}
                 formContent={({onClose}) => <KPIGoal onClose={onClose} />}
-                dialogTitle="위원회 및 조직 입력"
+                dialogTitle="KPI 목표 설정"
                 data={[]} // 빈 배열로 기본값 명시
               />
             </AccordionContent>
