@@ -26,6 +26,17 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   return response.data
 }
 
+export const deleteCommitteeItem = async (committeeName: string) => {
+  try {
+    const response = await api.delete(`/api/v1/tcfd/governance/committee`, {
+      params: {name: committeeName}
+    })
+    return response.data
+  } catch (error) {
+    console.error('❌ 위원회 삭제 실패:', error)
+    throw error
+  }
+}
 
 // 회의 생성 API 호출
 export const meetingApi = async (data: {
@@ -92,7 +103,6 @@ export const educationApi = async (data: {
   }
 }
 
-
 // KPI 목록 타입 및 조회 API 호출
 export type KPIItem = {
   executiveName: string
@@ -118,4 +128,3 @@ export const fetchEducationList = async (): Promise<EducationItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/education')
   return response.data
 }
-

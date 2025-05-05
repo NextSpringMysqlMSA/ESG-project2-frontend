@@ -4,14 +4,16 @@ import {useEffect, useState} from 'react'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
-import {committeeApi, fetchCommitteeList} from '@/services/tcfd'
+import {committeeApi, deleteCommitteeItem, fetchCommitteeList} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 
 type CommitteeProps = {
   onClose: () => void
+  row?: string[]
+  mode: 'add' | 'edit'
 }
 
-export default function Committee({onClose}: CommitteeProps) {
+export default function Committee({onClose, row, mode}: CommitteeProps) {
   const {
     committeeName,
     memberName,
@@ -23,15 +25,11 @@ export default function Committee({onClose}: CommitteeProps) {
     setData
   } = useCommitteeStore()
 
-  // 중복 제출 방지를 위한 상태 변수
   const [submitting, setSubmitting] = useState(false)
 
-  // 저장 버튼 클릭 시 실행되는 함수
   const handleSubmit = async () => {
-    // 이미 제출 중이라면 함수 종료
     if (submitting) return
 
-    // 입력값 검증
     if (
       !committeeName ||
       !memberName ||
@@ -43,7 +41,6 @@ export default function Committee({onClose}: CommitteeProps) {
       return
     }
 
-    // 서버 전송 데이터 구성
     const committeeData = {
       committeeName,
       memberName,
@@ -53,33 +50,59 @@ export default function Committee({onClose}: CommitteeProps) {
     }
 
     try {
-      // 중복 방지 플래그 true 설정
       setSubmitting(true)
-
-      // 저장 요청
       await committeeApi(committeeData)
-      showSuccess('위원회 정보가 저장되었습니다.')
+      showSuccess(mode === 'edit' ? '수정되었습니다.' : '저장되었습니다.')
 
-      // 최신 목록 다시 불러와서 상태 갱신
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
-
-      // 입력 초기화 및 모달 닫기
       resetFields()
       onClose()
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || '서버 오류 발생'
       showError(errorMessage)
     } finally {
-      // 최종적으로 submitting 상태 해제
       setSubmitting(false)
     }
   }
 
+  const handleDelete = async () => {
+    if (!committeeName) return
+
+    try {
+      setSubmitting(true)
+      await deleteCommitteeItem(committeeName)
+      showSuccess('삭제되었습니다.')
+
+      const updatedList = await fetchCommitteeList()
+      setData(updatedList)
+      resetFields()
+      onClose()
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || '삭제 실패'
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (mode === 'edit' && row) {
+      setField('committeeName', row[0])
+      const [name, position, affiliation] = row[1].split(' / ')
+      setField('memberName', name || '')
+      setField('memberPosition', position || '')
+      setField('memberAffiliation', affiliation || '')
+      setField('climateResponsibility', row[2])
+    } else {
+      resetFields()
+    }
+  }, [row, mode])
+
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
       <InputBox
-        label="위원회 이름(예: ESG 위원회)"
+        label="위원회 이름"
         value={committeeName}
         onChange={e => setField('committeeName', e.target.value)}
       />
@@ -104,10 +127,18 @@ export default function Committee({onClose}: CommitteeProps) {
         onChange={e => setField('climateResponsibility', e.target.value)}
       />
 
-      {/* 저장 버튼 */}
-      <div className="flex flex-row justify-center w-full">
+      <div className="flex justify-center space-x-4">
+        {mode === 'edit' && (
+          <DashButton
+            width="w-24"
+            className="bg-red-500 hover:bg-red-600"
+            onClick={handleDelete}
+            disabled={submitting}>
+            삭제
+          </DashButton>
+        )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : '저장'}
+          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>

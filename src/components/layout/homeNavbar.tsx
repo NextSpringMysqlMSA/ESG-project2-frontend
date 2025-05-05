@@ -33,7 +33,7 @@ export default function HomeNavbar() {
   }, [])
 
   return (
-    <div className="fixed w-full">
+    <div className="fixed z-50 w-full">
       <div className="z-40 flex flex-row items-center justify-between w-full p-2 bg-white shadow-sm">
         <Link href="/" className="flex flex-row items-center">
           <img src="/dash.svg" alt="logo" className="w-12 mr-4" />
