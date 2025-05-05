@@ -32,6 +32,7 @@ export default function Scenario({onClose}: MeetingProps) {
     '제주특별자치도'
   ]
   const warming2 = ['+1.5°C', '+2.0°C', '+3.0°C']
+
   const industry2 = [
     'ICT/통신',
     '에너지/전력',
@@ -41,6 +42,7 @@ export default function Scenario({onClose}: MeetingProps) {
     '제조/공정'
   ]
   const scenario2 = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
+
   const climate2 = [
     'TX90 (90th 백분위 고온일수)',
     'RX1D (1일 최대 강수량)',
@@ -84,23 +86,20 @@ export default function Scenario({onClose}: MeetingProps) {
       return
     }
 
-    const scenarioData = {
-      regions,
-      longitude,
-      latitude,
-      warming,
-      industry,
-      scenario,
-      baseYear,
-      climate,
-      damage,
-      format,
-      responseStrategy
-    }
-
     try {
-      // API 호출
-      await scenarioApi(scenarioData)
+      await scenarioApi({
+        regions,
+        longitude,
+        latitude,
+        warming,
+        industry,
+        scenario,
+        baseYear,
+        climate,
+        damage,
+        format,
+        responseStrategy
+      })
       showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
       onClose()
     } catch (err: any) {
@@ -109,7 +108,6 @@ export default function Scenario({onClose}: MeetingProps) {
       showError(errorMessage)
     }
   }
-
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
       <div className="flex flex-col w-full space-y-4">
@@ -118,6 +116,7 @@ export default function Scenario({onClose}: MeetingProps) {
             <CustomSelect
               placeholder="행정구역 선택"
               options={regions2}
+              value={regions}
               onValueChange={value => setField('regions', value)}
             />
             <InputBox
@@ -128,11 +127,13 @@ export default function Scenario({onClose}: MeetingProps) {
             <CustomSelect
               placeholder="온난화 수준"
               options={warming2}
+              value={warming}
               onValueChange={value => setField('warming', value)}
             />
             <CustomSelect
               placeholder="산업 분야"
               options={industry2}
+              value={industry}
               onValueChange={value => setField('industry', value)}
             />
             <InputBox
@@ -150,16 +151,19 @@ export default function Scenario({onClose}: MeetingProps) {
             <CustomSelect
               placeholder="SSP 시나리오"
               options={scenario2}
+              value={scenario}
               onValueChange={value => setField('scenario', value)}
             />
             <CustomSelect
               placeholder="기후 지표"
               options={climate2}
+              value={climate}
               onValueChange={value => setField('climate', value)}
             />
             <CustomSelect
               placeholder="자료 포맷"
               options={format2}
+              value={format}
               onValueChange={value => setField('format', value)}
             />
             <InputBox

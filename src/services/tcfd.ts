@@ -25,11 +25,7 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/committee')
   return response.data
 }
-
-// 위원회 항목 저장 API 호출
-export const saveCommitteeItem = async (item: CommitteeItem): Promise<void> => {
-  await api.post('/api/v1/tcfd/governance/committee', item)
-}
+//-----------------------------------------------------------------------------------------
 
 // 회의 생성 API 호출
 export const meetingApi = async (data: {
@@ -83,6 +79,8 @@ export const educationApi = async (data: {
     throw error
   }
 }
+
+//-----------------------------------------------------------------------------------------
 
 // 리스크 생성 API 호출
 export const riskApi = async (data: {

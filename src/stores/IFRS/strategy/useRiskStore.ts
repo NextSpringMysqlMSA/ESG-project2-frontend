@@ -1,10 +1,10 @@
-// src/stores/useCommitteeStore.ts
+// src/stores/useRiskStore.ts
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
-import type {riskState as riskFields} from '@/types/IFRS/strategy'
+import type {riskState as RiskFields} from '@/types/IFRS/strategy'
 
-interface RiskStore extends riskFields {
-  setField: (key: keyof riskFields, value: string) => void
+interface RiskStore extends RiskFields {
+  setField: <K extends keyof RiskFields>(key: K, value: RiskFields[K]) => void
   resetFields: () => void
 }
 
@@ -19,7 +19,11 @@ export const useRiskStore = create(
       financialImpact: '',
       businessModelImpact: '',
       plans: '',
-      setField: (key, value) => set(state => ({...state, [key]: value})),
+      setField: (key, value) =>
+        set(state => ({
+          ...state,
+          [key]: value
+        })),
       resetFields: () =>
         set({
           riskType: '',
