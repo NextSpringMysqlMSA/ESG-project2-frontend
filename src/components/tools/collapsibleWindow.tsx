@@ -11,29 +11,43 @@ import {
 } from '../ui/dialog'
 import React from 'react'
 
-// props 타입에 data 추가 (2차원 배열 형태)
 type CollapsibleWindowProps = {
+  type: 'committee' | 'meeting' | 'KPI' | 'education'
   headers: string[]
-  data: string[][] // 예: [["ESG 위원회", "홍길동 / 위원장 / 전략팀", "기후 대응"]]
-  formContent: (props: {onClose: () => void}) => React.ReactNode
+  data: string[][]
+  formContent: (props: {
+    onClose: () => void
+    row?: string[]
+    mode: 'add' | 'edit'
+  }) => React.ReactNode
   dialogTitle?: string
 }
 
 export default function CollapsibleWindow({
+  type,
   headers,
   data,
   formContent,
   dialogTitle = '항목 입력'
 }: CollapsibleWindowProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState<string[] | null>(null)
 
-  const handleClose = () => setIsOpen(false)
+  const openEditDialog = (row: string[]) => {
+    setSelectedRow(row)
+    setIsEditOpen(true)
+  }
+
+  const closeEditDialog = () => {
+    setSelectedRow(null)
+    setIsEditOpen(false)
+  }
 
   return (
     <div className="flex flex-col space-y-4">
-      {/* ➕ 항목 추가 버튼 및 다이얼로그 */}
       <div className="flex flex-row justify-end w-full">
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <button
               type="button"
@@ -45,14 +59,27 @@ export default function CollapsibleWindow({
             <DialogHeader>
               <DialogTitle>{dialogTitle}</DialogTitle>
             </DialogHeader>
-            {/* 항목 입력 폼 */}
-            {formContent({onClose: handleClose})}
+            {formContent({onClose: () => setIsAddOpen(false), mode: 'add'})}
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* 커스텀 테이블에 데이터 전달 */}
-      <CustomTable headers={headers} data={data} />
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>항목 수정</DialogTitle>
+          </DialogHeader>
+          {selectedRow &&
+            formContent({onClose: closeEditDialog, row: selectedRow, mode: 'edit'})}
+        </DialogContent>
+      </Dialog>
+
+      <CustomTable
+        headers={headers}
+        data={data}
+        type={type}
+        onRowClick={(_, row) => openEditDialog(row)}
+      />
     </div>
   )
 }

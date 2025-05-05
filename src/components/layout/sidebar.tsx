@@ -86,7 +86,7 @@ export default function Sidebar() {
             }`}>
             <button
               onClick={() => setOpenESGChild(!openESGChild)}
-              className={`flex flex-row items-center justify-between w-full p-2 rounded group font-semibold text-base ${
+              className={`flex flex-row items-center justify-between w-full p-2 px-4 mb-2 rounded group font-semibold text-base ${
                 isESGChildActive ? 'text-customG' : 'text-primary'
               } hover:bg-customG hover:text-white`}>
               IFRS S2
@@ -122,7 +122,7 @@ export default function Sidebar() {
             </div>
             <a
               href="/"
-              className="flex flex-row items-center justify-between w-full p-2 text-left rounded text-primary hover:bg-customG hover:text-white font-semibold text-base">
+              className="flex flex-row items-center justify-between w-full p-2 text-base font-semibold text-left rounded text-primary hover:bg-customG hover:text-white">
               GRI
             </a>
           </div>
@@ -148,7 +148,7 @@ export default function Sidebar() {
             }`}>
             <Link
               href="/eudd"
-              className={`block w-full px-2 py-1 text-sm text-left hover:underline hover:text-customG ${
+              className={`block w-full px-2 py-1 mt-2 text-sm text-left hover:underline hover:text-customG ${
                 pathname === '/eudd' ? 'text-customG' : 'text-primary'
               }`}>
               EU 공급망 실사
@@ -172,7 +172,7 @@ export default function Sidebar() {
         <div className="w-full">
           <button
             onClick={() => setOpenPartnerChild(!openPartnerChild)}
-            className={`flex flex-row items-center justify-between w-full p-2 px-4 text-left rounded group font-semibold text-base ${
+            className={`flex flex-row items-center justify-between w-full p-2 px-4 mb-2 text-left rounded group font-semibold text-base ${
               isPartnerChildActive ? 'text-customG' : 'text-primary'
             } hover:bg-customG hover:text-white`}>
             <div className="flex flex-row items-center w-full gap-4">

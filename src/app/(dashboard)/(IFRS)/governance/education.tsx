@@ -67,19 +67,18 @@ export default function Education({onClose}: EducationProps) {
         value={educationTitle}
         onChange={e => setField('educationTitle', e.target.value)}
       />
-      <InputBox
-        label="교육 주요 내용 (예: 온실가스. 기후리스 대응 등)"
-        value={content}
-        onChange={e => setField('content', e.target.value)}
-      />
       <DatePickerForm
         date={educationDate ?? undefined}
         onDateChange={d => setField('educationDate', d ?? null)} // 내부에선 null 처리해도 됨
         participantCount={participantCount}
         onCountChange={val => setField('participantCount', val)}
       />
-
-      <div className="flex flex-row justify-center w-full">
+      <InputBox
+        label="교육 주요 내용 (예: 온실가스. 기후리스 대응 등)"
+        value={content}
+        onChange={e => setField('content', e.target.value)}
+      />
+      <div className="flex flex-row justify-center w-full h-full">
         <DashButton width="w-24" onClick={handleSubmit}>
           저장
         </DashButton>
