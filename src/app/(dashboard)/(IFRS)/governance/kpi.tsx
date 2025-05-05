@@ -1,7 +1,7 @@
 import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
-import {KPIApi} from '@/services/tcfd'
+import {KPIApi, fetchKpiList} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -9,7 +9,8 @@ type MeetingProps = {
 }
 
 export default function KPI({onClose}: MeetingProps) {
-  const {executiveName, kpiName, targetValue, achievedValue, setField} = useKPIStore()
+  const {executiveName, kpiName, targetValue, achievedValue, setField, setData} =
+    useKPIStore()
 
   const handleSubmit = async () => {
     if (!executiveName || !kpiName || !targetValue || !achievedValue) {
@@ -27,6 +28,8 @@ export default function KPI({onClose}: MeetingProps) {
     try {
       // API 호출
       await KPIApi(kpiData)
+      const updatedList = await fetchKpiList()
+      setData(updatedList)
       showSuccess('경영진 KPI 정보가 성공적으로 저장되었습니다.')
       useKPIStore.getState().resetFields()
 

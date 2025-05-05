@@ -26,7 +26,7 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   return response.data
 }
 
-// 위원회 항목 저장 API 호출
+// 위원회 항목 저장 API 호출 (일단 냅둠 )
 export const saveCommitteeItem = async (item: CommitteeItem): Promise<void> => {
   await api.post('/api/v1/tcfd/governance/committee', item)
 }
@@ -46,6 +46,18 @@ export const meetingApi = async (data: {
     console.error('❌ 회의 등록 실패:', error)
     throw error
   }
+}
+
+// 회의 목록 조회 API 호출
+export type MeetingItem = {
+  meetingName: string
+  meetingDate: string
+  agenda: string
+}
+
+export const fetchMeetingList = async (): Promise<MeetingItem[]> => {
+  const response = await api.get('/api/v1/tcfd/governance/meeting')
+  return response.data
 }
 
 // KPI 생성 API 호출
@@ -129,4 +141,30 @@ export const scenarioApi = async (data: {
     console.error('❌ 리스크 등록 실패:', error)
     throw error
   }
+}
+
+// KPI 목록 타입 및 조회 API 호출
+export type KPIItem = {
+  executiveName: string
+  kpiName: string
+  targetValue: string
+  achievedValue: string
+}
+
+export const fetchKpiList = async (): Promise<KPIItem[]> => {
+  const response = await api.get('/api/v1/tcfd/governance/executive-kpi')
+  return response.data
+}
+
+// 교육 목록 타입 및 조회 API 호출
+export type EducationItem = {
+  educationTitle: string
+  educationDate: string
+  participantCount: number
+  content: string
+}
+
+export const fetchEducationList = async (): Promise<EducationItem[]> => {
+  const response = await api.get('/api/v1/tcfd/governance/education')
+  return response.data
 }

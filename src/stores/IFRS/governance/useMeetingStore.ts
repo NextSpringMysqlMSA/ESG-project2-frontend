@@ -3,8 +3,12 @@ import {persist} from 'zustand/middleware'
 import type {meetingState as MeetingFields} from '@/types/IFRS/governance'
 
 interface MeetingStore extends MeetingFields {
+  data: MeetingFields[]
   setField: (key: keyof MeetingFields, value: string | number | Date | null) => void
   resetFields: () => void
+  addItem: (item: MeetingFields) => void
+  clearList: () => void
+  setData: (items: MeetingFields[]) => void
 }
 
 export const useMeetingStore = create<MeetingStore>()(
@@ -13,6 +17,7 @@ export const useMeetingStore = create<MeetingStore>()(
       meetingName: '',
       meetingDate: null,
       agenda: '',
+      data: [],
       setField: (key, value) =>
         set(state => ({
           ...state,
@@ -28,7 +33,10 @@ export const useMeetingStore = create<MeetingStore>()(
         if (typeof window !== 'undefined') {
           localStorage.removeItem('meeting-storage')
         }
-      }
+      },
+      addItem: item => set(state => ({data: [...state.data, item]})),
+      clearList: () => set({data: []}),
+      setData: items => set({data: items})
     }),
     {
       name: 'meeting-storage'

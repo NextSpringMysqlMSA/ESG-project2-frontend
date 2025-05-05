@@ -4,7 +4,7 @@ import React from 'react'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
 import {useEducationStore} from '@/stores/IFRS/governance/useEducationStore'
-import {educationApi} from '@/services/tcfd'
+import {educationApi, fetchEducationList} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 import {format} from 'date-fns'
 import {DatePickerForm} from '@/components/layout/datePicker'
@@ -14,7 +14,7 @@ type EducationProps = {
 }
 
 export default function Education({onClose}: EducationProps) {
-  const {educationTitle, educationDate, participantCount, content, setField} =
+  const {educationTitle, educationDate, participantCount, content, setField, setData} =
     useEducationStore()
 
   const [date, setDate] = React.useState<Date | undefined>(educationDate ?? undefined)
@@ -40,6 +40,13 @@ export default function Education({onClose}: EducationProps) {
 
     try {
       await educationApi(educationData)
+      // fetch updated list and setData
+      const updatedList = await fetchEducationList()
+      const parsedList = updatedList.map(item => ({
+        ...item,
+        educationDate: new Date(item.educationDate)
+      }))
+      setData(parsedList)
       showSuccess('환경 교육 정보가 성공적으로 저장되었습니다.')
       useEducationStore.getState().resetFields()
       if (typeof window !== 'undefined') {
