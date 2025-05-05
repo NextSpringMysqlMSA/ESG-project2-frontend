@@ -1,8 +1,9 @@
 type CustomTableProps = {
   headers: string[]
+  data: string[][]
 }
 
-export default function CustomTable({headers}: CustomTableProps) {
+export default function CustomTable({headers, data}: CustomTableProps) {
   return (
     <table className="w-full text-center table-fixed">
       <thead className="border-b-2 border-b-black">
@@ -13,11 +14,23 @@ export default function CustomTable({headers}: CustomTableProps) {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td colSpan={headers.length} className="py-4 text-muted-foreground">
-            데이터가 없습니다.
-          </td>
-        </tr>
+        {data.length === 0 ? (
+          <tr>
+            <td colSpan={headers.length} className="py-4 text-muted-foreground">
+              데이터가 없습니다.
+            </td>
+          </tr>
+        ) : (
+          data.map((row, rowIndex) => (
+            <tr key={rowIndex} className="border-b">
+              {row.map((cell, colIndex) => (
+                <td key={colIndex} className="py-2">
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   )

@@ -12,7 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '../../../../components/ui/breadcrumb'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import CollapsibleWindow from '@/components/tools/collapsibleWindow'
 import {
   Accordion,
@@ -20,12 +20,26 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
+import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
+import {fetchCommitteeList} from '@/services/tcfd'
 
 export default function Governance() {
-  const [openCommittee, setOpenCommittee] = useState(false)
-  const [openMeeting, setOpenMeeting] = useState(false)
-  const [openKPI, setOpenKPI] = useState(false)
-  const [openEducation, setOpenEducation] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const {data: committeeData, setData} = useCommitteeStore()
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchCommitteeList()
+        setData(data)
+      } catch (e) {
+        console.error('데이터 불러오기 실패:', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [setData])
 
   const committeeHeader = [
     '위원회 이름',
@@ -38,7 +52,6 @@ export default function Governance() {
 
   return (
     <div className="flex flex-col w-full h-full p-8">
-      {/* Breadcrumb 부분 ======================================================================================*/}
       <div className="flex flex-row px-4 mb-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -56,14 +69,16 @@ export default function Governance() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+
       <div className="flex flex-row items-center w-full px-4 mb-4 gap-x-4">
         <span className="text-xl font-bold">IFRS S2</span>
         <span className="text-gray-500">TCFD</span>
       </div>
+
       <div className="flex flex-row items-center justify-between w-full h-12 px-4 py-2 bg-white border border-b-2 rounded">
         <span className="text-xl font-bold">거버넌스</span>
       </div>
-      {/* ============================================================================ */}
+
       <div className="flex flex-col w-full h-full px-4 pb-2 bg-white border rounded">
         <Accordion type="multiple">
           <AccordionItem value="item-1">
@@ -73,9 +88,19 @@ export default function Governance() {
                 headers={committeeHeader}
                 formContent={({onClose}) => <Committee onClose={onClose} />}
                 dialogTitle="위원회 및 조직 입력"
+                data={
+                  loading
+                    ? [] // null이 아니라 빈 배열로 처리
+                    : committeeData.map(item => [
+                        item.committeeName,
+                        `${item.memberName} / ${item.memberPosition} / ${item.memberAffiliation}`,
+                        item.climateResponsibility
+                      ])
+                }
               />
             </AccordionContent>
           </AccordionItem>
+
           <AccordionItem value="item-2">
             <AccordionTrigger className="text-base">회의 관리</AccordionTrigger>
             <AccordionContent>
@@ -83,9 +108,11 @@ export default function Governance() {
                 headers={meetingHeader}
                 formContent={({onClose}) => <Meeting onClose={onClose} />}
                 dialogTitle="회의관리"
+                data={[]}
               />
             </AccordionContent>
           </AccordionItem>
+
           <AccordionItem value="item-3">
             <AccordionTrigger className="text-base">경영진 KPI</AccordionTrigger>
             <AccordionContent>
@@ -93,9 +120,11 @@ export default function Governance() {
                 headers={KPIHeader}
                 formContent={({onClose}) => <KPI onClose={onClose} />}
                 dialogTitle="경영진 KPI 입력"
+                data={[]}
               />
             </AccordionContent>
           </AccordionItem>
+
           <AccordionItem value="item-4">
             <AccordionTrigger className="text-base">환경 교육</AccordionTrigger>
             <AccordionContent>
@@ -103,6 +132,7 @@ export default function Governance() {
                 headers={educationHeader}
                 formContent={({onClose}) => <Education onClose={onClose} />}
                 dialogTitle="환경 교육 기록"
+                data={[]}
               />
             </AccordionContent>
           </AccordionItem>

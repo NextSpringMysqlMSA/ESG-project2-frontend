@@ -1,4 +1,5 @@
 import api from '@/lib/axios'
+import {CommitteeItem} from '@/stores/IFRS/governance/useCommitteeStore'
 
 // 위원회 생성 API 호출
 export const committeeApi = async (data: {
@@ -19,6 +20,18 @@ export const committeeApi = async (data: {
   }
 }
 
+// 위원회 목록 조회 API 호출
+export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
+  const response = await api.get('/api/v1/tcfd/governance/committee')
+  return response.data
+}
+
+// 위원회 항목 저장 API 호출
+export const saveCommitteeItem = async (item: CommitteeItem): Promise<void> => {
+  await api.post('/api/v1/tcfd/governance/committee', item)
+}
+
+// 회의 생성 API 호출
 export const meetingApi = async (data: {
   meetingName: string
   meetingDate: string
@@ -35,6 +48,7 @@ export const meetingApi = async (data: {
   }
 }
 
+// KPI 생성 API 호출
 export const KPIApi = async (data: {
   executiveName: string
   kpiName: string
@@ -52,6 +66,7 @@ export const KPIApi = async (data: {
   }
 }
 
+// 교육 생성 API 호출
 export const educationApi = async (data: {
   educationTitle: string
   educationDate: string // ✅ 문자열로 변경
@@ -69,6 +84,7 @@ export const educationApi = async (data: {
   }
 }
 
+// 리스크 생성 API 호출
 export const riskApi = async (data: {
   riskType: string
   riskCategory: string
@@ -90,6 +106,7 @@ export const riskApi = async (data: {
   }
 }
 
+// 시나리오 생성 API 호출
 export const scenarioApi = async (data: {
   regions: string
   longitude: number
