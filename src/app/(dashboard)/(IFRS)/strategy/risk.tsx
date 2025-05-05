@@ -5,7 +5,7 @@ import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
-import {riskApi} from '@/services/tcfd'
+import {riskApi} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -13,10 +13,6 @@ type MeetingProps = {
 }
 
 export default function Risk({onClose}: MeetingProps) {
-  const [selectedRiskType, setSelectedRiskType] = useState<
-    keyof typeof riskCategory2 | ''
-  >('')
-
   const {
     riskType,
     riskCategory,
@@ -66,9 +62,8 @@ export default function Risk({onClose}: MeetingProps) {
     }
 
     try {
-      // API 호출
       await riskApi(riskData)
-      showSuccess('위원회 정보가 성공적으로 저장되었습니다.')
+      showSuccess('리스크 정보가 저장되었습니다.')
       onClose()
     } catch (err: any) {
       const errorMessage =
@@ -84,9 +79,10 @@ export default function Risk({onClose}: MeetingProps) {
           <CustomSelect
             placeholder="리스크 종류"
             options={riskType2}
+            value={riskType}
             onValueChange={value => {
-              setSelectedRiskType(value)
-              setField('riskType', value) // 추가
+              setField('riskType', value)
+              setField('riskCategory', '') // 선택 리스크 종류 바뀌면 유형 초기화
             }}
           />
           <InputBox
@@ -97,30 +93,34 @@ export default function Risk({onClose}: MeetingProps) {
           <CustomSelect
             placeholder="영향도"
             options={impact2}
+            value={impact}
             onValueChange={value => setField('impact', value)}
           />
           <InputBox
-            label="사업 모헙 및 가치 사슬에 대한 영향"
+            label="사업 모델 및 가치 사슬에 대한 영향"
             value={businessModelImpact}
             onChange={e => setField('businessModelImpact', e.target.value)}
           />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
-          {selectedRiskType && (
+          {riskType && (
             <CustomSelect
               placeholder="리스크 유형"
-              options={riskCategory2[selectedRiskType] ?? []}
+              options={riskCategory2[riskType] ?? []}
+              value={riskCategory}
               onValueChange={value => setField('riskCategory', value)}
             />
           )}
           <CustomSelect
             placeholder="시점"
             options={time2}
+            value={time}
             onValueChange={value => setField('time', value)}
           />
           <CustomSelect
             placeholder="잠재적 재무 영향"
             options={financialImpact2}
+            value={financialImpact}
             onValueChange={value => setField('financialImpact', value)}
           />
           <InputBox

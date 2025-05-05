@@ -9,7 +9,7 @@ const api = axios.create({
   withCredentials: true // 쿠키 사용할 경우 필요
 })
 
-// ✅ 요청 인터셉터
+// 요청 인터셉터
 api.interceptors.request.use(
   config => {
     const getAuthHeader = useAuthStore.getState().getAuthorizationHeader

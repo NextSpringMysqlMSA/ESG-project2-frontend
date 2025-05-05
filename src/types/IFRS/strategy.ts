@@ -11,8 +11,8 @@ export interface riskState {
 
 export interface scenarioState {
   regions: string
-  longitude: number
-  latitude: number
+  longitude: number | null
+  latitude: number | null
   warming: string
   industry: string
   scenario: string

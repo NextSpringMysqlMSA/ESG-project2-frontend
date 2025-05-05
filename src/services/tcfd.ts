@@ -26,10 +26,6 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   return response.data
 }
 
-// 위원회 항목 저장 API 호출 (일단 냅둠 )
-export const saveCommitteeItem = async (item: CommitteeItem): Promise<void> => {
-  await api.post('/api/v1/tcfd/governance/committee', item)
-}
 
 // 회의 생성 API 호출
 export const meetingApi = async (data: {
@@ -96,52 +92,6 @@ export const educationApi = async (data: {
   }
 }
 
-// 리스크 생성 API 호출
-export const riskApi = async (data: {
-  riskType: string
-  riskCategory: string
-  riskCause: string
-  time: string
-  impact: string
-  financialImpact: string
-  businessModelImpact: string
-  plans: string
-}) => {
-  try {
-    console.log('📤 리스크 등록 요청 데이터:', data) // 전송 데이터 로그
-    const response = await api.post('/api/v1/tcfd/strategy/risk', data)
-    console.log('✅ 리스크 등록 성공 응답:', response.data) // 응답 데이터 로그
-    return response.data
-  } catch (error) {
-    console.error('❌ 리스크 등록 실패:', error)
-    throw error
-  }
-}
-
-// 시나리오 생성 API 호출
-export const scenarioApi = async (data: {
-  regions: string
-  longitude: number
-  latitude: number
-  warming: string
-  industry: string
-  scenario: string
-  baseYear: number
-  climate: string
-  damage: number
-  format: string
-  responseStrategy: string
-}) => {
-  try {
-    console.log('📤 리스크 등록 요청 데이터:', data) // 전송 데이터 로그
-    const response = await api.post('/api/v1/tcfd/strategy/scenario', data)
-    console.log('✅ 리스크 등록 성공 응답:', response.data) // 응답 데이터 로그
-    return response.data
-  } catch (error) {
-    console.error('❌ 리스크 등록 실패:', error)
-    throw error
-  }
-}
 
 // KPI 목록 타입 및 조회 API 호출
 export type KPIItem = {
@@ -168,3 +118,4 @@ export const fetchEducationList = async (): Promise<EducationItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/education')
   return response.data
 }
+
