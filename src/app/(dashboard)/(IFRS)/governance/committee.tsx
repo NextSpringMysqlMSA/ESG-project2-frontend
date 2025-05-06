@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
+import {fetchCommitteeById} from '@/services/tcfd' // 데이터 불러오는 함수
 import {
   createCommittee,
   updateCommittee,
@@ -34,19 +35,29 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
   const [submitting, setSubmitting] = useState(false)
   const [committeeId, setCommitteeId] = useState<number | null>(null)
 
+  // rowId가 있을 때만 데이터를 불러오는 useEffect
   useEffect(() => {
     if (mode === 'edit' && rowId !== undefined) {
-      const item = useCommitteeStore.getState().data.find(d => d.id === rowId)
-      if (item) {
-        setCommitteeId(item.id)
-        setField('committeeName', item.committeeName)
-        setField('memberName', item.memberName)
-        setField('memberPosition', item.memberPosition)
-        setField('memberAffiliation', item.memberAffiliation)
-        setField('climateResponsibility', item.climateResponsibility)
+      const loadData = async () => {
+        try {
+          const committeeData = await fetchCommitteeById(rowId) // 데이터를 불러옵니다
+          setCommitteeId(committeeData.id) // 불러온 데이터의 ID 설정
+          setField('committeeName', committeeData.committeeName)
+          setField('memberName', committeeData.memberName)
+          setField('memberPosition', committeeData.memberPosition)
+          setField('memberAffiliation', committeeData.memberAffiliation)
+          setField('climateResponsibility', committeeData.climateResponsibility)
+        } catch (error) {
+          console.error('데이터를 불러오는 데 실패했습니다:', error)
+          showError('데이터를 불러오는 데 실패했습니다.')
+        }
       }
+
+      loadData()
+    } else {
+      resetFields() // 'add' 모드일 경우 입력 필드 초기화
     }
-  }, [rowId, mode])
+  }, [rowId, mode, setField, resetFields]) // rowId와 mode가 변경될 때 실행
 
   const handleSubmit = async () => {
     if (submitting) return
@@ -100,10 +111,12 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
 
   const handleDelete = async () => {
     if (committeeId === null) return
+
     try {
       setSubmitting(true)
       await deleteCommittee(committeeId)
       showSuccess('삭제되었습니다.')
+
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
       resetFields()
