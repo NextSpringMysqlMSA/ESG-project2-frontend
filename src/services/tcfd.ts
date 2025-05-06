@@ -147,15 +147,13 @@ export type UpdateCommitteeDto = CommitteeItem
 // 위원회 상세 조회 (ID로 데이터 가져오기)
 export const fetchCommitteeById = async (id: number): Promise<CommitteeItem> => {
   try {
-    console.log(`Fetching committee with ID: ${id}`) // 로그 추가: 호출된 ID 출력
+    console.log(`Fetching committee with ID: ${id}`) // 호출된 ID 출력
     const response = await api.get(`/api/v1/tcfd/governance/committee/${id}`)
-
-    console.log('Committee data fetched:', response.data) // 로그 추가: 받아온 데이터 출력
-
+    console.log('Response data:', response.data) // 응답 데이터 출력
     return response.data
   } catch (error) {
     console.error('Error fetching committee data:', error) // 에러 로그 추가
-    throw error // 에러를 다시 던짐
+    throw error
   }
 }
 
