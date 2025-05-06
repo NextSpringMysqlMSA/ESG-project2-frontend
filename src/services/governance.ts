@@ -26,11 +26,9 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   return response.data
 }
 
-export const deleteCommitteeItem = async (committeeName: string) => {
+export const deleteCommitteeItem = async (committeeId: number) => {
   try {
-    const response = await api.delete(`/api/v1/tcfd/governance/committee`, {
-      params: {name: committeeName}
-    })
+    const response = await api.delete(`/api/v1/tcfd/governance/committee/${committeeId}`)
     return response.data
   } catch (error) {
     console.error('❌ 위원회 삭제 실패:', error)

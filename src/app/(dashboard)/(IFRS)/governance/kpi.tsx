@@ -1,7 +1,7 @@
 import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
-import {KPIApi, fetchKpiList} from '@/services/tcfd'
+import {KPIApi, fetchKpiList} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {

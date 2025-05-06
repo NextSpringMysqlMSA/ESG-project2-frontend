@@ -4,7 +4,11 @@ import {useEffect, useState} from 'react'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
-import {committeeApi, deleteCommitteeItem, fetchCommitteeList} from '@/services/tcfd'
+import {
+  committeeApi,
+  deleteCommitteeItem,
+  fetchCommitteeList
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 
 type CommitteeProps = {
@@ -129,13 +133,12 @@ export default function Committee({onClose, row, mode}: CommitteeProps) {
 
       <div className="flex justify-center space-x-4">
         {mode === 'edit' && (
-          <DashButton
-            width="w-24"
-            className="bg-red-500 hover:bg-red-600"
+          <button
+            className="flex items-center justify-center w-24 p-2 text-white transition-all duration-200 bg-red-500 border border-red-500 rounded-xl hover:bg-white hover:text-red-500 hover:border-red-500"
             onClick={handleDelete}
             disabled={submitting}>
             삭제
-          </DashButton>
+          </button>
         )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
           {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
