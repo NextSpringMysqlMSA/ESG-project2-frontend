@@ -1,16 +1,49 @@
+'use client'
+
+import {useEffect, useState} from 'react'
 import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
-import {KPIApi, fetchKpiList} from '@/services/tcfd'
+import {
+  createKpi,
+  updateKpi,
+  deleteKpi,
+  fetchKpiList,
+  CreateKpiDto,
+  UpdateKpiDto
+} from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 
-type MeetingProps = {
+type KPIProps = {
   onClose: () => void
+  row?: string[]
+  rowId?: number
+  mode: 'add' | 'edit'
 }
 
-export default function KPI({onClose}: MeetingProps) {
-  const {executiveName, kpiName, targetValue, achievedValue, setField, setData} =
-    useKPIStore()
+export default function KPI({onClose, row, rowId, mode}: KPIProps) {
+  const {
+    executiveName,
+    kpiName,
+    targetValue,
+    achievedValue,
+    setField,
+    setData,
+    resetFields
+  } = useKPIStore()
+
+  const [kpiId, setKpiId] = useState<number | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (mode === 'edit' && row && rowId !== undefined) {
+      setKpiId(rowId)
+      setField('executiveName', row[0])
+      setField('kpiName', row[1])
+      setField('targetValue', row[2])
+      setField('achievedValue', row[3])
+    }
+  }, [row, rowId, mode])
 
   const handleSubmit = async () => {
     if (!executiveName || !kpiName || !targetValue || !achievedValue) {
@@ -18,26 +51,55 @@ export default function KPI({onClose}: MeetingProps) {
       return
     }
 
-    const kpiData = {
-      executiveName,
-      kpiName,
-      targetValue: targetValue,
-      achievedValue
+    const kpiData: CreateKpiDto = {
+      executiveName: executiveName.trim(),
+      kpiName: kpiName.trim(),
+      targetValue: targetValue.trim(),
+      achievedValue: achievedValue.trim()
     }
 
     try {
-      // API 호출
-      await KPIApi(kpiData)
+      setSubmitting(true)
+
+      if (mode === 'edit' && kpiId !== null) {
+        const updateData: UpdateKpiDto = {...kpiData, id: kpiId}
+        await updateKpi(kpiId, updateData)
+        showSuccess('수정되었습니다.')
+      } else {
+        await createKpi(kpiData)
+        showSuccess('저장되었습니다.')
+      }
+
       const updatedList = await fetchKpiList()
       setData(updatedList)
-      showSuccess('경영진 KPI 정보가 성공적으로 저장되었습니다.')
-      useKPIStore.getState().resetFields()
-
+      resetFields()
       onClose()
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
       showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (kpiId === null) return
+
+    try {
+      setSubmitting(true)
+      await deleteKpi(kpiId)
+      showSuccess('삭제되었습니다.')
+
+      const updatedList = await fetchKpiList()
+      setData(updatedList)
+      resetFields()
+      onClose()
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || '삭제 실패'
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -63,9 +125,19 @@ export default function KPI({onClose}: MeetingProps) {
         value={achievedValue}
         onChange={e => setField('achievedValue', e.target.value)}
       />
-      <div className="flex flex-row justify-center w-full">
-        <DashButton width="w-24" onClick={handleSubmit}>
-          저장
+
+      <div className="flex justify-center mt-4 space-x-4">
+        {mode === 'edit' && (
+          <DashButton
+            width="w-24"
+            className="text-white bg-red-500 border-red-500 hover:bg-red-600"
+            onClick={handleDelete}
+            disabled={submitting}>
+            삭제
+          </DashButton>
+        )}
+        <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>
