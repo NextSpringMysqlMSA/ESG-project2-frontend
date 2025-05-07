@@ -9,7 +9,9 @@ import {
   updateRisk,
   deleteRisk,
   fetchRiskById,
-  fetchRiskList
+  fetchRiskList,
+  CreateRiskDto,
+  UpdateRiskDto
 } from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
@@ -38,7 +40,8 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
     resetFields,
     initFromStorage,
     initFromApi,
-    persistToStorage
+    persistToStorage,
+    setData
   } = useRiskStore()
 
   const riskType2 = ['물리적 리스크', '전환 리스크', '기회 요인']
@@ -62,7 +65,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
     return () => {
       if (!isEditMode) persistToStorage()
     }
-  }, [isEditMode, rowId])
+  }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage])
 
   const handleSubmit = async () => {
     if (
@@ -79,35 +82,33 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
       return
     }
 
+    // DTO를 사용하여 데이터 준비
+    const riskData: CreateRiskDto = {
+      riskType,
+      riskCategory,
+      riskCause,
+      time,
+      impact,
+      financialImpact,
+      businessModelImpact,
+      plans
+    }
+
     try {
       setSubmitting(true)
 
       if (isEditMode && rowId !== undefined) {
-        await updateRisk(rowId, {
-          id: rowId,
-          riskType,
-          riskCategory,
-          riskCause,
-          time,
-          impact,
-          financialImpact,
-          businessModelImpact,
-          plans
-        })
+        // UpdateRiskDto를 사용하여 id 추가
+        const updateData: UpdateRiskDto = {...riskData, id: rowId}
+        await updateRisk(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
-        await createRisk({
-          riskType,
-          riskCategory,
-          riskCause,
-          time,
-          impact,
-          financialImpact,
-          businessModelImpact,
-          plans
-        })
+        await createRisk(riskData)
         showSuccess('저장되었습니다.')
       }
+
+      const updatedList = await fetchRiskList()
+      setData(updatedList)
 
       resetFields()
       onClose()
@@ -128,6 +129,11 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
       setSubmitting(true)
       await deleteRisk(rowId)
       showSuccess('삭제되었습니다.')
+
+      const updatedList = await fetchRiskList()
+      setData(updatedList)
+
+      resetFields()
       onClose()
     } catch (err) {
       const errorMessage =
@@ -139,7 +145,6 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
       setSubmitting(false)
     }
   }
-
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
       <div className="flex flex-row w-full">

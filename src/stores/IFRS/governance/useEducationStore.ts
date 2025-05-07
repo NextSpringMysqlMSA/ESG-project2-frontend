@@ -1,5 +1,6 @@
 import {create} from 'zustand'
 import type {educationState as EducationFields} from '@/types/IFRS/governance'
+import {fetchEducationById} from '@/services/governance' // API 함수 import 추가
 
 export type EducationItem = EducationFields
 
@@ -20,9 +21,10 @@ interface EducationStore extends EducationFields {
   setData: (items: EducationItem[]) => void
   persistToStorage: () => void
   initFromStorage: () => void
+  initFromApi: (id: number) => Promise<void> // API 호출 함수 추가
 }
 
-export const useEducationStore = create<EducationStore>(set => ({
+export const useEducationStore = create<EducationStore>((set, get) => ({
   ...DEFAULT_FIELDS,
   data: [],
 
@@ -34,10 +36,8 @@ export const useEducationStore = create<EducationStore>(set => ({
 
   persistToStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('education-mode')
-      if (mode !== 'add') return
-
-      const state = useEducationStore.getState()
+      // 세션 스토리지 체크 제거
+      const state = get() // useEducationStore.getState() 대신 get() 사용
       const dataToStore: EducationFields = {
         id: -1,
         educationTitle: state.educationTitle,
@@ -51,17 +51,34 @@ export const useEducationStore = create<EducationStore>(set => ({
 
   initFromStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('education-mode')
-      if (mode !== 'add') return
-
+      // 세션 스토리지 체크 제거
       const raw = localStorage.getItem('education-storage')
       if (!raw) return
       try {
         const parsed = JSON.parse(raw)
-        set({...parsed})
+        set({
+          ...parsed,
+          educationDate: parsed.educationDate ? new Date(parsed.educationDate) : null // 날짜 변환 보정
+        })
       } catch (e) {
         console.error('education-storage 복원 실패:', e)
       }
+    }
+  },
+
+  // API에서 교육 데이터를 가져와 상태를 초기화하는 함수 추가
+  initFromApi: async (id: number) => {
+    try {
+      const educationData = await fetchEducationById(id)
+      // 날짜 문자열을 Date 객체로 변환
+      set({
+        ...educationData,
+        educationDate: educationData.educationDate
+          ? new Date(educationData.educationDate)
+          : null
+      })
+    } catch (e) {
+      console.error('API에서 education 데이터 초기화 실패:', e)
     }
   },
 

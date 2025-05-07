@@ -27,20 +27,21 @@ export default function Strategy() {
   const {data: RiskData, setData} = useRiskStore()
   const {data: ScenarioData, setData: setScenarioData} = useScenarioStore()
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const RiskData = await fetchRiskList()
-        setData(RiskData)
+  const loadData = async () => {
+    try {
+      const RiskData = await fetchRiskList()
+      setData(RiskData)
 
-        const ScenarioData = await fetchScenarioList()
-        setScenarioData(ScenarioData)
-      } catch (e) {
-        console.error('데이터 불러오기 실패:', e)
-      } finally {
-        setLoading(false)
-      }
+      const ScenarioData = await fetchScenarioList()
+      setScenarioData(ScenarioData)
+    } catch (e) {
+      console.error('데이터 불러오기 실패:', e)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     loadData()
   }, [setData, setScenarioData])
 
@@ -126,7 +127,7 @@ export default function Strategy() {
                       }))
                 }
                 formContent={({onClose, row, rowId, mode}) => (
-                  <Scenario onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                  <Scenario onClose={onClose} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>

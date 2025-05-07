@@ -1,5 +1,6 @@
 import {create} from 'zustand'
 import type {meetingState as MeetingFields} from '@/types/IFRS/governance'
+import {fetchMeetingById} from '@/services/governance' // API 함수 import 추가
 
 export type MeetingItem = MeetingFields
 
@@ -19,9 +20,10 @@ interface MeetingStore extends MeetingFields {
   setData: (items: MeetingItem[]) => void
   persistToStorage: () => void
   initFromStorage: () => void
+  initFromApi: (id: number) => Promise<void> // API 호출 함수 추가
 }
 
-export const useMeetingStore = create<MeetingStore>(set => ({
+export const useMeetingStore = create<MeetingStore>((set, get) => ({
   ...DEFAULT_FIELDS,
   data: [],
 
@@ -33,17 +35,12 @@ export const useMeetingStore = create<MeetingStore>(set => ({
 
   resetFields: () => {
     set({...DEFAULT_FIELDS})
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('meeting-storage')
-    }
   },
 
   persistToStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('meeting-mode')
-      if (mode !== 'add') return
-
-      const state = useMeetingStore.getState()
+      // 세션 스토리지 체크 제거
+      const state = get() // getState() 대신 get() 사용
       const dataToStore: MeetingFields = {
         id: -1,
         meetingName: state.meetingName,
@@ -56,20 +53,32 @@ export const useMeetingStore = create<MeetingStore>(set => ({
 
   initFromStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('meeting-mode')
-      if (mode !== 'add') return
-
+      // 세션 스토리지 체크 제거
       const raw = localStorage.getItem('meeting-storage')
       if (!raw) return
       try {
         const parsed = JSON.parse(raw)
         set({
           ...parsed,
-          meetingDate: parsed.meetingDate ? new Date(parsed.meetingDate) : null // ✅ 날짜 변환 보정
+          meetingDate: parsed.meetingDate ? new Date(parsed.meetingDate) : null // 날짜 변환 보정
         })
       } catch (e) {
         console.error('meeting-storage 복원 실패:', e)
       }
+    }
+  },
+
+  // API에서 미팅 데이터를 가져와 상태를 초기화하는 함수 추가
+  initFromApi: async (id: number) => {
+    try {
+      const meetingData = await fetchMeetingById(id)
+      // 날짜 문자열을 Date 객체로 변환
+      set({
+        ...meetingData,
+        meetingDate: meetingData.meetingDate ? new Date(meetingData.meetingDate) : null
+      })
+    } catch (e) {
+      console.error('API에서 meeting 데이터 초기화 실패:', e)
     }
   },
 

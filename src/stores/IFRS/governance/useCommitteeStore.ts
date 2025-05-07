@@ -1,16 +1,16 @@
 import {create} from 'zustand'
-import {persist} from 'zustand/middleware'
 import type {committeeState as CommitteeFields} from '@/types/IFRS/governance'
+import {fetchCommitteeById} from '@/services/governance'
 
 export type CommitteeItem = CommitteeFields & {id: number}
 
 const DEFAULT_FIELDS: CommitteeFields = {
+  id: -1,
   committeeName: '',
   memberName: '',
   memberPosition: '',
   memberAffiliation: '',
-  climateResponsibility: '',
-  id: -1
+  climateResponsibility: ''
 }
 
 interface CommitteeStore extends CommitteeFields {
@@ -20,6 +20,7 @@ interface CommitteeStore extends CommitteeFields {
   resetFields: () => void
   persistToStorage: () => void
   initFromStorage: () => void
+  initFromApi: (id: number) => Promise<void>
   addItem: (item: CommitteeItem) => void
   clearList: () => void
   setData: (items: CommitteeItem[]) => void
@@ -37,17 +38,15 @@ export const useCommitteeStore = create<CommitteeStore>((set, get) => ({
 
   persistToStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('committee-mode')
-      if (mode !== 'add') return
-
+      // 세션 스토리지 체크 제거
       const state = get()
       const dataToStore: CommitteeFields = {
+        id: -1,
         committeeName: state.committeeName,
         memberName: state.memberName,
         memberPosition: state.memberPosition,
         memberAffiliation: state.memberAffiliation,
-        climateResponsibility: state.climateResponsibility,
-        id: -1
+        climateResponsibility: state.climateResponsibility
       }
       localStorage.setItem('committee-storage', JSON.stringify(dataToStore))
     }
@@ -55,9 +54,7 @@ export const useCommitteeStore = create<CommitteeStore>((set, get) => ({
 
   initFromStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('committee-mode')
-      if (mode !== 'add') return
-
+      // 세션 스토리지 체크 제거
       const raw = localStorage.getItem('committee-storage')
       if (!raw) return
       try {
@@ -66,6 +63,16 @@ export const useCommitteeStore = create<CommitteeStore>((set, get) => ({
       } catch (e) {
         console.error('committee-storage 복원 실패:', e)
       }
+    }
+  },
+
+  // API에서 데이터를 가져와 상태를 초기화하는 함수
+  initFromApi: async (id: number) => {
+    try {
+      const committeeData = await fetchCommitteeById(id)
+      set({...committeeData})
+    } catch (e) {
+      console.error('API에서 committee 데이터 초기화 실패:', e)
     }
   },
 

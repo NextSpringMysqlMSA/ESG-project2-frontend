@@ -37,9 +37,6 @@ export const useRiskStore = create<RiskStore>(set => ({
 
   resetFields: () => {
     set({...DEFAULT_FIELDS})
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('risk-storage')
-    }
   },
 
   initFromStorage: () => {

@@ -9,7 +9,9 @@ import {
   createMeeting,
   updateMeeting,
   deleteMeeting,
-  fetchMeetingList
+  fetchMeetingList,
+  CreateMeetingDto,
+  UpdateMeetingDto
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
@@ -17,12 +19,15 @@ import {format} from 'date-fns'
 
 type MeetingProps = {
   onClose: () => void
-  row?: string[]
+  // row?: string[] // 제거: API에서 직접 데이터를 가져오기 때문에 불필요
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
+export default function Meeting({onClose, rowId, mode}: MeetingProps) {
+  const isEditMode = mode === 'edit'
+  const [submitting, setSubmitting] = useState(false)
+
   const {
     meetingName,
     meetingDate,
@@ -31,40 +36,28 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
     setData,
     resetFields,
     persistToStorage,
-    initFromStorage
+    initFromStorage,
+    initFromApi // API 데이터 초기화 함수 사용
   } = useMeetingStore()
 
-  const [meetingId, setMeetingId] = useState<number | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('meeting-mode', mode)
+    if (isEditMode && rowId !== undefined) {
+      // 수정 모드: API에서 데이터 로드
+      initFromApi(rowId)
+    } else {
+      // 추가 모드: 로컬 스토리지에서 데이터 로드
+      initFromStorage()
     }
 
-    if (mode === 'edit' && row && typeof rowId === 'number') {
-      setMeetingId(rowId)
-      const parsedDate = new Date(row[0])
-      setField('meetingDate', parsedDate)
-      setField('meetingName', row[1])
-      setField('agenda', row[2])
-    } else if (mode === 'add') {
-      setMeetingId(null)
-      requestAnimationFrame(() => {
-        initFromStorage()
-      })
-    }
-
+    // 언마운트 시 저장 (추가 모드인 경우만)
     return () => {
-      if (mode === 'add') {
-        requestAnimationFrame(() => {
-          persistToStorage()
-        })
+      if (!isEditMode) {
+        persistToStorage()
       } else {
-        resetFields()
+        resetFields() // 수정 모드일 때 상태 초기화
       }
     }
-  }, [])
+  }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage, resetFields])
 
   const handleSubmit = async () => {
     if (!meetingName || !meetingDate || !agenda) {
@@ -72,7 +65,7 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       return
     }
 
-    const meetingData = {
+    const meetingData: CreateMeetingDto = {
       meetingName: meetingName.trim(),
       meetingDate: format(meetingDate, 'yyyy-MM-dd'),
       agenda: agenda.trim()
@@ -81,14 +74,14 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
     try {
       setSubmitting(true)
 
-      if (mode === 'edit' && meetingId !== null) {
-        await updateMeeting(meetingId, {...meetingData, id: meetingId})
+      if (isEditMode && rowId !== undefined) {
+        const updateData: UpdateMeetingDto = {...meetingData, id: rowId}
+        await updateMeeting(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
         await createMeeting(meetingData)
         showSuccess('저장되었습니다.')
         localStorage.removeItem('meeting-storage')
-        resetFields()
       }
 
       const updatedList = await fetchMeetingList()
@@ -99,6 +92,7 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
         }))
       )
 
+      resetFields()
       onClose()
     } catch (err) {
       const message =
@@ -112,11 +106,11 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
   }
 
   const handleDelete = async () => {
-    if (meetingId == null) return
+    if (rowId === undefined) return
 
     try {
       setSubmitting(true)
-      await deleteMeeting(meetingId)
+      await deleteMeeting(rowId)
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchMeetingList()
@@ -145,7 +139,7 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       <div className="flex flex-row w-full space-x-4">
         <Calendar
           mode="single"
-          selected={meetingDate ?? undefined} // ✅ 직접 Zustand 값 사용
+          selected={meetingDate ?? undefined}
           onSelect={d => setField('meetingDate', d ?? null)}
         />
 
@@ -165,7 +159,7 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       </div>
 
       <div className="flex justify-center mt-4 space-x-4">
-        {mode === 'edit' && (
+        {isEditMode && (
           <DashButton
             width="w-24"
             className="text-white bg-red-500 border-red-500 hover:bg-red-600"
@@ -175,7 +169,7 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
           </DashButton>
         )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
+          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>

@@ -16,14 +16,16 @@ import {useEffect, useState} from 'react'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
 
-type MeetingProps = {
+type ScenarioProps = {
   onClose: () => void
-  row?: string[]
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
+export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
+  const isEditMode = mode === 'edit'
+  const [submitting, setSubmitting] = useState(false)
+
   const {
     regions,
     longitude,
@@ -38,31 +40,28 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
     responseStrategy,
     setField,
     setData,
-    resetFields
+    resetFields,
+    initFromApi,
+    initFromStorage,
+    persistToStorage
   } = useScenarioStore()
 
-  const [scenarioId, setScenarioId] = useState<number | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
   useEffect(() => {
-    console.log('[scenario] mode:', mode)
-    console.log('[scenario] rowId:', rowId)
-    console.log('[scenario] row:', row)
-    if (mode === 'edit' && row && rowId != null) {
-      console.log('[scenario] Edit mode: setting form fields')
-      setScenarioId(rowId)
-      // 상태가 다를 때만 set
-      if (regions !== row[0]) setField('regions', row[0])
-      if (scenario !== row[1]) setField('scenario', row[1])
-      if (longitude !== parseFloat(row[2])) setField('longitude', parseFloat(row[2]))
-      if (latitude !== parseFloat(row[3])) setField('latitude', parseFloat(row[3]))
-      if (scenario !== row[1]) setField('scenario', row[1])
+    if (isEditMode && rowId !== undefined) {
+      // 수정 모드: API에서 데이터 로드
+      initFromApi(rowId)
     } else {
-      console.log('[KPI] Add mode or invalid data: resetting form')
-      setScenarioId(null)
+      // 추가 모드: 로컬 스토리지에서 데이터 로드
+      initFromStorage()
     }
-    // 의존성 배열 주의!
-  }, [mode, rowId])
+
+    // 언마운트 시 저장 (추가 모드인 경우만)
+    return () => {
+      if (!isEditMode) {
+        persistToStorage()
+      }
+    }
+  }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage])
 
   const handleSubmit = async () => {
     if (
@@ -82,7 +81,7 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
       return
     }
 
-    const ScenarioData: CreateScenarioDto = {
+    const scenarioData: CreateScenarioDto = {
       regions: regions.trim(),
       longitude: longitude,
       latitude: latitude,
@@ -98,14 +97,14 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
 
     try {
       setSubmitting(true)
-      if (mode === 'edit' && scenarioId !== null) {
-        console.log('Scenario Submitting update for ID:', scenarioId)
-        const updateData: UpdateScenarioDto = {...ScenarioData, id: scenarioId}
-        await updateScenario(scenarioId, updateData)
+      if (isEditMode && rowId !== undefined) {
+        console.log('Scenario Submitting update for ID:', rowId)
+        const updateData: UpdateScenarioDto = {...scenarioData, id: rowId}
+        await updateScenario(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
-        console.log('Scenario Creating new KPI')
-        await createScenario(ScenarioData)
+        console.log('Scenario Creating new scenario')
+        await createScenario(scenarioData)
         showSuccess('저장되었습니다.')
       }
 
@@ -125,15 +124,12 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
   }
 
   const handleDelete = async () => {
-    if (scenarioId == null) {
-      console.warn('Scenario handleDelete: no scenarioId set, aborting')
-      return
-    }
+    if (!rowId) return
 
     try {
       setSubmitting(true)
-      console.log('Scenario Deleting KPI ID:', scenarioId)
-      await deleteScenario(scenarioId)
+      console.log('Scenario Deleting scenario ID:', rowId)
+      await deleteScenario(rowId)
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchScenarioList()
@@ -171,7 +167,6 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
     '제주특별자치도'
   ]
   const warming2 = ['+1.5°C', '+2.0°C', '+3.0°C']
-
   const industry2 = [
     'ICT/통신',
     '에너지/전력',
@@ -181,7 +176,6 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
     '제조/공정'
   ]
   const scenario2 = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
-
   const climate2 = [
     'TX90 (90th 백분위 고온일수)',
     'RX1D (1일 최대 강수량)',
@@ -205,8 +199,8 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
             />
             <InputBox
               label="경도 (예: 126.97)"
-              value={longitude}
-              onChange={e => setField('longitude', parseFloat(e.target.value))}
+              value={longitude || ''}
+              onChange={e => setField('longitude', parseFloat(e.target.value) || 0)}
             />
             <CustomSelect
               placeholder="온난화 수준"
@@ -222,15 +216,15 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
             />
             <InputBox
               label="분석 기준 연도 (예: 2030)"
-              value={baseYear}
-              onChange={e => setField('baseYear', parseInt(e.target.value))}
+              value={baseYear || ''}
+              onChange={e => setField('baseYear', parseInt(e.target.value) || 0)}
             />
           </div>
           <div className="flex flex-col w-[50%] ml-2 space-y-4">
             <InputBox
               label="위도 (예: 37.56)"
-              value={latitude}
-              onChange={e => setField('latitude', parseFloat(e.target.value))}
+              value={latitude || ''}
+              onChange={e => setField('latitude', parseFloat(e.target.value) || 0)}
             />
             <CustomSelect
               placeholder="SSP 시나리오"
@@ -252,8 +246,8 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
             />
             <InputBox
               label="단위 피해(예: ₩/일 또는 ₩/mm)"
-              value={isNaN(damage) ? '' : damage}
-              onChange={e => setField('damage', parseFloat(e.target.value))}
+              value={damage || ''}
+              onChange={e => setField('damage', parseFloat(e.target.value) || 0)}
             />
           </div>
         </div>
@@ -263,8 +257,8 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
           onChange={e => setField('responseStrategy', e.target.value)}
         />
       </div>
-      <div className="flex flex-row justify-center w-full">
-        {mode === 'edit' && (
+      <div className="flex flex-row justify-center w-full gap-4">
+        {isEditMode && (
           <DashButton
             width="w-24"
             className="text-white bg-red-500 border-red-500 hover:bg-red-600"
@@ -274,7 +268,7 @@ export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
           </DashButton>
         )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
+          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>

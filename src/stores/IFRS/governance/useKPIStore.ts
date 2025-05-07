@@ -1,5 +1,6 @@
 import {create} from 'zustand'
 import {kpiState as KPIFields} from '@/types/IFRS/governance'
+import {fetchKpiById} from '@/services/governance' // API 함수 import 추가
 
 export type KPIItem = KPIFields
 
@@ -20,9 +21,10 @@ interface KPIStore extends KPIFields {
   setData: (items: KPIItem[]) => void
   persistToStorage: () => void
   initFromStorage: () => void
+  initFromApi: (id: number) => Promise<void> // API 호출 함수 타입 추가
 }
 
-export const useKPIStore = create<KPIStore>(set => ({
+export const useKPIStore = create<KPIStore>((set, get) => ({
   ...DEFAULT_FIELDS,
   data: [],
 
@@ -38,10 +40,7 @@ export const useKPIStore = create<KPIStore>(set => ({
 
   persistToStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('kpi-mode')
-      if (mode !== 'add') return
-
-      const state = useKPIStore.getState()
+      const state = get()
       const dataToStore: KPIFields = {
         id: -1,
         executiveName: state.executiveName,
@@ -55,9 +54,6 @@ export const useKPIStore = create<KPIStore>(set => ({
 
   initFromStorage: () => {
     if (typeof window !== 'undefined') {
-      const mode = sessionStorage.getItem('kpi-mode')
-      if (mode !== 'add') return
-
       const raw = localStorage.getItem('kpi-storage')
       if (!raw) return
       try {
@@ -66,6 +62,16 @@ export const useKPIStore = create<KPIStore>(set => ({
       } catch (e) {
         console.error('kpi-storage 복원 실패:', e)
       }
+    }
+  },
+
+  // API에서 KPI 데이터를 가져와 상태를 초기화하는 함수 추가
+  initFromApi: async (id: number) => {
+    try {
+      const kpiData = await fetchKpiById(id)
+      set({...kpiData})
+    } catch (e) {
+      console.error('API에서 KPI 데이터 초기화 실패:', e)
     }
   },
 

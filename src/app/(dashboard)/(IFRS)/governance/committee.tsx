@@ -8,20 +8,24 @@ import {
   createCommittee,
   updateCommittee,
   deleteCommittee,
-  fetchCommitteeList
+  fetchCommitteeList,
+  CreateCommitteeDto,
+  UpdateCommitteeDto
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
-import {CreateCommitteeDto, UpdateCommitteeDto} from '@/services/governance'
 import axios from 'axios'
 
 type CommitteeProps = {
   onClose: () => void
-  row?: string[]
+  // row?: string[] // 제거: API에서 직접 데이터를 가져오기 때문에 필요 없음
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
+export default function Committee({onClose, rowId, mode}: CommitteeProps) {
+  const isEditMode = mode === 'edit'
+  const [submitting, setSubmitting] = useState(false)
+
   const {
     committeeName,
     memberName,
@@ -32,34 +36,27 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
     resetFields,
     setData,
     persistToStorage,
-    initFromStorage
+    initFromStorage,
+    initFromApi // 새로 추가된 함수
   } = useCommitteeStore()
 
-  const [submitting, setSubmitting] = useState(false)
-
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('committee-mode', mode)
-    }
-
-    if (mode === 'edit' && row && typeof rowId === 'number') {
-      setField('committeeName', row[0])
-      const [name, position, affiliation] = row[1].split(' / ')
-      setField('memberName', name || '')
-      setField('memberPosition', position || '')
-      setField('memberAffiliation', affiliation || '')
-      setField('climateResponsibility', row[2])
-    } else if (mode === 'add') {
+    if (isEditMode && rowId !== undefined) {
+      // 수정 모드: API에서 데이터 로드
+      initFromApi(rowId)
+    } else {
+      // 추가 모드: 로컬 스토리지에서 데이터 로드
       initFromStorage()
     }
 
+    // 언마운트 시 저장 (추가 모드인 경우만)
     return () => {
-      if (mode === 'add') {
+      if (!isEditMode) {
         persistToStorage()
       }
       resetFields()
     }
-  }, [mode, rowId])
+  }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage, resetFields])
 
   const handleSubmit = async () => {
     if (submitting) return
@@ -86,7 +83,7 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
     try {
       setSubmitting(true)
 
-      if (mode === 'edit' && typeof rowId === 'number') {
+      if (isEditMode && rowId !== undefined) {
         const updateData: UpdateCommitteeDto = {...committeeData, id: rowId}
         await updateCommittee(rowId, updateData)
         showSuccess('수정되었습니다.')
@@ -94,7 +91,6 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
         await createCommittee(committeeData)
         showSuccess('저장되었습니다.')
 
-        // ✅ 저장 성공 시 로컬스토리지 제거
         localStorage.removeItem('committee-storage')
         resetFields()
       }
@@ -114,7 +110,7 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
   }
 
   const handleDelete = async () => {
-    if (typeof rowId !== 'number') return
+    if (rowId === undefined) return
 
     try {
       setSubmitting(true)
@@ -164,7 +160,7 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
         onChange={e => setField('climateResponsibility', e.target.value)}
       />
       <div className="flex justify-center mt-4 space-x-4">
-        {mode === 'edit' && (
+        {isEditMode && (
           <DashButton
             width="w-24"
             className="bg-red-500 hover:bg-red-600"
@@ -174,7 +170,7 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
           </DashButton>
         )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
+          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>

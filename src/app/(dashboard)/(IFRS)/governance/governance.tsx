@@ -127,8 +127,8 @@ export default function Governance() {
                         ]
                       }))
                 }
-                formContent={({onClose, row, rowId, mode}) => (
-                  <Committee onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                formContent={({onClose, rowId, mode}) => (
+                  <Committee onClose={onClose} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>
@@ -154,7 +154,7 @@ export default function Governance() {
                       }))
                 }
                 formContent={({onClose, row, rowId, mode}) => (
-                  <Meeting onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                  <Meeting onClose={onClose} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>
@@ -181,7 +181,7 @@ export default function Governance() {
                       }))
                 }
                 formContent={({onClose, row, rowId, mode}) => (
-                  <KPI onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                  <KPI onClose={onClose} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>
@@ -210,7 +210,7 @@ export default function Governance() {
                       }))
                 }
                 formContent={({onClose, row, rowId, mode}) => (
-                  <Education onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                  <Education onClose={onClose} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>

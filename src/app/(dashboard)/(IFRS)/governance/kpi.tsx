@@ -17,12 +17,15 @@ import axios from 'axios'
 
 type KPIProps = {
   onClose: () => void
-  row?: string[]
+  // row?: string[] // 제거: API에서 직접 데이터를 가져오기 때문에 불필요
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function KPI({onClose, row, rowId, mode}: KPIProps) {
+export default function KPI({onClose, rowId, mode}: KPIProps) {
+  const isEditMode = mode === 'edit'
+  const [submitting, setSubmitting] = useState(false)
+
   const {
     executiveName,
     kpiName,
@@ -32,40 +35,28 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
     setData,
     resetFields,
     persistToStorage,
-    initFromStorage
+    initFromStorage,
+    initFromApi // 새로 추가된 API 호출 함수
   } = useKPIStore()
 
-  const [kpiId, setKpiId] = useState<number | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('kpi-mode', mode)
+    if (isEditMode && rowId !== undefined) {
+      // 수정 모드: API에서 데이터 로드
+      initFromApi(rowId)
+    } else {
+      // 추가 모드: 로컬 스토리지에서 데이터 로드
+      initFromStorage()
     }
 
-    if (mode === 'edit' && row && typeof rowId === 'number') {
-      setKpiId(rowId)
-      setField('executiveName', row[0])
-      setField('kpiName', row[1])
-      setField('targetValue', row[2])
-      setField('achievedValue', row[3])
-    } else if (mode === 'add') {
-      setKpiId(null)
-      requestAnimationFrame(() => {
-        initFromStorage()
-      })
-    }
-
+    // 언마운트 시 저장 (추가 모드인 경우만)
     return () => {
-      if (mode === 'add') {
-        requestAnimationFrame(() => {
-          persistToStorage()
-        })
+      if (!isEditMode) {
+        persistToStorage()
       } else {
-        resetFields()
+        resetFields() // 수정 모드일 때 상태 초기화
       }
     }
-  }, [])
+  }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage, resetFields])
 
   const handleSubmit = async () => {
     if (!executiveName || !kpiName || !targetValue || !achievedValue) {
@@ -82,9 +73,9 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
 
     try {
       setSubmitting(true)
-      if (mode === 'edit' && kpiId !== null) {
-        const updateData: UpdateKpiDto = {...kpiData, id: kpiId}
-        await updateKpi(kpiId, updateData)
+      if (isEditMode && rowId !== undefined) {
+        const updateData: UpdateKpiDto = {...kpiData, id: rowId}
+        await updateKpi(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
         await createKpi(kpiData)
@@ -108,11 +99,11 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
   }
 
   const handleDelete = async () => {
-    if (!kpiId) return
+    if (rowId === undefined) return
 
     try {
       setSubmitting(true)
-      await deleteKpi(kpiId)
+      await deleteKpi(rowId)
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchKpiList()
@@ -154,7 +145,7 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
       />
 
       <div className="flex justify-center mt-4 space-x-4">
-        {mode === 'edit' && (
+        {isEditMode && (
           <DashButton
             width="w-24"
             className="text-white bg-red-500 border-red-500 hover:bg-red-600"
@@ -164,7 +155,7 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
           </DashButton>
         )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
+          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>
