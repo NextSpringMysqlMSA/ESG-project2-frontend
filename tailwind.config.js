@@ -54,7 +54,9 @@ module.exports = {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))'
         },
-        customG: '#57BF3D'
+        customG: '#57BF3D',
+        customGStart: '#57BF3D',
+        customGEnd: '#F6FFF2'
       },
       keyframes: {
         'accordion-down': {

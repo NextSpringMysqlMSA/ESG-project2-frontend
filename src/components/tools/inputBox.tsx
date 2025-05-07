@@ -6,27 +6,35 @@ type InputBoxProps = {
   label?: string
   className?: string
   id?: string
+  value: string | number | null | undefined
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  type?: string
 }
 
 export default function InputBox({
   label = '',
   className = '',
-  id = 'input-box'
+  id = 'input-box',
+  value,
+  onChange,
+  type = 'text'
 }: InputBoxProps) {
-  const [value, setValue] = useState('')
   const [isFocused, setIsFocused] = useState(false)
 
-  const shouldFloat = value.length > 0 || isFocused
+  // value가 null 또는 undefined일 때는 빈 문자열 처리
+  const inputValue = value != null ? value.toString() : ''
+
+  const shouldFloat = inputValue.length > 0 || isFocused
 
   return (
     <div className="relative w-full">
       <input
-        type="text"
+        type={type}
         id={id}
-        value={value}
+        value={inputValue}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        onChange={e => setValue(e.target.value)}
+        onChange={onChange}
         className={`peer block w-full h-9 appearance-none rounded-lg border border-input bg-transparent px-2.5 pb-2.5 pt-4 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-0 dark:text-white dark:focus:border-blue-500 ${className}`}
       />
       <label

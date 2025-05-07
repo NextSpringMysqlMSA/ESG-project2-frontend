@@ -1,28 +1,43 @@
 import axios from 'axios'
 import {useAuthStore} from '@/stores/authStore'
+// import router from 'next/router' // App Router가 아니라 Pages Router면 이거, App Router면 next/navigation 사용
+// import toast from 'react-hot-toast'
 
 // Axios 인스턴스 생성
-// - baseURL은 환경 변수에서 설정 (ex. http://localhost:8080)
-// - 모든 API 요청은 이 인스턴스를 통해 이루어짐
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SPRING_API_URL
+  baseURL: process.env.NEXT_PUBLIC_SPRING_API_URL,
+  withCredentials: true // 쿠키 사용할 경우 필요
 })
 
-// 요청 인터셉터 설정
-// - 매 요청 전에 실행되어 Authorization 헤더를 자동으로 추가
-api.interceptors.request.use(config => {
-  // Zustand 스토어에서 Authorization 헤더 문자열 가져오기
-  // getAuthorizationHeader()는 'Bearer {토큰}' 형식 문자열 반환
-  const token = useAuthStore.getState().getAuthorizationHeader?.()
+// 요청 인터셉터
+api.interceptors.request.use(
+  config => {
+    const getAuthHeader = useAuthStore.getState().getAuthorizationHeader
+    const token = getAuthHeader?.()
 
-  // 토큰이 존재하면 Authorization 헤더에 설정
-  if (token) {
-    config.headers.Authorization = token
-  }
+    if (token) {
+      config.headers.Authorization = token
+    }
 
-  // 최종 config 반환 → Axios가 요청 실행
-  return config
-})
+    console.log('📦 요청 헤더:', config.headers)
 
-// api 인스턴스 내보내기
+    return config
+  },
+  error => Promise.reject(error)
+)
+
+// api.interceptors.response.use(
+//   response => response,
+//   error => {
+//     if (error.response?.status === 401 || error.response?.status === 403) {
+//       if (typeof window !== 'undefined') {
+//         useAuthStore.getState().logout()
+
+//         window.location.href = '/login?error=unauthorized'
+//       }
+//     }
+//     return Promise.reject(error)
+//   }
+// )
+
 export default api

@@ -1,3 +1,5 @@
+'use client'
+
 import Scenario from './scenario'
 import Risk from './risk'
 import {
@@ -75,9 +77,11 @@ export default function Strategy() {
             </AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
+                type="scenario"
                 headers={scenarioHeader}
-                formContent={<Scenario />}
+                formContent={({onClose}) => <Scenario onClose={onClose} />}
                 dialogTitle="SSP 시나리오 분석"
+                data={[]} // 빈 배열로 기본값 명시
               />
             </AccordionContent>
           </AccordionItem>
@@ -87,9 +91,11 @@ export default function Strategy() {
             </AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
+                type="risk"
                 headers={riskHeader}
-                formContent={<Risk />}
+                formContent={({onClose}) => <Risk onClose={onClose} />}
                 dialogTitle="리스크 식별 및 대응"
+                data={[]} // 빈 배열로 기본값 명시
               />
             </AccordionContent>
           </AccordionItem>

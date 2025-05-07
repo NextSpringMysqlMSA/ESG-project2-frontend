@@ -1,7 +1,7 @@
-export default function HomeIcon() {
+export default function HomeIcon({className = ''}: {className?: string}) {
   return (
     <svg
-      className="text-primary min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white"
+      className={`min-w-8 min-h-8 max-w-8 max-h-8 group-hover:text-white ${className}`}
       viewBox="-1 0 19 19"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg">

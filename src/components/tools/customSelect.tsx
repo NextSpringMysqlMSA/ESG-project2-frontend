@@ -9,16 +9,18 @@ import {
 type CustomSelectProps = {
   placeholder: string
   options: string[]
-  onValueChange?: (value: string) => void
+  value?: string | null
+  onValueChange: (value: string) => void
 }
 
 export default function CustomSelect({
   placeholder,
   options,
+  value,
   onValueChange
 }: CustomSelectProps) {
   return (
-    <Select onValueChange={onValueChange}>
+    <Select value={value ?? undefined} onValueChange={onValueChange}>
       <SelectTrigger className="w-full">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
