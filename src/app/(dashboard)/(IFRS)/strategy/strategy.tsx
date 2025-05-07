@@ -17,8 +17,33 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
+import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
+import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
+import {fetchRiskList, fetchScenarioList} from '@/services/strategy'
+import {useEffect, useState} from 'react'
 
 export default function Strategy() {
+  const [loading, setLoading] = useState(true)
+  const {data: RiskData, setData} = useRiskStore()
+  const {data: ScenarioData, setData: setScenarioData} = useScenarioStore()
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const RiskData = await fetchRiskList()
+        setData(RiskData)
+
+        const ScenarioData = await fetchScenarioList()
+        setScenarioData(ScenarioData)
+      } catch (e) {
+        console.error('데이터 불러오기 실패:', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [setData, setScenarioData])
+
   const scenarioHeader = [
     '행정구역',
     '시나리오',
@@ -79,9 +104,30 @@ export default function Strategy() {
               <CollapsibleWindow
                 type="scenario"
                 headers={scenarioHeader}
-                formContent={({onClose}) => <Scenario onClose={onClose} />}
                 dialogTitle="SSP 시나리오 분석"
-                data={[]} // 빈 배열로 기본값 명시
+                data={
+                  loading
+                    ? []
+                    : ScenarioData.map(item => ({
+                        id: item.id,
+                        values: [
+                          String(item.regions ?? ''),
+                          String(item.longitude ?? ''),
+                          String(item.latitude ?? ''),
+                          String(item.warming ?? ''),
+                          String(item.industry ?? ''),
+                          String(item.scenario ?? ''),
+                          String(item.baseYear ?? ''),
+                          String(item.climate ?? ''),
+                          String(item.damage ?? ''),
+                          String(item.format ?? ''),
+                          String(item.responseStrategy ?? '')
+                        ]
+                      }))
+                }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Scenario onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>
