@@ -1,28 +1,45 @@
 'use client'
 
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {Calendar} from '@/components/ui/calendar'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
-import {meetingApi, fetchMeetingList} from '@/services/tcfd'
+import {
+  createMeeting,
+  updateMeeting,
+  deleteMeeting,
+  fetchMeetingList
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
 import {format} from 'date-fns'
+import axios from 'axios'
 
 type MeetingProps = {
   onClose: () => void
+  row?: string[] // [제목, 날짜, 안건]
+  rowId?: number
+  mode: 'add' | 'edit'
 }
 
-export default function Meeting({onClose}: MeetingProps) {
-  const {meetingName, meetingDate, agenda, setField, setData} = useMeetingStore()
-  const [date, setDate] = React.useState<Date | undefined>(meetingDate ?? undefined)
+export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
+  const {meetingName, meetingDate, agenda, setField, setData, resetFields} =
+    useMeetingStore()
 
-  React.useEffect(() => {
-    // zustand에서 로딩된 값이 바뀌면 동기화
-    if (meetingDate) {
-      setDate(meetingDate)
+  const [date, setDate] = useState<Date | undefined>(meetingDate ?? undefined)
+  const [meetingId, setMeetingId] = useState<number | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    console.log('[Meeting] row:', row)
+    if (mode === 'edit' && row && rowId !== undefined) {
+      setMeetingId(rowId)
+      setField('meetingDate', new Date(row[0])) // 날짜 → row[0]
+      setField('meetingName', row[1]) // 제목 → row[1]
+      setField('agenda', row[2]) // 안건 → row[2]
+      setDate(new Date(row[0]))
     }
-  }, [meetingDate])
+  }, [row, rowId, mode])
 
   const handleSubmit = async () => {
     if (!meetingName || !meetingDate || !agenda) {
@@ -32,26 +49,66 @@ export default function Meeting({onClose}: MeetingProps) {
 
     const meetingData = {
       meetingName: meetingName.trim(),
-      meetingDate: meetingDate ? format(meetingDate, 'yyyy-MM-dd') : '',
+      meetingDate: format(meetingDate, 'yyyy-MM-dd'),
       agenda: agenda.trim()
     }
 
     try {
-      await meetingApi(meetingData)
+      setSubmitting(true)
+
+      if (mode === 'edit' && meetingId !== null) {
+        await updateMeeting(meetingId, {...meetingData, id: meetingId})
+        showSuccess('수정되었습니다.')
+      } else {
+        await createMeeting(meetingData)
+        showSuccess('저장되었습니다.')
+      }
+
       const updatedList = await fetchMeetingList()
       const parsedList = updatedList.map(item => ({
         ...item,
         meetingDate: new Date(item.meetingDate)
       }))
       setData(parsedList)
-      showSuccess('회의 정보가 성공적으로 저장되었습니다.')
-      useMeetingStore.getState().resetFields()
+      resetFields()
       setDate(undefined)
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage =
-        err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '저장 실패: 서버 오류 발생'
       showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (meetingId === null) return
+
+    try {
+      setSubmitting(true)
+      await deleteMeeting(meetingId)
+      showSuccess('삭제되었습니다.')
+
+      const updatedList = await fetchMeetingList()
+      const parsedList = updatedList.map(item => ({
+        ...item,
+        meetingDate: new Date(item.meetingDate)
+      }))
+      setData(parsedList)
+      resetFields()
+      setDate(undefined)
+      onClose()
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류 발생'
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -63,7 +120,7 @@ export default function Meeting({onClose}: MeetingProps) {
           selected={date}
           onSelect={selectedDate => {
             setDate(selectedDate)
-            setField('meetingDate', selectedDate ?? null) // ✅ Date 객체 그대로 저장
+            setField('meetingDate', selectedDate ?? null)
           }}
         />
         <div className="flex flex-col w-full h-full space-y-4">
@@ -80,9 +137,18 @@ export default function Meeting({onClose}: MeetingProps) {
           />
         </div>
       </div>
-      <div className="flex flex-row justify-center w-full">
-        <DashButton width="w-24" onClick={handleSubmit}>
-          저장
+      <div className="flex justify-center mt-4 space-x-4">
+        {mode === 'edit' && (
+          <DashButton
+            width="w-24"
+            className="text-white bg-red-500 border-red-500 hover:bg-red-600"
+            onClick={handleDelete}
+            disabled={submitting}>
+            삭제
+          </DashButton>
+        )}
+        <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>

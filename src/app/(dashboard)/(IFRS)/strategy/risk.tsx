@@ -1,11 +1,10 @@
 'use client'
 
-import {useState} from 'react'
 import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
-import {riskApi} from '@/services/strategy'
+import {createRisk} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -62,12 +61,27 @@ export default function Risk({onClose}: MeetingProps) {
     }
 
     try {
-      await riskApi(riskData)
+      await createRisk(riskData)
       showSuccess('리스크 정보가 저장되었습니다.')
       onClose()
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
+    } catch (err: unknown) {
+      let errorMessage = '저장 실패: 서버 오류가 발생했습니다.'
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof err.response === 'object' &&
+        err.response !== null &&
+        'data' in err.response &&
+        typeof err.response.data === 'object' &&
+        err.response.data !== null &&
+        'message' in err.response.data &&
+        typeof err.response.data.message === 'string'
+      ) {
+        errorMessage = err.response.data.message
+      }
       showError(errorMessage)
     }
   }
@@ -103,7 +117,7 @@ export default function Risk({onClose}: MeetingProps) {
           />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
-          {riskType && (
+          {riskType2 && (
             <CustomSelect
               placeholder="리스크 유형"
               options={riskCategory2[riskType] ?? []}

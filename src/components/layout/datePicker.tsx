@@ -6,7 +6,6 @@ import {CalendarIcon} from 'lucide-react'
 import {format} from 'date-fns'
 import {ko} from 'date-fns/locale'
 import {Button} from '@/components/ui/button'
-import {FormItem, FormLabel, FormDescription} from '@/components/ui/form'
 import {Popover, PopoverTrigger, PopoverContent} from '@/components/ui/popover'
 
 interface Props {
@@ -53,7 +52,6 @@ export function DatePickerForm({
       <div className="flex flex-col">
         <label className="mb-1 font-medium">교육 인원</label>
         <input
-          type="number"
           placeholder="1"
           className="w-[240px] h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={participantCount}

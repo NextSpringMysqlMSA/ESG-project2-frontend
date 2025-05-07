@@ -4,16 +4,24 @@ import {useEffect, useState} from 'react'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
 import InputBox from '@/components/tools/inputBox'
 import DashButton from '@/components/tools/dashButton'
-import {committeeApi, deleteCommitteeItem, fetchCommitteeList} from '@/services/tcfd'
+import {
+  createCommittee,
+  updateCommittee,
+  deleteCommittee,
+  fetchCommitteeList
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
+import {CreateCommitteeDto, UpdateCommitteeDto} from '@/services/governance'
+import axios from 'axios'
 
 type CommitteeProps = {
   onClose: () => void
   row?: string[]
+  rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Committee({onClose, row, mode}: CommitteeProps) {
+export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
   const {
     committeeName,
     memberName,
@@ -26,9 +34,30 @@ export default function Committee({onClose, row, mode}: CommitteeProps) {
   } = useCommitteeStore()
 
   const [submitting, setSubmitting] = useState(false)
+  const [committeeId, setCommitteeId] = useState<number | null>(null)
+  useEffect(() => {
+    if (mode === 'edit' && row && rowId != null) {
+      setCommitteeId(rowId)
+      setField('committeeName', row[0])
+      const [name, position, affiliation] = row[1].split(' / ')
+      setField('memberName', name || '')
+      setField('memberPosition', position || '')
+      setField('memberAffiliation', affiliation || '')
+      setField('climateResponsibility', row[2])
+    }
+  }, [mode, rowId])
+
+  useEffect(() => {
+    if (mode === 'add') {
+      setCommitteeId(null)
+    }
+  }, [mode])
 
   const handleSubmit = async () => {
     if (submitting) return
+
+    console.log('[handleSubmit] mode:', mode)
+    console.log('[handleSubmit] committeeId:', committeeId)
 
     if (
       !committeeName ||
@@ -41,7 +70,7 @@ export default function Committee({onClose, row, mode}: CommitteeProps) {
       return
     }
 
-    const committeeData = {
+    const committeeData: CreateCommitteeDto = {
       committeeName,
       memberName,
       memberPosition,
@@ -51,15 +80,28 @@ export default function Committee({onClose, row, mode}: CommitteeProps) {
 
     try {
       setSubmitting(true)
-      await committeeApi(committeeData)
-      showSuccess(mode === 'edit' ? '수정되었습니다.' : '저장되었습니다.')
+
+      if (mode === 'edit' && committeeId !== null) {
+        const updateData: UpdateCommitteeDto = {...committeeData, id: committeeId}
+        await updateCommittee(committeeId, updateData)
+        showSuccess('수정되었습니다.')
+      } else {
+        await createCommittee(committeeData)
+        showSuccess('저장되었습니다.')
+      }
 
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
       resetFields()
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('committee-storage')
+      }
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '서버 오류 발생'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류 발생'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
@@ -67,37 +109,27 @@ export default function Committee({onClose, row, mode}: CommitteeProps) {
   }
 
   const handleDelete = async () => {
-    if (!committeeName) return
+    if (committeeId === null) return
 
     try {
       setSubmitting(true)
-      await deleteCommitteeItem(committeeName)
+      await deleteCommittee(committeeId)
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
       resetFields()
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '삭제 실패'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
     }
   }
-
-  useEffect(() => {
-    if (mode === 'edit' && row) {
-      setField('committeeName', row[0])
-      const [name, position, affiliation] = row[1].split(' / ')
-      setField('memberName', name || '')
-      setField('memberPosition', position || '')
-      setField('memberAffiliation', affiliation || '')
-      setField('climateResponsibility', row[2])
-    } else {
-      resetFields()
-    }
-  }, [row, mode])
 
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
@@ -126,8 +158,7 @@ export default function Committee({onClose, row, mode}: CommitteeProps) {
         value={climateResponsibility}
         onChange={e => setField('climateResponsibility', e.target.value)}
       />
-
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-center mt-4 space-x-4">
         {mode === 'edit' && (
           <DashButton
             width="w-24"
