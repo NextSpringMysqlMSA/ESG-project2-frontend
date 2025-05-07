@@ -16,3 +16,10 @@ const ContentSecurityPolicy = isDev
     connect-src 'self';
     object-src 'none';
   `
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'standalone', // Docker 배포를 위한 standalone 출력 활성화
+}
+
+export default nextConfig
