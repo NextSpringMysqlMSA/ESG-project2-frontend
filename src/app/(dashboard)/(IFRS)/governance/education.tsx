@@ -15,6 +15,7 @@ import {
 import {showError, showSuccess} from '@/util/toast'
 import {format} from 'date-fns'
 import {DatePickerForm} from '@/components/layout/datePicker'
+import axios from 'axios'
 
 type EducationProps = {
   onClose: () => void
@@ -104,8 +105,11 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
         localStorage.removeItem('education-storage')
       }
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '저장 실패: 서버 오류 발생'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err?.response?.data?.message
+          ? err.response.data.message
+          : '저장 실패: 서버 오류 발생'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
@@ -133,8 +137,11 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
         localStorage.removeItem('education-storage')
       }
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '삭제 실패'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err?.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패'
       showError(errorMessage)
     } finally {
       setSubmitting(false)

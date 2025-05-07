@@ -13,6 +13,7 @@ import {
 import {showError, showSuccess} from '@/util/toast'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
 import {format} from 'date-fns'
+import axios from 'axios'
 
 type MeetingProps = {
   onClose: () => void
@@ -72,9 +73,11 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       resetFields()
       setDate(undefined)
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage =
-        err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '저장 실패: 서버 오류 발생'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
@@ -98,8 +101,11 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       resetFields()
       setDate(undefined)
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '삭제 실패'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류 발생'
       showError(errorMessage)
     } finally {
       setSubmitting(false)

@@ -6,7 +6,15 @@ type RowData = {
 type CustomTableProps = {
   headers: string[]
   data: RowData[]
-  type: 'committee' | 'meeting' | 'KPI' | 'education'
+  type:
+    | 'committee'
+    | 'meeting'
+    | 'KPI'
+    | 'education'
+    | 'risk'
+    | 'scenario'
+    | 'kpiGoal'
+    | 'netZero'
   onRowClick?: (
     type: CustomTableProps['type'],
     rowValues: string[],

@@ -17,7 +17,15 @@ type RowData = {
 }
 
 type CollapsibleWindowProps = {
-  type: 'committee' | 'meeting' | 'KPI' | 'education'
+  type:
+    | 'committee'
+    | 'meeting'
+    | 'KPI'
+    | 'education'
+    | 'risk'
+    | 'scenario'
+    | 'kpiGoal'
+    | 'netZero'
   headers: string[]
   data: RowData[]
   formContent: (props: {

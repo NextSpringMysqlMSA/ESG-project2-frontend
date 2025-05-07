@@ -12,6 +12,7 @@ import {
 } from '@/services/tcfd'
 import {showError, showSuccess} from '@/util/toast'
 import {CreateCommitteeDto, UpdateCommitteeDto} from '@/services/tcfd'
+import axios from 'axios'
 
 type CommitteeProps = {
   onClose: () => void
@@ -81,12 +82,10 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
       setSubmitting(true)
 
       if (mode === 'edit' && committeeId !== null) {
-        console.log('[handleSubmit] Updating committee with ID:', committeeId)
         const updateData: UpdateCommitteeDto = {...committeeData, id: committeeId}
         await updateCommittee(committeeId, updateData)
         showSuccess('수정되었습니다.')
       } else {
-        console.log('[handleSubmit] Creating new committee')
         await createCommittee(committeeData)
         showSuccess('저장되었습니다.')
       }
@@ -98,18 +97,20 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
         localStorage.removeItem('committee-storage')
       }
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '서버 오류 발생'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류 발생'
       showError(errorMessage)
-      console.error('[handleSubmit] error:', err)
     } finally {
       setSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
-    console.log('[handleDelete] committeeId:', committeeId)
     if (committeeId === null) return
+
     try {
       setSubmitting(true)
       await deleteCommittee(committeeId)
@@ -119,10 +120,12 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
       setData(updatedList)
       resetFields()
       onClose()
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || '삭제 실패'
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패'
       showError(errorMessage)
-      console.error('[handleDelete] error:', err)
     } finally {
       setSubmitting(false)
     }
