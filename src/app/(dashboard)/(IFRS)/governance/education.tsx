@@ -26,7 +26,6 @@ type EducationProps = {
 
 export default function Education({onClose, row, rowId, mode}: EducationProps) {
   const {
-    data,
     educationTitle,
     educationDate,
     participantCount,
@@ -38,8 +37,6 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
 
   const [educationId, setEducationId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
-
-  const isValidDateString = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s)
 
   useEffect(() => {
     if (mode === 'edit' && row && rowId != null) {
