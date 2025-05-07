@@ -1,9 +1,10 @@
 'use client'
 
-import React, {useEffect, useState} from 'react'
-import {Calendar} from '@/components/ui/calendar'
-import InputBox from '@/components/tools/inputBox'
+import {useEffect, useState} from 'react'
 import DashButton from '@/components/tools/dashButton'
+import InputBox from '@/components/tools/inputBox'
+import {Calendar} from '@/components/ui/calendar'
+import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
 import {
   createMeeting,
   updateMeeting,
@@ -11,35 +12,59 @@ import {
   fetchMeetingList
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
-import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
-import {format} from 'date-fns'
 import axios from 'axios'
+import {format} from 'date-fns'
 
 type MeetingProps = {
   onClose: () => void
-  row?: string[] // [제목, 날짜, 안건]
+  row?: string[]
   rowId?: number
   mode: 'add' | 'edit'
 }
 
 export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
-  const {meetingName, meetingDate, agenda, setField, setData, resetFields} =
-    useMeetingStore()
+  const {
+    meetingName,
+    meetingDate,
+    agenda,
+    setField,
+    setData,
+    resetFields,
+    persistToStorage,
+    initFromStorage
+  } = useMeetingStore()
 
-  const [date, setDate] = useState<Date | undefined>(meetingDate ?? undefined)
   const [meetingId, setMeetingId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    console.log('[Meeting] row:', row)
-    if (mode === 'edit' && row && rowId !== undefined) {
-      setMeetingId(rowId)
-      setField('meetingDate', new Date(row[0])) // 날짜 → row[0]
-      setField('meetingName', row[1]) // 제목 → row[1]
-      setField('agenda', row[2]) // 안건 → row[2]
-      setDate(new Date(row[0]))
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('meeting-mode', mode)
     }
-  }, [row, rowId, mode])
+
+    if (mode === 'edit' && row && typeof rowId === 'number') {
+      setMeetingId(rowId)
+      const parsedDate = new Date(row[0])
+      setField('meetingDate', parsedDate)
+      setField('meetingName', row[1])
+      setField('agenda', row[2])
+    } else if (mode === 'add') {
+      setMeetingId(null)
+      requestAnimationFrame(() => {
+        initFromStorage()
+      })
+    }
+
+    return () => {
+      if (mode === 'add') {
+        requestAnimationFrame(() => {
+          persistToStorage()
+        })
+      } else {
+        resetFields()
+      }
+    }
+  }, [])
 
   const handleSubmit = async () => {
     if (!meetingName || !meetingDate || !agenda) {
@@ -62,30 +87,32 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       } else {
         await createMeeting(meetingData)
         showSuccess('저장되었습니다.')
+        localStorage.removeItem('meeting-storage')
+        resetFields()
       }
 
       const updatedList = await fetchMeetingList()
-      const parsedList = updatedList.map(item => ({
-        ...item,
-        meetingDate: new Date(item.meetingDate)
-      }))
-      setData(parsedList)
-      resetFields()
-      setDate(undefined)
+      setData(
+        updatedList.map(item => ({
+          ...item,
+          meetingDate: new Date(item.meetingDate)
+        }))
+      )
+
       onClose()
     } catch (err) {
-      const errorMessage =
+      const message =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
           : '저장 실패: 서버 오류 발생'
-      showError(errorMessage)
+      showError(message)
     } finally {
       setSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
-    if (meetingId === null) return
+    if (meetingId == null) return
 
     try {
       setSubmitting(true)
@@ -93,20 +120,21 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchMeetingList()
-      const parsedList = updatedList.map(item => ({
-        ...item,
-        meetingDate: new Date(item.meetingDate)
-      }))
-      setData(parsedList)
+      setData(
+        updatedList.map(item => ({
+          ...item,
+          meetingDate: new Date(item.meetingDate)
+        }))
+      )
+
       resetFields()
-      setDate(undefined)
       onClose()
     } catch (err) {
-      const errorMessage =
+      const message =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
           : '삭제 실패: 서버 오류 발생'
-      showError(errorMessage)
+      showError(message)
     } finally {
       setSubmitting(false)
     }
@@ -117,12 +145,10 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
       <div className="flex flex-row w-full space-x-4">
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={selectedDate => {
-            setDate(selectedDate)
-            setField('meetingDate', selectedDate ?? null)
-          }}
+          selected={meetingDate ?? undefined} // ✅ 직접 Zustand 값 사용
+          onSelect={d => setField('meetingDate', d ?? null)}
         />
+
         <div className="flex flex-col w-full h-full space-y-4">
           <InputBox
             label="회의 제목"
@@ -130,13 +156,14 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
             onChange={e => setField('meetingName', e.target.value)}
           />
           <textarea
-            className="flex items-center justify-between w-full h-full px-3 py-2 text-sm bg-transparent border rounded-md shadow-sm whitespace-nowrap border-input ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full h-full px-3 py-2 text-sm border rounded-md shadow-sm resize-none"
             placeholder="주요 안건 및 의결 내용 입력"
             value={agenda}
             onChange={e => setField('agenda', e.target.value)}
           />
         </div>
       </div>
+
       <div className="flex justify-center mt-4 space-x-4">
         {mode === 'edit' && (
           <DashButton

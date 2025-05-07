@@ -1,9 +1,15 @@
 import {create} from 'zustand'
-import {persist} from 'zustand/middleware'
 import {kpiState as KPIFields} from '@/types/IFRS/governance'
 
-// 개별 KPI 항목 타입 정의
 export type KPIItem = KPIFields
+
+const DEFAULT_FIELDS: KPIFields = {
+  id: -1,
+  executiveName: '',
+  kpiName: '',
+  targetValue: '',
+  achievedValue: ''
+}
 
 interface KPIStore extends KPIFields {
   data: KPIItem[]
@@ -12,45 +18,60 @@ interface KPIStore extends KPIFields {
   addItem: (item: KPIItem) => void
   clearList: () => void
   setData: (items: KPIItem[]) => void
+  persistToStorage: () => void
+  initFromStorage: () => void
 }
 
-export const useKPIStore = create(
-  persist<KPIStore>(
-    set => ({
-      id: -1, // 기본값: 신규 항목을 의미
-      executiveName: '',
-      kpiName: '',
-      targetValue: '',
-      achievedValue: '',
-      data: [],
+export const useKPIStore = create<KPIStore>(set => ({
+  ...DEFAULT_FIELDS,
+  data: [],
 
-      setField: (key, value) =>
-        set(state => ({
-          ...state,
-          [key]: value
-        })),
+  setField: (key, value) =>
+    set(state => ({
+      ...state,
+      [key]: value
+    })),
 
-      resetFields: () => {
-        set({
-          id: -1,
-          executiveName: '',
-          kpiName: '',
-          targetValue: '',
-          achievedValue: ''
-        })
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('kpi-storage')
-        }
-      },
+  resetFields: () => {
+    set({...DEFAULT_FIELDS})
+  },
 
-      addItem: item => set(state => ({data: [...state.data, item]})),
+  persistToStorage: () => {
+    if (typeof window !== 'undefined') {
+      const mode = sessionStorage.getItem('kpi-mode')
+      if (mode !== 'add') return
 
-      clearList: () => set({data: []}),
-
-      setData: items => set({data: items})
-    }),
-    {
-      name: 'kpi-storage'
+      const state = useKPIStore.getState()
+      const dataToStore: KPIFields = {
+        id: -1,
+        executiveName: state.executiveName,
+        kpiName: state.kpiName,
+        targetValue: state.targetValue,
+        achievedValue: state.achievedValue
+      }
+      localStorage.setItem('kpi-storage', JSON.stringify(dataToStore))
     }
-  )
-)
+  },
+
+  initFromStorage: () => {
+    if (typeof window !== 'undefined') {
+      const mode = sessionStorage.getItem('kpi-mode')
+      if (mode !== 'add') return
+
+      const raw = localStorage.getItem('kpi-storage')
+      if (!raw) return
+      try {
+        const parsed = JSON.parse(raw)
+        set({...parsed})
+      } catch (e) {
+        console.error('kpi-storage 복원 실패:', e)
+      }
+    }
+  },
+
+  addItem: item => set(state => ({data: [...state.data, item]})),
+
+  clearList: () => set({data: []}),
+
+  setData: items => set({data: items})
+}))

@@ -30,30 +30,42 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
     achievedValue,
     setField,
     setData,
-    resetFields
+    resetFields,
+    persistToStorage,
+    initFromStorage
   } = useKPIStore()
 
   const [kpiId, setKpiId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    console.log('[KPI] mode:', mode)
-    console.log('[KPI] rowId:', rowId)
-    console.log('[KPI] row:', row)
-    if (mode === 'edit' && row && rowId != null) {
-      console.log('[KPI] Edit mode: setting form fields')
-      setKpiId(rowId)
-      // 상태가 다를 때만 set
-      if (executiveName !== row[0]) setField('executiveName', row[0])
-      if (kpiName !== row[1]) setField('kpiName', row[1])
-      if (targetValue !== row[2]) setField('targetValue', row[2])
-      if (achievedValue !== row[3]) setField('achievedValue', row[3])
-    } else {
-      console.log('[KPI] Add mode or invalid data: resetting form')
-      setKpiId(null)
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('kpi-mode', mode)
     }
-    // 의존성 배열 주의!
-  }, [mode, rowId])
+
+    if (mode === 'edit' && row && typeof rowId === 'number') {
+      setKpiId(rowId)
+      setField('executiveName', row[0])
+      setField('kpiName', row[1])
+      setField('targetValue', row[2])
+      setField('achievedValue', row[3])
+    } else if (mode === 'add') {
+      setKpiId(null)
+      requestAnimationFrame(() => {
+        initFromStorage()
+      })
+    }
+
+    return () => {
+      if (mode === 'add') {
+        requestAnimationFrame(() => {
+          persistToStorage()
+        })
+      } else {
+        resetFields()
+      }
+    }
+  }, [])
 
   const handleSubmit = async () => {
     if (!executiveName || !kpiName || !targetValue || !achievedValue) {
@@ -71,14 +83,13 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
     try {
       setSubmitting(true)
       if (mode === 'edit' && kpiId !== null) {
-        console.log('[KPI] Submitting update for ID:', kpiId)
         const updateData: UpdateKpiDto = {...kpiData, id: kpiId}
         await updateKpi(kpiId, updateData)
         showSuccess('수정되었습니다.')
       } else {
-        console.log('[KPI] Creating new KPI')
         await createKpi(kpiData)
         showSuccess('저장되었습니다.')
+        localStorage.removeItem('kpi-storage')
       }
 
       const updatedList = await fetchKpiList()
@@ -97,14 +108,10 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
   }
 
   const handleDelete = async () => {
-    if (kpiId == null) {
-      console.warn('[KPI] handleDelete: no kpiId set, aborting')
-      return
-    }
+    if (!kpiId) return
 
     try {
       setSubmitting(true)
-      console.log('[KPI] Deleting KPI ID:', kpiId)
       await deleteKpi(kpiId)
       showSuccess('삭제되었습니다.')
 

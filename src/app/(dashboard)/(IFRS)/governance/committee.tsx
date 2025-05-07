@@ -30,34 +30,39 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
     climateResponsibility,
     setField,
     resetFields,
-    setData
+    setData,
+    persistToStorage,
+    initFromStorage
   } = useCommitteeStore()
 
   const [submitting, setSubmitting] = useState(false)
-  const [committeeId, setCommitteeId] = useState<number | null>(null)
+
   useEffect(() => {
-    if (mode === 'edit' && row && rowId != null) {
-      setCommitteeId(rowId)
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('committee-mode', mode)
+    }
+
+    if (mode === 'edit' && row && typeof rowId === 'number') {
       setField('committeeName', row[0])
       const [name, position, affiliation] = row[1].split(' / ')
       setField('memberName', name || '')
       setField('memberPosition', position || '')
       setField('memberAffiliation', affiliation || '')
       setField('climateResponsibility', row[2])
+    } else if (mode === 'add') {
+      initFromStorage()
+    }
+
+    return () => {
+      if (mode === 'add') {
+        persistToStorage()
+      }
+      resetFields()
     }
   }, [mode, rowId])
 
-  useEffect(() => {
-    if (mode === 'add') {
-      setCommitteeId(null)
-    }
-  }, [mode])
-
   const handleSubmit = async () => {
     if (submitting) return
-
-    console.log('[handleSubmit] mode:', mode)
-    console.log('[handleSubmit] committeeId:', committeeId)
 
     if (
       !committeeName ||
@@ -81,27 +86,27 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
     try {
       setSubmitting(true)
 
-      if (mode === 'edit' && committeeId !== null) {
-        const updateData: UpdateCommitteeDto = {...committeeData, id: committeeId}
-        await updateCommittee(committeeId, updateData)
+      if (mode === 'edit' && typeof rowId === 'number') {
+        const updateData: UpdateCommitteeDto = {...committeeData, id: rowId}
+        await updateCommittee(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
         await createCommittee(committeeData)
         showSuccess('저장되었습니다.')
+
+        // ✅ 저장 성공 시 로컬스토리지 제거
+        localStorage.removeItem('committee-storage')
+        resetFields()
       }
 
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
-      resetFields()
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('committee-storage')
-      }
       onClose()
     } catch (err) {
       const errorMessage =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
-          : '삭제 실패: 서버 오류 발생'
+          : '처리 실패: 서버 오류 발생'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
@@ -109,11 +114,11 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
   }
 
   const handleDelete = async () => {
-    if (committeeId === null) return
+    if (typeof rowId !== 'number') return
 
     try {
       setSubmitting(true)
-      await deleteCommittee(committeeId)
+      await deleteCommittee(rowId)
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchCommitteeList()

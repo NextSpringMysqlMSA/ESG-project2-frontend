@@ -1,17 +1,30 @@
 'use client'
 
+import {useEffect, useState} from 'react'
 import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
-import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
-import {createRisk} from '@/services/strategy'
+import {
+  createRisk,
+  updateRisk,
+  deleteRisk,
+  fetchRiskById,
+  fetchRiskList
+} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
+import axios from 'axios'
+import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
 
-type MeetingProps = {
+type RiskProps = {
   onClose: () => void
+  rowId?: number
+  mode: 'add' | 'edit'
 }
 
-export default function Risk({onClose}: MeetingProps) {
+export default function Risk({onClose, rowId, mode}: RiskProps) {
+  const isEditMode = mode === 'edit'
+  const [submitting, setSubmitting] = useState(false)
+
   const {
     riskType,
     riskCategory,
@@ -21,7 +34,11 @@ export default function Risk({onClose}: MeetingProps) {
     financialImpact,
     businessModelImpact,
     plans,
-    setField
+    setField,
+    resetFields,
+    initFromStorage,
+    initFromApi,
+    persistToStorage
   } = useRiskStore()
 
   const riskType2 = ['물리적 리스크', '전환 리스크', '기회 요인']
@@ -33,6 +50,19 @@ export default function Risk({onClose}: MeetingProps) {
   const time2 = ['단기', '중기', '장기']
   const impact2 = ['1', '2', '3', '4', '5']
   const financialImpact2 = ['O', 'X']
+
+  useEffect(() => {
+    if (isEditMode && rowId !== undefined) {
+      // 수정 모드: API로부터 불러옴
+      initFromApi(rowId)
+    } else {
+      // 추가 모드: 로컬스토리지 불러오기
+      initFromStorage()
+    }
+    return () => {
+      if (!isEditMode) persistToStorage()
+    }
+  }, [isEditMode, rowId])
 
   const handleSubmit = async () => {
     if (
@@ -49,40 +79,64 @@ export default function Risk({onClose}: MeetingProps) {
       return
     }
 
-    const riskData = {
-      riskType,
-      riskCategory,
-      riskCause,
-      time,
-      impact,
-      financialImpact,
-      businessModelImpact,
-      plans
-    }
-
     try {
-      await createRisk(riskData)
-      showSuccess('리스크 정보가 저장되었습니다.')
-      onClose()
-    } catch (err: unknown) {
-      let errorMessage = '저장 실패: 서버 오류가 발생했습니다.'
-      if (err instanceof Error) {
-        errorMessage = err.message
-      } else if (
-        typeof err === 'object' &&
-        err !== null &&
-        'response' in err &&
-        typeof err.response === 'object' &&
-        err.response !== null &&
-        'data' in err.response &&
-        typeof err.response.data === 'object' &&
-        err.response.data !== null &&
-        'message' in err.response.data &&
-        typeof err.response.data.message === 'string'
-      ) {
-        errorMessage = err.response.data.message
+      setSubmitting(true)
+
+      if (isEditMode && rowId !== undefined) {
+        await updateRisk(rowId, {
+          id: rowId,
+          riskType,
+          riskCategory,
+          riskCause,
+          time,
+          impact,
+          financialImpact,
+          businessModelImpact,
+          plans
+        })
+        showSuccess('수정되었습니다.')
+      } else {
+        await createRisk({
+          riskType,
+          riskCategory,
+          riskCause,
+          time,
+          impact,
+          financialImpact,
+          businessModelImpact,
+          plans
+        })
+        showSuccess('저장되었습니다.')
       }
+
+      resetFields()
+      onClose()
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '저장 실패: 서버 오류가 발생했습니다.'
       showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!rowId) return
+    try {
+      setSubmitting(true)
+      await deleteRisk(rowId)
+      showSuccess('삭제되었습니다.')
+      onClose()
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류 발생'
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -96,11 +150,11 @@ export default function Risk({onClose}: MeetingProps) {
             value={riskType}
             onValueChange={value => {
               setField('riskType', value)
-              setField('riskCategory', '') // 선택 리스크 종류 바뀌면 유형 초기화
+              setField('riskCategory', '')
             }}
           />
           <InputBox
-            label="리스크 요인 (예: 산불, 폭염 등)"
+            label="리스크 요인"
             value={riskCause}
             onChange={e => setField('riskCause', e.target.value)}
           />
@@ -111,20 +165,18 @@ export default function Risk({onClose}: MeetingProps) {
             onValueChange={value => setField('impact', value)}
           />
           <InputBox
-            label="사업 모델 및 가치 사슬에 대한 영향"
+            label="사업 모델 및 가치 사슬 영향"
             value={businessModelImpact}
             onChange={e => setField('businessModelImpact', e.target.value)}
           />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
-          {riskType2 && (
-            <CustomSelect
-              placeholder="리스크 유형"
-              options={riskCategory2[riskType] ?? []}
-              value={riskCategory}
-              onValueChange={value => setField('riskCategory', value)}
-            />
-          )}
+          <CustomSelect
+            placeholder="리스크 유형"
+            options={riskCategory2[riskType] ?? []}
+            value={riskCategory}
+            onValueChange={value => setField('riskCategory', value)}
+          />
           <CustomSelect
             placeholder="시점"
             options={time2}
@@ -132,7 +184,7 @@ export default function Risk({onClose}: MeetingProps) {
             onValueChange={value => setField('time', value)}
           />
           <CustomSelect
-            placeholder="잠재적 재무 영향"
+            placeholder="재무 영향"
             options={financialImpact2}
             value={financialImpact}
             onValueChange={value => setField('financialImpact', value)}
@@ -144,9 +196,18 @@ export default function Risk({onClose}: MeetingProps) {
           />
         </div>
       </div>
-      <div className="flex flex-row justify-center w-full">
-        <DashButton width="w-24" onClick={handleSubmit}>
-          저장
+      <div className="flex flex-row justify-center w-full gap-4">
+        {isEditMode && (
+          <DashButton
+            width="w-24"
+            className="text-white bg-red-500 border-red-500 hover:bg-red-600"
+            onClick={handleDelete}
+            disabled={submitting}>
+            삭제
+          </DashButton>
+        )}
+        <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>

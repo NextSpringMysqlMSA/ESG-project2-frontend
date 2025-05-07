@@ -139,9 +139,26 @@ export default function Strategy() {
               <CollapsibleWindow
                 type="risk"
                 headers={riskHeader}
-                formContent={({onClose}) => <Risk onClose={onClose} />}
                 dialogTitle="리스크 식별 및 대응"
-                data={[]} // 빈 배열로 기본값 명시
+                data={
+                  loading
+                    ? []
+                    : RiskData.map(item => ({
+                        id: item.id,
+                        values: [
+                          item.riskType ?? '',
+                          item.riskCause ?? '',
+                          item.impact ?? '',
+                          item.businessModelImpact ?? '',
+                          item.time ?? '',
+                          item.financialImpact ?? '',
+                          item.plans ?? ''
+                        ]
+                      }))
+                }
+                formContent={({onClose, rowId, mode}) => (
+                  <Risk onClose={onClose} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>

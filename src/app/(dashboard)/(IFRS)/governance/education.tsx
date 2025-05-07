@@ -32,14 +32,20 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
     content,
     setField,
     setData,
-    resetFields
+    resetFields,
+    persistToStorage,
+    initFromStorage
   } = useEducationStore()
 
   const [educationId, setEducationId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (mode === 'edit' && row && rowId != null) {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('education-mode', mode)
+    }
+
+    if (mode === 'edit' && row && typeof rowId === 'number') {
       setEducationId(rowId)
       setField('educationDate', row[0] ? new Date(row[0]) : null)
       setField('participantCount', row[1])
@@ -47,8 +53,21 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       setField('content', row[3])
     } else if (mode === 'add') {
       setEducationId(null)
+      requestAnimationFrame(() => {
+        initFromStorage()
+      })
     }
-  }, [row, rowId, mode])
+
+    return () => {
+      if (mode === 'add') {
+        requestAnimationFrame(() => {
+          persistToStorage()
+        })
+      } else {
+        resetFields() // edit 모드일 때만 상태 초기화
+      }
+    }
+  }, [])
 
   const handleSubmit = async () => {
     if (!educationTitle || !educationDate || !participantCount || !content) {
@@ -76,6 +95,7 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       } else {
         await createEducation(educationData)
         showSuccess('저장되었습니다.')
+        localStorage.removeItem('education-storage')
       }
 
       const updatedList = await fetchEducationList()
@@ -87,9 +107,6 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       )
 
       resetFields()
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('education-storage')
-      }
       onClose()
     } catch (err) {
       const errorMessage =
@@ -119,9 +136,6 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       )
 
       resetFields()
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('education-storage')
-      }
       onClose()
     } catch (err) {
       const errorMessage =

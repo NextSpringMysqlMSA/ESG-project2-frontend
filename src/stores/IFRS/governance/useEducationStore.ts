@@ -1,9 +1,15 @@
 import {create} from 'zustand'
-import {persist} from 'zustand/middleware'
 import type {educationState as EducationFields} from '@/types/IFRS/governance'
 
-// 단일 항목 타입에 id 포함
 export type EducationItem = EducationFields
+
+const DEFAULT_FIELDS: EducationFields = {
+  id: -1,
+  educationTitle: '',
+  educationDate: null,
+  participantCount: 0,
+  content: ''
+}
 
 interface EducationStore extends EducationFields {
   data: EducationItem[]
@@ -12,45 +18,56 @@ interface EducationStore extends EducationFields {
   addItem: (item: EducationItem) => void
   clearList: () => void
   setData: (items: EducationItem[]) => void
+  persistToStorage: () => void
+  initFromStorage: () => void
 }
 
-export const useEducationStore = create(
-  persist<EducationStore>(
-    set => ({
-      id: -1, // 기본값: 신규 항목임을 의미
-      educationTitle: '',
-      educationDate: null,
-      participantCount: 0,
-      content: '',
-      data: [],
+export const useEducationStore = create<EducationStore>(set => ({
+  ...DEFAULT_FIELDS,
+  data: [],
 
-      setField: (key, value) =>
-        set(state => ({
-          ...state,
-          [key]: value
-        })),
+  setField: (key, value) => set(state => ({...state, [key]: value})),
 
-      resetFields: () => {
-        set({
-          id: -1,
-          educationTitle: '',
-          educationDate: null,
-          participantCount: 0,
-          content: ''
-        })
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('education-storage')
-        }
-      },
+  resetFields: () => {
+    set({...DEFAULT_FIELDS})
+  },
 
-      addItem: item => set(state => ({data: [...state.data, item]})),
+  persistToStorage: () => {
+    if (typeof window !== 'undefined') {
+      const mode = sessionStorage.getItem('education-mode')
+      if (mode !== 'add') return
 
-      clearList: () => set({data: []}),
-
-      setData: items => set({data: items})
-    }),
-    {
-      name: 'education-storage'
+      const state = useEducationStore.getState()
+      const dataToStore: EducationFields = {
+        id: -1,
+        educationTitle: state.educationTitle,
+        educationDate: state.educationDate,
+        participantCount: state.participantCount,
+        content: state.content
+      }
+      localStorage.setItem('education-storage', JSON.stringify(dataToStore))
     }
-  )
-)
+  },
+
+  initFromStorage: () => {
+    if (typeof window !== 'undefined') {
+      const mode = sessionStorage.getItem('education-mode')
+      if (mode !== 'add') return
+
+      const raw = localStorage.getItem('education-storage')
+      if (!raw) return
+      try {
+        const parsed = JSON.parse(raw)
+        set({...parsed})
+      } catch (e) {
+        console.error('education-storage 복원 실패:', e)
+      }
+    }
+  },
+
+  addItem: item => set(state => ({data: [...state.data, item]})),
+
+  clearList: () => set({data: []}),
+
+  setData: items => set({data: items})
+}))

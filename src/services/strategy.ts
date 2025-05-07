@@ -48,6 +48,7 @@ export const deleteScenario = async (id: number) => {
   return await api.delete(`/api/v1/tcfd/strategy/scenario/${id}`)
 }
 // --------------------------------------------------------------------
+
 export type RiskItem = {
   id: number
   riskType: string
@@ -61,6 +62,7 @@ export type RiskItem = {
 }
 
 export type CreateRiskDto = Omit<RiskItem, 'id'>
+
 export type UpdateRiskDto = RiskItem
 
 export const fetchRiskById = async (id: number): Promise<RiskItem> => {

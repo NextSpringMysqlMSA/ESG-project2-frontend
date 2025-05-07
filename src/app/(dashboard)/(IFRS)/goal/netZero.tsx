@@ -28,10 +28,9 @@ export default function NetZero({onClose}: NetZeroProps) {
     resetFields
   } = useNetZeroStore()
 
-  // 숫자 입력 처리용 핸들러
-  const handleNumberChange = (key: keyof typeof useNetZeroStore.getState(), value: string) => {
-    const parsed = parseInt(value)
-    setField(key as any, Number.isNaN(parsed) ? 0 : parsed)
+  const handleNumberChange = (field: string, value: string) => {
+    const parsed = parseInt(value, 10)
+    setField(field as any, isNaN(parsed) ? '' : parsed)
   }
 
   const handleSubmit = async () => {
@@ -65,9 +64,14 @@ export default function NetZero({onClose}: NetZeroProps) {
       showSuccess('넷제로 목표가 성공적으로 저장되었습니다.')
       resetFields()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message =
-        err?.response?.data?.message ?? err?.message ?? '저장 실패: 서버 오류가 발생했습니다.'
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as any).response?.data?.message === 'string'
+          ? (err as any).response.data.message
+          : '저장 실패: 서버 오류가 발생했습니다.'
       showError(message)
     }
   }
