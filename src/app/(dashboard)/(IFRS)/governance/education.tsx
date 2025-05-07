@@ -23,7 +23,7 @@ type EducationProps = {
   rowId?: number
   mode: 'add' | 'edit'
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export default function Education({onClose, row, rowId, mode}: EducationProps) {
   const {
     data,
@@ -39,29 +39,19 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
   const [educationId, setEducationId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  const isValidDateString = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s)
+
   useEffect(() => {
-    console.log('[Education] mode:', mode)
-    console.log('[Education] rowId:', rowId)
-    if (mode === 'edit' && rowId != null) {
-      const target = data.find(item => item.id === rowId)
-      if (target) {
-        console.log('[Education] target found:', target)
-        setEducationId(rowId)
-        setField('educationTitle', target.educationTitle)
-        setField(
-          'educationDate',
-          target.educationDate ? new Date(target.educationDate) : null
-        )
-        setField('participantCount', target.participantCount)
-        setField('content', target.content)
-      } else {
-        console.warn('[Education] No matching target found for rowId:', rowId)
-      }
-    } else {
-      console.log('[Education] Add mode or rowId missing → reset')
+    if (mode === 'edit' && row && rowId != null) {
+      setEducationId(rowId)
+      setField('educationDate', row[0] ? new Date(row[0]) : null)
+      setField('participantCount', row[1])
+      setField('educationTitle', row[2])
+      setField('content', row[3])
+    } else if (mode === 'add') {
       setEducationId(null)
     }
-  }, [rowId, mode, data, setField, resetFields])
+  }, [row, rowId, mode])
 
   const handleSubmit = async () => {
     if (!educationTitle || !educationDate || !participantCount || !content) {
