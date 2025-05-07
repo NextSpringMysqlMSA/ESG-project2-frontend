@@ -1,6 +1,5 @@
 'use client'
 
-import {useState} from 'react'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import DashButton from '@/components/tools/dashButton'
@@ -67,7 +66,6 @@ export default function KPIGoal({onClose}: MeetingProps) {
       currentValue,
       targetValue
     }
-
     try {
       // API 호출
       await createKPIGoal(KPIGoalData)
@@ -76,9 +74,25 @@ export default function KPIGoal({onClose}: MeetingProps) {
       showSuccess('경영진 KPI 정보가 성공적으로 저장되었습니다.')
       useKPIGoalStore.getState().resetFields()
       onClose()
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
+    } catch (err: unknown) {
+      let errorMessage = '저장 실패: 서버 오류가 발생했습니다.'
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof err.response === 'object' &&
+        err.response !== null &&
+        'data' in err.response &&
+        typeof err.response.data === 'object' &&
+        err.response.data !== null &&
+        'message' in err.response.data &&
+        typeof err.response.data.message === 'string'
+      ) {
+        errorMessage = err.response.data.message
+      }
+
       showError(errorMessage)
     }
   }

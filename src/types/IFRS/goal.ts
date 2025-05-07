@@ -1,5 +1,12 @@
 export interface netZeroState {
-  committeeName: string
+  industrialGroup: string
+  scenario: string
+  baseYear: number
+  midTargetYear: number
+  finalTargetYear: number
+  baseYearScope1: number
+  baseYearScope2: number
+  baseYearScope3: number
 }
 export interface KPIGoalState {
   indicator: string
