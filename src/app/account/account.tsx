@@ -7,6 +7,7 @@ import DashButton from '@/components/tools/dashButton'
 import {changePasswordApi, uploadProfileImageApi} from '@/services/auth'
 import {showError, showSuccess} from '@/util/toast'
 import {FaRegUserCircle} from 'react-icons/fa'
+import axios from 'axios'
 
 export default function Account() {
   const router = useRouter()
@@ -35,6 +36,7 @@ export default function Account() {
         await refreshProfileImage()
         showSuccess('프로필 이미지가 변경되었습니다.')
       } catch (e) {
+        console.error(e)
         showError('이미지 업로드 실패')
       }
     }
@@ -59,9 +61,12 @@ export default function Account() {
       await changePasswordApi({currentPassword, newPassword, confirmPassword})
       showSuccess('비밀번호가 변경되었습니다.')
       setPasswordForm({currentPassword: '', newPassword: '', confirmPassword: ''})
-    } catch (e: any) {
-      const msg = e?.response?.data?.message || '비밀번호 변경 실패'
-      showError(msg)
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '비밀번호 변경 실패'
+      showError(errorMessage)
     }
   }
 

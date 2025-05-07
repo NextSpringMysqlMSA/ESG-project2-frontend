@@ -23,7 +23,7 @@ type EducationProps = {
   rowId?: number
   mode: 'add' | 'edit'
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Education({onClose, row, rowId, mode}: EducationProps) {
   const {
     data,
@@ -42,7 +42,6 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
   useEffect(() => {
     console.log('[Education] mode:', mode)
     console.log('[Education] rowId:', rowId)
-
     if (mode === 'edit' && rowId != null) {
       const target = data.find(item => item.id === rowId)
       if (target) {

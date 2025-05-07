@@ -40,10 +40,8 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
     console.log('[KPI] mode:', mode)
     console.log('[KPI] rowId:', rowId)
     console.log('[KPI] row:', row)
-
     if (mode === 'edit' && row && rowId != null) {
       console.log('[KPI] Edit mode: setting form fields')
-
       setKpiId(rowId)
       // 상태가 다를 때만 set
       if (executiveName !== row[0]) setField('executiveName', row[0])
