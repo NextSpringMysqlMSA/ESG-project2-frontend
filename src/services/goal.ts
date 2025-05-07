@@ -2,19 +2,19 @@ import api from '@/lib/axios'
 import {KPIGoalState} from '@/types/IFRS/goal'
 
 // 리스크 생성 API 호출
-export const netZeroApi = async (data: {
-  riskType: string
-  riskCategory: string
-  riskCause: string
-  time: string
-  impact: string
-  financialImpact: string
-  businessModelImpact: string
-  plans: string
+export const createNetZero = async (data: {
+  industrialGroup: string
+  scenario: string
+  baseYear: number
+  midTargetYear: number
+  finalTargetYear: number
+  baseYearScope1: number
+  baseYearScope2: number
+  baseYearScope3: number
 }) => {
   try {
     console.log('📤 netZero 등록 요청 데이터:', data)
-    const response = await api.post('/api/v1/tcfd/strategy/risk', data)
+    const response = await api.post('/api/v1/tcfd/strategy/netZero', data)
     console.log('✅ netZero 등록 성공 응답:', response.data)
     return response.data
   } catch (error) {

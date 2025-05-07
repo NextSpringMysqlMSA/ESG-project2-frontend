@@ -112,8 +112,8 @@ export default function Governance() {
             <AccordionTrigger className="text-base">위원회 구성</AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
-                type="committee"
                 headers={committeeHeader}
+                formContent={({onClose}) => <Committee onClose={onClose} />}
                 dialogTitle="위원회 및 조직 입력"
                 data={
                   loading
@@ -124,9 +124,6 @@ export default function Governance() {
                         item.climateResponsibility
                       ])
                 }
-                formContent={({onClose, row, mode}) => (
-                  <Committee onClose={onClose} row={row} mode={mode} />
-                )}
               />
             </AccordionContent>
           </AccordionItem>
@@ -135,7 +132,6 @@ export default function Governance() {
             <AccordionTrigger className="text-base">회의 관리</AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
-                type="meeting"
                 headers={meetingHeader}
                 formContent={({onClose}) => <Meeting onClose={onClose} />}
                 dialogTitle="회의관리"
@@ -156,7 +152,6 @@ export default function Governance() {
             <AccordionTrigger className="text-base">경영진 KPI</AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
-                type="KPI"
                 headers={KPIHeader}
                 formContent={({onClose}) => <KPI onClose={onClose} />}
                 dialogTitle="경영진 KPI 입력"
@@ -178,7 +173,6 @@ export default function Governance() {
             <AccordionTrigger className="text-base">환경 교육</AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
-                type="education"
                 headers={educationHeader}
                 formContent={({onClose}) => <Education onClose={onClose} />}
                 dialogTitle="환경 교육 기록"
