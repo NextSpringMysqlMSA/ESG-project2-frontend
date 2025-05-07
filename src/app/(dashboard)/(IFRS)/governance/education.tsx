@@ -16,13 +16,14 @@ import {showError, showSuccess} from '@/util/toast'
 import {format} from 'date-fns'
 import {DatePickerForm} from '@/components/layout/datePicker'
 
-interface EducationProps {
+type EducationProps = {
   onClose: () => void
+  row?: string[]
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Education({onClose, rowId, mode}: EducationProps) {
+export default function Education({onClose, row, rowId, mode}: EducationProps) {
   const {
     data,
     educationTitle,
@@ -38,9 +39,13 @@ export default function Education({onClose, rowId, mode}: EducationProps) {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (mode === 'edit' && rowId !== undefined) {
+    console.log('[Education] mode:', mode)
+    console.log('[Education] rowId:', rowId)
+
+    if (mode === 'edit' && rowId != null) {
       const target = data.find(item => item.id === rowId)
       if (target) {
+        console.log('[Education] target found:', target)
         setEducationId(rowId)
         setField('educationTitle', target.educationTitle)
         setField(
@@ -49,7 +54,12 @@ export default function Education({onClose, rowId, mode}: EducationProps) {
         )
         setField('participantCount', target.participantCount)
         setField('content', target.content)
+      } else {
+        console.warn('[Education] No matching target found for rowId:', rowId)
       }
+    } else {
+      console.log('[Education] Add mode or rowId missing → reset')
+      setEducationId(null)
     }
   }, [rowId, mode, data, setField, resetFields])
 

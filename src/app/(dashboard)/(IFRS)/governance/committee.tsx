@@ -15,11 +15,12 @@ import {CreateCommitteeDto, UpdateCommitteeDto} from '@/services/tcfd'
 
 type CommitteeProps = {
   onClose: () => void
+  row?: string[]
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Committee({onClose, rowId, mode}: CommitteeProps) {
+export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
   const {
     committeeName,
     memberName,
@@ -33,23 +34,29 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
 
   const [submitting, setSubmitting] = useState(false)
   const [committeeId, setCommitteeId] = useState<number | null>(null)
+  useEffect(() => {
+    if (mode === 'edit' && row && rowId != null) {
+      setCommitteeId(rowId)
+      setField('committeeName', row[0])
+      const [name, position, affiliation] = row[1].split(' / ')
+      setField('memberName', name || '')
+      setField('memberPosition', position || '')
+      setField('memberAffiliation', affiliation || '')
+      setField('climateResponsibility', row[2])
+    }
+  }, [mode, rowId])
 
   useEffect(() => {
-    if (mode === 'edit' && rowId !== undefined) {
-      const item = useCommitteeStore.getState().data.find(d => d.id === rowId)
-      if (item) {
-        setCommitteeId(item.id)
-        setField('committeeName', item.committeeName)
-        setField('memberName', item.memberName)
-        setField('memberPosition', item.memberPosition)
-        setField('memberAffiliation', item.memberAffiliation)
-        setField('climateResponsibility', item.climateResponsibility)
-      }
+    if (mode === 'add') {
+      setCommitteeId(null)
     }
-  }, [rowId, mode])
+  }, [mode])
 
   const handleSubmit = async () => {
     if (submitting) return
+
+    console.log('[handleSubmit] mode:', mode)
+    console.log('[handleSubmit] committeeId:', committeeId)
 
     if (
       !committeeName ||
@@ -74,10 +81,12 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
       setSubmitting(true)
 
       if (mode === 'edit' && committeeId !== null) {
+        console.log('[handleSubmit] Updating committee with ID:', committeeId)
         const updateData: UpdateCommitteeDto = {...committeeData, id: committeeId}
         await updateCommittee(committeeId, updateData)
         showSuccess('수정되었습니다.')
       } else {
+        console.log('[handleSubmit] Creating new committee')
         await createCommittee(committeeData)
         showSuccess('저장되었습니다.')
       }
@@ -92,17 +101,20 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || '서버 오류 발생'
       showError(errorMessage)
+      console.error('[handleSubmit] error:', err)
     } finally {
       setSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
+    console.log('[handleDelete] committeeId:', committeeId)
     if (committeeId === null) return
     try {
       setSubmitting(true)
       await deleteCommittee(committeeId)
       showSuccess('삭제되었습니다.')
+
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
       resetFields()
@@ -110,6 +122,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || '삭제 실패'
       showError(errorMessage)
+      console.error('[handleDelete] error:', err)
     } finally {
       setSubmitting(false)
     }

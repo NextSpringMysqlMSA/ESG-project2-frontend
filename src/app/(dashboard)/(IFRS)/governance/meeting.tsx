@@ -30,12 +30,13 @@ export default function Meeting({onClose, row, rowId, mode}: MeetingProps) {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
+    console.log('[Meeting] row:', row)
     if (mode === 'edit' && row && rowId !== undefined) {
       setMeetingId(rowId)
-      setField('meetingName', row[0])
-      setField('meetingDate', new Date(row[1]))
-      setField('agenda', row[2])
-      setDate(new Date(row[1]))
+      setField('meetingDate', new Date(row[0])) // 날짜 → row[0]
+      setField('meetingName', row[1]) // 제목 → row[1]
+      setField('agenda', row[2]) // 안건 → row[2]
+      setDate(new Date(row[0]))
     }
   }, [row, rowId, mode])
 

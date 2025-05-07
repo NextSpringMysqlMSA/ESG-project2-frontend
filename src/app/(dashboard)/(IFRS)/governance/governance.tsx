@@ -127,8 +127,8 @@ export default function Governance() {
                         ]
                       }))
                 }
-                formContent={({onClose, rowId, mode}) => (
-                  <Committee onClose={onClose} rowId={rowId} mode={mode} />
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Committee onClose={onClose} row={row} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>
@@ -140,9 +140,6 @@ export default function Governance() {
               <CollapsibleWindow
                 type="meeting"
                 headers={meetingHeader}
-                formContent={({onClose, rowId, mode}) => (
-                  <Meeting onClose={onClose} rowId={rowId} mode={mode} />
-                )}
                 dialogTitle="회의관리"
                 data={
                   loading
@@ -156,6 +153,9 @@ export default function Governance() {
                         ]
                       }))
                 }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Meeting onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>
@@ -166,9 +166,6 @@ export default function Governance() {
               <CollapsibleWindow
                 type="KPI"
                 headers={KPIHeader}
-                formContent={({onClose, rowId, mode}) => (
-                  <KPI onClose={onClose} rowId={rowId} mode={mode} />
-                )}
                 dialogTitle="경영진 KPI 입력"
                 data={
                   loading
@@ -183,6 +180,9 @@ export default function Governance() {
                         ]
                       }))
                 }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <KPI onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>
@@ -193,9 +193,6 @@ export default function Governance() {
               <CollapsibleWindow
                 type="education"
                 headers={educationHeader}
-                formContent={({onClose, rowId, mode}) => (
-                  <Education onClose={onClose} rowId={rowId} mode={mode} />
-                )}
                 dialogTitle="환경 교육 기록"
                 data={
                   loading
@@ -212,6 +209,9 @@ export default function Governance() {
                         ]
                       }))
                 }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Education onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>

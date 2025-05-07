@@ -36,14 +36,25 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (mode === 'edit' && row && rowId !== undefined) {
+    console.log('[KPI] mode:', mode)
+    console.log('[KPI] rowId:', rowId)
+    console.log('[KPI] row:', row)
+
+    if (mode === 'edit' && row && rowId != null) {
+      console.log('[KPI] Edit mode: setting form fields')
+
       setKpiId(rowId)
-      setField('executiveName', row[0])
-      setField('kpiName', row[1])
-      setField('targetValue', row[2])
-      setField('achievedValue', row[3])
+      // 상태가 다를 때만 set
+      if (executiveName !== row[0]) setField('executiveName', row[0])
+      if (kpiName !== row[1]) setField('kpiName', row[1])
+      if (targetValue !== row[2]) setField('targetValue', row[2])
+      if (achievedValue !== row[3]) setField('achievedValue', row[3])
+    } else {
+      console.log('[KPI] Add mode or invalid data: resetting form')
+      setKpiId(null)
     }
-  }, [row, rowId, mode])
+    // 의존성 배열 주의!
+  }, [mode, rowId])
 
   const handleSubmit = async () => {
     if (!executiveName || !kpiName || !targetValue || !achievedValue) {
@@ -60,12 +71,13 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
 
     try {
       setSubmitting(true)
-
       if (mode === 'edit' && kpiId !== null) {
+        console.log('[KPI] Submitting update for ID:', kpiId)
         const updateData: UpdateKpiDto = {...kpiData, id: kpiId}
         await updateKpi(kpiId, updateData)
         showSuccess('수정되었습니다.')
       } else {
+        console.log('[KPI] Creating new KPI')
         await createKpi(kpiData)
         showSuccess('저장되었습니다.')
       }
@@ -78,16 +90,21 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
       const errorMessage =
         err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
       showError(errorMessage)
+      console.error('[KPI] handleSubmit error:', err)
     } finally {
       setSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
-    if (kpiId === null) return
+    if (kpiId == null) {
+      console.warn('[KPI] handleDelete: no kpiId set, aborting')
+      return
+    }
 
     try {
       setSubmitting(true)
+      console.log('[KPI] Deleting KPI ID:', kpiId)
       await deleteKpi(kpiId)
       showSuccess('삭제되었습니다.')
 
@@ -98,6 +115,7 @@ export default function KPI({onClose, row, rowId, mode}: KPIProps) {
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || '삭제 실패'
       showError(errorMessage)
+      console.error('[KPI] handleDelete error:', err)
     } finally {
       setSubmitting(false)
     }
