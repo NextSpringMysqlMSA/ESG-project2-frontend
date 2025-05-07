@@ -117,7 +117,7 @@ export default function Risk({onClose}: MeetingProps) {
           />
         </div>
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
-          {riskType && (
+          {riskType2 && (
             <CustomSelect
               placeholder="리스크 유형"
               options={riskCategory2[riskType] ?? []}
