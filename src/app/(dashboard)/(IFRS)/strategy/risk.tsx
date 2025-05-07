@@ -5,7 +5,7 @@ import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
-import {riskApi} from '@/services/strategy'
+import {createRisk} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -62,7 +62,7 @@ export default function Risk({onClose}: MeetingProps) {
     }
 
     try {
-      await riskApi(riskData)
+      await createRisk(riskData)
       showSuccess('리스크 정보가 저장되었습니다.')
       onClose()
     } catch (err: any) {

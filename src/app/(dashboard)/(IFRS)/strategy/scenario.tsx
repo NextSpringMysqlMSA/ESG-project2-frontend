@@ -4,7 +4,7 @@ import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
-import {scenarioApi} from '@/services/strategy'
+import {createScenario} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -87,7 +87,7 @@ export default function Scenario({onClose}: MeetingProps) {
     }
 
     try {
-      await scenarioApi({
+      await createScenario({
         regions,
         longitude,
         latitude,

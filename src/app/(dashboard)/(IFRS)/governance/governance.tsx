@@ -118,14 +118,17 @@ export default function Governance() {
                 data={
                   loading
                     ? []
-                    : committeeData.map(item => [
-                        item.committeeName,
-                        `${item.memberName} / ${item.memberPosition} / ${item.memberAffiliation}`,
-                        item.climateResponsibility
-                      ])
+                    : committeeData.map(item => ({
+                        id: item.id,
+                        values: [
+                          item.committeeName,
+                          `${item.memberName} / ${item.memberPosition} / ${item.memberAffiliation}`,
+                          item.climateResponsibility
+                        ]
+                      }))
                 }
-                formContent={({onClose, row, mode}) => (
-                  <Committee onClose={onClose} row={row} mode={mode} />
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Committee onClose={onClose} row={row} rowId={rowId} mode={mode} />
                 )}
               />
             </AccordionContent>
@@ -137,17 +140,22 @@ export default function Governance() {
               <CollapsibleWindow
                 type="meeting"
                 headers={meetingHeader}
-                formContent={({onClose}) => <Meeting onClose={onClose} />}
                 dialogTitle="회의관리"
                 data={
                   loading
                     ? []
-                    : meetingData.map(item => [
-                        item.meetingDate ? format(item.meetingDate, 'yyyy-MM-dd') : '',
-                        item.meetingName ?? '',
-                        item.agenda ?? ''
-                      ])
+                    : meetingData.map(item => ({
+                        id: item.id,
+                        values: [
+                          item.meetingDate ? format(item.meetingDate, 'yyyy-MM-dd') : '',
+                          item.meetingName ?? '',
+                          item.agenda ?? ''
+                        ]
+                      }))
                 }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Meeting onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>
@@ -158,18 +166,23 @@ export default function Governance() {
               <CollapsibleWindow
                 type="KPI"
                 headers={KPIHeader}
-                formContent={({onClose}) => <KPI onClose={onClose} />}
                 dialogTitle="경영진 KPI 입력"
                 data={
                   loading
                     ? []
-                    : kpiData.map(item => [
-                        item.executiveName ?? '',
-                        item.kpiName ?? '',
-                        item.targetValue ?? '',
-                        item.achievedValue ?? ''
-                      ])
+                    : kpiData.map(item => ({
+                        id: item.id,
+                        values: [
+                          item.executiveName ?? '',
+                          item.kpiName ?? '',
+                          item.targetValue ?? '',
+                          item.achievedValue ?? ''
+                        ]
+                      }))
                 }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <KPI onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>
@@ -180,20 +193,25 @@ export default function Governance() {
               <CollapsibleWindow
                 type="education"
                 headers={educationHeader}
-                formContent={({onClose}) => <Education onClose={onClose} />}
                 dialogTitle="환경 교육 기록"
                 data={
                   loading
                     ? []
-                    : educationData.map(item => [
-                        item.educationDate
-                          ? format(item.educationDate, 'yyyy-MM-dd')
-                          : '',
-                        item.participantCount?.toString() ?? '',
-                        item.educationTitle ?? '',
-                        item.content ?? ''
-                      ])
+                    : educationData.map(item => ({
+                        id: item.id,
+                        values: [
+                          item.educationDate
+                            ? format(item.educationDate, 'yyyy-MM-dd')
+                            : '',
+                          item.participantCount?.toString() ?? '',
+                          item.educationTitle ?? '',
+                          item.content ?? ''
+                        ]
+                      }))
                 }
+                formContent={({onClose, row, rowId, mode}) => (
+                  <Education onClose={onClose} row={row} rowId={rowId} mode={mode} />
+                )}
               />
             </AccordionContent>
           </AccordionItem>

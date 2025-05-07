@@ -1,23 +1,23 @@
-// store.ts
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
 import type {committeeState as CommitteeFields} from '@/types/IFRS/governance'
 
-// 단일 위원회 항목 타입
-export type CommitteeItem = CommitteeFields
+export type CommitteeItem = CommitteeFields & {id: number}
 
 interface CommitteeStore extends CommitteeFields {
+  id: number
   data: CommitteeItem[]
-  setField: (key: keyof CommitteeFields, value: string) => void
+  setField: (key: keyof CommitteeFields, value: string | number | null) => void
   resetFields: () => void
   addItem: (item: CommitteeItem) => void
   clearList: () => void
-  setData: (items: CommitteeItem[]) => void // <- DB에서 불러온 데이터 저장용
+  setData: (items: CommitteeItem[]) => void
 }
 
 export const useCommitteeStore = create(
   persist<CommitteeStore>(
     set => ({
+      id: -1,
       committeeName: '',
       memberName: '',
       memberPosition: '',
@@ -27,6 +27,7 @@ export const useCommitteeStore = create(
       setField: (key, value) => set(state => ({...state, [key]: value})),
       resetFields: () => {
         set({
+          id: -1,
           committeeName: '',
           memberName: '',
           memberPosition: '',
@@ -34,7 +35,7 @@ export const useCommitteeStore = create(
           climateResponsibility: ''
         })
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('committee-storage')
+          localStorage.removeItem('education-storage')
         }
       },
       addItem: item => set(state => ({data: [...state.data, item]})),

@@ -1,8 +1,25 @@
+type RowData = {
+  id: number
+  values: string[]
+}
+
 type CustomTableProps = {
   headers: string[]
-  data: string[][]
-  type: 'committee' | 'meeting' | 'KPI' | 'education'
-  onRowClick?: (type: CustomTableProps['type'], row: string[], rowIndex: number) => void
+  data: RowData[]
+  type:
+    | 'committee'
+    | 'meeting'
+    | 'KPI'
+    | 'education'
+    | 'risk'
+    | 'scenario'
+    | 'kpiGoal'
+    | 'netZero'
+  onRowClick?: (
+    type: CustomTableProps['type'],
+    rowValues: string[],
+    rowId: number
+  ) => void
 }
 
 export default function CustomTable({type, headers, data, onRowClick}: CustomTableProps) {
@@ -10,8 +27,8 @@ export default function CustomTable({type, headers, data, onRowClick}: CustomTab
     <table className="w-full text-center table-fixed">
       <thead className="border-b-2 border-b-black">
         <tr>
-          {headers.map(header => (
-            <th key={header}>{header}</th>
+          {headers.map((header, index) => (
+            <th key={index}>{header}</th>
           ))}
         </tr>
       </thead>
@@ -23,12 +40,12 @@ export default function CustomTable({type, headers, data, onRowClick}: CustomTab
             </td>
           </tr>
         ) : (
-          data.map((row, rowIndex) => (
+          data.map(({id, values}) => (
             <tr
-              key={rowIndex}
+              key={id}
               className="border-b hover:cursor-pointer hover:bg-gray-300"
-              onClick={() => onRowClick?.(type, row, rowIndex)}>
-              {row.map((cell, colIndex) => (
+              onClick={() => onRowClick?.(type, values, id)}>
+              {values.map((cell, colIndex) => (
                 <td key={colIndex} className="py-2">
                   {cell}
                 </td>
