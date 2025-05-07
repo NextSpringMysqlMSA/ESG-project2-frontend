@@ -4,15 +4,153 @@ import DashButton from '@/components/tools/dashButton'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
-import {createScenario} from '@/services/strategy'
+import {
+  createScenario,
+  updateScenario,
+  deleteScenario,
+  fetchScenarioList,
+  CreateScenarioDto,
+  UpdateScenarioDto
+} from '@/services/strategy'
+import {useEffect, useState} from 'react'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
 
 type MeetingProps = {
   onClose: () => void
+  row?: string[]
+  rowId?: number
+  mode: 'add' | 'edit'
 }
 
-export default function Scenario({onClose}: MeetingProps) {
+export default function Scenario({onClose, row, rowId, mode}: MeetingProps) {
+  const {
+    regions,
+    longitude,
+    latitude,
+    warming,
+    industry,
+    scenario,
+    baseYear,
+    climate,
+    damage,
+    format,
+    responseStrategy,
+    setField,
+    setData,
+    resetFields
+  } = useScenarioStore()
+
+  const [scenarioId, setScenarioId] = useState<number | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    console.log('[scenario] mode:', mode)
+    console.log('[scenario] rowId:', rowId)
+    console.log('[scenario] row:', row)
+    if (mode === 'edit' && row && rowId != null) {
+      console.log('[scenario] Edit mode: setting form fields')
+      setScenarioId(rowId)
+      // 상태가 다를 때만 set
+      if (regions !== row[0]) setField('regions', row[0])
+      if (scenario !== row[1]) setField('scenario', row[1])
+      if (longitude !== parseFloat(row[2])) setField('longitude', parseFloat(row[2]))
+      if (latitude !== parseFloat(row[3])) setField('latitude', parseFloat(row[3]))
+      if (scenario !== row[1]) setField('scenario', row[1])
+    } else {
+      console.log('[KPI] Add mode or invalid data: resetting form')
+      setScenarioId(null)
+    }
+    // 의존성 배열 주의!
+  }, [mode, rowId])
+
+  const handleSubmit = async () => {
+    if (
+      !regions ||
+      !longitude ||
+      !latitude ||
+      !warming ||
+      !industry ||
+      !scenario ||
+      !baseYear ||
+      !climate ||
+      !damage ||
+      !format ||
+      !responseStrategy
+    ) {
+      showError('모든 필드를 채워주세요.')
+      return
+    }
+
+    const ScenarioData: CreateScenarioDto = {
+      regions: regions.trim(),
+      longitude: longitude,
+      latitude: latitude,
+      warming: warming.trim(),
+      industry: industry.trim(),
+      scenario: scenario.trim(),
+      baseYear: baseYear,
+      climate: climate.trim(),
+      damage: damage,
+      format: format.trim(),
+      responseStrategy: responseStrategy.trim()
+    }
+
+    try {
+      setSubmitting(true)
+      if (mode === 'edit' && scenarioId !== null) {
+        console.log('Scenario Submitting update for ID:', scenarioId)
+        const updateData: UpdateScenarioDto = {...ScenarioData, id: scenarioId}
+        await updateScenario(scenarioId, updateData)
+        showSuccess('수정되었습니다.')
+      } else {
+        console.log('Scenario Creating new KPI')
+        await createScenario(ScenarioData)
+        showSuccess('저장되었습니다.')
+      }
+
+      const updatedList = await fetchScenarioList()
+      setData(updatedList)
+      resetFields()
+      onClose()
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '저장 실패: 서버 오류 발생'
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (scenarioId == null) {
+      console.warn('Scenario handleDelete: no scenarioId set, aborting')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      console.log('Scenario Deleting KPI ID:', scenarioId)
+      await deleteScenario(scenarioId)
+      showSuccess('삭제되었습니다.')
+
+      const updatedList = await fetchScenarioList()
+      setData(updatedList)
+      resetFields()
+      onClose()
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류 발생'
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const regions2 = [
     '서울특별시',
     '부산광역시',
@@ -54,63 +192,6 @@ export default function Scenario({onClose}: MeetingProps) {
   ]
   const format2 = ['ASCill (텍스트 격자파일)', 'NetCDF (과학 격자자료)']
 
-  const {
-    regions,
-    longitude,
-    latitude,
-    warming,
-    industry,
-    scenario,
-    baseYear,
-    climate,
-    damage,
-    format,
-    responseStrategy,
-    setField
-  } = useScenarioStore()
-
-  const handleSubmit = async () => {
-    if (
-      !regions ||
-      !longitude ||
-      !latitude ||
-      !warming ||
-      !industry ||
-      !scenario ||
-      !baseYear ||
-      !climate ||
-      !damage ||
-      !format ||
-      !responseStrategy
-    ) {
-      showError('모든 필드를 채워주세요.')
-      return
-    }
-
-    try {
-      await createScenario({
-        regions,
-        longitude,
-        latitude,
-        warming,
-        industry,
-        scenario,
-        baseYear,
-        climate,
-        damage,
-        format,
-        responseStrategy
-      })
-      showSuccess('시나리오 정보가 저장되었습니다.')
-      onClose()
-    } catch (err) {
-      const errorMessage =
-        axios.isAxiosError(err) && err.response?.data?.message
-          ? err.response.data.message
-          : '저장 실패: 서버 오류 발생'
-      showError(errorMessage)
-    }
-  }
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
       <div className="flex flex-col w-full space-y-4">
@@ -183,8 +264,17 @@ export default function Scenario({onClose}: MeetingProps) {
         />
       </div>
       <div className="flex flex-row justify-center w-full">
-        <DashButton width="w-24" onClick={handleSubmit}>
-          저장
+        {mode === 'edit' && (
+          <DashButton
+            width="w-24"
+            className="text-white bg-red-500 border-red-500 hover:bg-red-600"
+            onClick={handleDelete}
+            disabled={submitting}>
+            삭제
+          </DashButton>
+        )}
+        <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>
