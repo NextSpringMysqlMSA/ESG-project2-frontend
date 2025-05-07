@@ -35,7 +35,7 @@ export const useCommitteeStore = create(
           climateResponsibility: ''
         })
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('education-storage')
+          localStorage.removeItem('committee-storage')
         }
       },
       addItem: item => set(state => ({data: [...state.data, item]})),
