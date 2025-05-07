@@ -7,13 +7,13 @@ import {createNetZero} from '@/services/goal'
 import {showError, showSuccess} from '@/util/toast'
 import DashButton from '@/components/tools/dashButton'
 
-type MeetingProps = {
+type NetZeroProps = {
   onClose: () => void
 }
 
-export default function NetZero({onClose}: MeetingProps) {
-  const industrialGroup2 = ['제조업', '금융업', 'ICT']
-  const scenario2 = ['BAU', 'Aggressive', 'Conservative']
+export default function NetZero({onClose}: NetZeroProps) {
+  const industrialGroupOptions = ['제조업', '금융업', 'ICT']
+  const scenarioOptions = ['BAU', 'Aggressive', 'Conservative']
 
   const {
     industrialGroup,
@@ -24,8 +24,15 @@ export default function NetZero({onClose}: MeetingProps) {
     baseYearScope1,
     baseYearScope2,
     baseYearScope3,
-    setField
+    setField,
+    resetFields
   } = useNetZeroStore()
+
+  // 숫자 입력 처리용 핸들러
+  const handleNumberChange = (key: keyof typeof useNetZeroStore.getState(), value: string) => {
+    const parsed = parseInt(value)
+    setField(key as any, Number.isNaN(parsed) ? 0 : parsed)
+  }
 
   const handleSubmit = async () => {
     if (
@@ -54,85 +61,72 @@ export default function NetZero({onClose}: MeetingProps) {
     }
 
     try {
-      // API 호출
       await createNetZero(netZeroData)
-      // const updatedList = await fetchKPIGoal()
-      // setData(updatedList)
-      showSuccess('경영진 KPI 정보가 성공적으로 저장되었습니다.')
-      useNetZeroStore.getState().resetFields()
+      showSuccess('넷제로 목표가 성공적으로 저장되었습니다.')
+      resetFields()
       onClose()
-    } catch (err: unknown) {
-      let errorMessage = '저장 실패: 서버 오류가 발생했습니다.'
-      if (err instanceof Error) {
-        errorMessage = err.message
-      } else if (
-        typeof err === 'object' &&
-        err !== null &&
-        'response' in err &&
-        typeof err.response === 'object' &&
-        err.response !== null &&
-        'data' in err.response &&
-        typeof err.response.data === 'object' &&
-        err.response.data !== null &&
-        'message' in err.response.data &&
-        typeof err.response.data.message === 'string'
-      ) {
-        errorMessage = err.response.data.message
-      }
-      showError(errorMessage)
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ?? err?.message ?? '저장 실패: 서버 오류가 발생했습니다.'
+      showError(message)
     }
   }
 
   return (
     <div className="flex flex-col w-full h-full mt-4 space-y-4">
       <div className="flex flex-row w-full">
+        {/* 왼쪽 컬럼 */}
         <div className="flex flex-col w-[50%] pr-2 space-y-4">
           <CustomSelect
             placeholder="산업군"
-            options={industrialGroup2}
+            options={industrialGroupOptions}
             value={industrialGroup}
             onValueChange={value => setField('industrialGroup', value)}
           />
           <InputBox
             label="기준 년도"
             value={baseYear}
-            onChange={e => setField('baseYear', e.target.value)}
+            onChange={e => handleNumberChange('baseYear', e.target.value)}
           />
           <InputBox
             label="최종 목표 년도"
             value={finalTargetYear}
-            onChange={e => setField('finalTargetYear', e.target.value)}
+            onChange={e => handleNumberChange('finalTargetYear', e.target.value)}
           />
           <InputBox
-            label="기준연도 scope2 배출량(tCO₂e)"
+            label="기준연도 Scope2 배출량(tCO₂e)"
             value={baseYearScope2}
-            onChange={e => setField('baseYearScope2', e.target.value)}
+            onChange={e => handleNumberChange('baseYearScope2', e.target.value)}
           />
         </div>
+
+        {/* 오른쪽 컬럼 */}
         <div className="flex flex-col w-[50%] pl-2 space-y-4">
           <CustomSelect
             placeholder="시나리오"
-            options={scenario2}
+            options={scenarioOptions}
             value={scenario}
             onValueChange={value => setField('scenario', value)}
           />
           <InputBox
             label="중간 목표 년도"
             value={midTargetYear}
-            onChange={e => setField('midTargetYear', e.target.value)}
+            onChange={e => handleNumberChange('midTargetYear', e.target.value)}
           />
           <InputBox
-            label="기준연도 scope1 배출량(tCO₂e)"
+            label="기준연도 Scope1 배출량(tCO₂e)"
             value={baseYearScope1}
-            onChange={e => setField('baseYearScope1', e.target.value)}
+            onChange={e => handleNumberChange('baseYearScope1', e.target.value)}
           />
           <InputBox
-            label="기준연도 scope3 배출량(tCO₂e)"
+            label="기준연도 Scope3 배출량(tCO₂e)"
             value={baseYearScope3}
-            onChange={e => setField('baseYearScope3', e.target.value)}
+            onChange={e => handleNumberChange('baseYearScope3', e.target.value)}
           />
         </div>
       </div>
+
+      {/* 저장 버튼 */}
       <div className="flex flex-row justify-center w-full">
         <DashButton width="w-24" onClick={handleSubmit}>
           저장

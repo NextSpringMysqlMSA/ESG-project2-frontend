@@ -1,51 +1,39 @@
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
-import {netZeroState as netZeroFields} from '@/types/IFRS/goal'
+import {NetZeroPayload, NetZeroState} from '@/types/IFRS/goal'
 
-interface netZeroStore extends netZeroFields {
-  setField: (key: keyof netZeroFields, value: string | number) => void
+interface NetZeroStore extends NetZeroPayload {
+  setField: (key: keyof NetZeroPayload, value: string | number) => void
   resetFields: () => void
-  data: netZeroFields[]
-  addItem: (item: netZeroFields) => void
+  data: NetZeroState[]
+  addItem: (item: NetZeroState) => void
   clearList: () => void
-  setData: (items: netZeroFields[]) => void
+  setData: (items: NetZeroState[]) => void
+}
+
+const initialState: NetZeroPayload = {
+  industrialGroup: '',
+  scenario: '',
+  baseYear: 0,
+  midTargetYear: 0,
+  finalTargetYear: 0,
+  baseYearScope1: 0,
+  baseYearScope2: 0,
+  baseYearScope3: 0
 }
 
 export const useNetZeroStore = create(
-  persist<netZeroStore>(
+  persist<NetZeroStore>(
     set => ({
-      industrialGroup: '',
-      scenario: '',
-      baseYear: 0,
-      midTargetYear: 0,
-      finalTargetYear: 0,
-      baseYearScope1: 0,
-      baseYearScope2: 0,
-      baseYearScope3: 0,
+      ...initialState,
+
       data: [],
+
+      setField: (key, value) => set(state => ({...state, [key]: value})),
+      resetFields: () => set(initialState),
       addItem: item => set(state => ({data: [...state.data, item]})),
       clearList: () => set({data: []}),
-      setData: items => set({data: items}),
-      setField: (key, value) =>
-        set(state => ({
-          ...state,
-          [key]: value
-        })),
-      resetFields: () => {
-        set({
-          industrialGroup: '',
-          scenario: '',
-          baseYear: 0,
-          midTargetYear: 0,
-          finalTargetYear: 0,
-          baseYearScope1: 0,
-          baseYearScope2: 0,
-          baseYearScope3: 0
-        })
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('KPIGoal-storage')
-        }
-      }
+      setData: items => set({data: items})
     }),
     {
       name: 'netZero-storage'

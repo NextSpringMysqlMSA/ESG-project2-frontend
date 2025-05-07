@@ -1,51 +1,43 @@
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
-import {KPIGoalState as KPIGoalFields} from '@/types/IFRS/goal'
+import {KPIGoalPayload, KPIGoalState} from '@/types/IFRS/goal'
 
-interface KPIGoalStore extends KPIGoalFields {
-  setField: (key: keyof KPIGoalFields, value: string | number) => void
+interface KPIGoalStore extends KPIGoalPayload {
+  setField: (key: keyof KPIGoalPayload, value: string | number) => void
   resetFields: () => void
-  data: KPIGoalFields[]
-  addItem: (item: KPIGoalFields) => void
+  data: KPIGoalState[]
+  addItem: (item: KPIGoalState) => void
   clearList: () => void
-  setData: (items: KPIGoalFields[]) => void
+  setData: (items: KPIGoalState[]) => void
+}
+
+const initialState: KPIGoalPayload = {
+  indicator: '',
+  detailedIndicator: '',
+  unit: '',
+  baseYear: 0,
+  goalYear: 0,
+  referenceValue: 0,
+  currentValue: 0,
+  targetValue: 0
 }
 
 export const useKPIGoalStore = create(
   persist<KPIGoalStore>(
     set => ({
-      indicator: '',
-      detailedIndicator: '',
-      unit: '',
-      baseYear: 0,
-      goalYear: 0,
-      referenceValue: 0,
-      currentValue: 0,
-      targetValue: 0,
+      ...initialState,
+
       data: [],
+
+      setField: (key, value) => set(state => ({...state, [key]: value})),
+
+      resetFields: () => set(initialState),
+
       addItem: item => set(state => ({data: [...state.data, item]})),
+
       clearList: () => set({data: []}),
-      setData: items => set({data: items}),
-      setField: (key, value) =>
-        set(state => ({
-          ...state,
-          [key]: value
-        })),
-      resetFields: () => {
-        set({
-          indicator: '',
-          detailedIndicator: '',
-          unit: '',
-          baseYear: 0,
-          goalYear: 0,
-          referenceValue: 0,
-          currentValue: 0,
-          targetValue: 0
-        })
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('KPIGoal-storage')
-        }
-      }
+
+      setData: items => set({data: items})
     }),
     {
       name: 'KPIGoal-storage'
