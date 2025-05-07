@@ -5,7 +5,7 @@ import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
 import DashButton from '@/components/tools/dashButton'
 import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
-import {kpiGoalApi, fetchKPIGoalList} from '@/services/goal'
+import {createKPIGoal, fetchKPIGoal} from '@/services/goal'
 import {showError, showSuccess} from '@/util/toast'
 
 type MeetingProps = {
@@ -70,8 +70,8 @@ export default function KPIGoal({onClose}: MeetingProps) {
 
     try {
       // API 호출
-      await kpiGoalApi(KPIGoalData)
-      const updatedList = await fetchKPIGoalList()
+      await createKPIGoal(KPIGoalData)
+      const updatedList = await fetchKPIGoal()
       setData(updatedList)
       showSuccess('경영진 KPI 정보가 성공적으로 저장되었습니다.')
       useKPIGoalStore.getState().resetFields()
