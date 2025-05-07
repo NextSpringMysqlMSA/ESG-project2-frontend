@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {useAuthStore} from '@/stores/authStore'
-import router from 'next/router' // App Router가 아니라 Pages Router면 이거, App Router면 next/navigation 사용
-import toast from 'react-hot-toast'
+// import router from 'next/router' // App Router가 아니라 Pages Router면 이거, App Router면 next/navigation 사용
+// import toast from 'react-hot-toast'
 
 // Axios 인스턴스 생성
 const api = axios.create({

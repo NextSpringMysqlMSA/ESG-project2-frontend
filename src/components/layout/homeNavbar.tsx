@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem
 } from '@/components/ui/dropdown-menu'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Avatar, AvatarImage} from '@/components/ui/avatar'
 import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hover-card'
 import {useProfileStore} from '@/stores/profileStore'
 import Arrow from '../svg/arrow'
