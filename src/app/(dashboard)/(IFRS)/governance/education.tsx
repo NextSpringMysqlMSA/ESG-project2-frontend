@@ -11,7 +11,7 @@ import {
   fetchEducationList,
   CreateEducationDto,
   UpdateEducationDto
-} from '@/services/tcfd'
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import {format} from 'date-fns'
 import {DatePickerForm} from '@/components/layout/datePicker'

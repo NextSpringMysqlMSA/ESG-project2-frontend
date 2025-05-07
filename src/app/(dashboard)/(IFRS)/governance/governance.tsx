@@ -22,13 +22,13 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
-import {fetchCommitteeList} from '@/services/tcfd'
+import {fetchCommitteeList} from '@/services/governance'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
-import {fetchMeetingList} from '@/services/tcfd'
+import {fetchMeetingList} from '@/services/governance'
 import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
-import {fetchKpiList} from '@/services/tcfd'
+import {fetchKpiList} from '@/services/governance'
 import {useEducationStore} from '@/stores/IFRS/governance/useEducationStore'
-import {fetchEducationList} from '@/services/tcfd'
+import {fetchEducationList} from '@/services/governance'
 
 export default function Governance() {
   const [loading, setLoading] = useState(true)

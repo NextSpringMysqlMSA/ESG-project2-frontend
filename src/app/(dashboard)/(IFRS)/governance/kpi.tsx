@@ -11,7 +11,7 @@ import {
   fetchKpiList,
   CreateKpiDto,
   UpdateKpiDto
-} from '@/services/tcfd'
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
 

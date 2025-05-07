@@ -9,9 +9,9 @@ import {
   updateCommittee,
   deleteCommittee,
   fetchCommitteeList
-} from '@/services/tcfd'
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
-import {CreateCommitteeDto, UpdateCommitteeDto} from '@/services/tcfd'
+import {CreateCommitteeDto, UpdateCommitteeDto} from '@/services/governance'
 import axios from 'axios'
 
 type CommitteeProps = {
@@ -162,7 +162,7 @@ export default function Committee({onClose, row, rowId, mode}: CommitteeProps) {
         {mode === 'edit' && (
           <DashButton
             width="w-24"
-            className="text-white bg-red-500 border-red-500 hover:bg-red-600"
+            className="bg-red-500 hover:bg-red-600"
             onClick={handleDelete}
             disabled={submitting}>
             삭제

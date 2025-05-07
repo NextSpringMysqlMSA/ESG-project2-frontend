@@ -9,7 +9,7 @@ import {
   updateMeeting,
   deleteMeeting,
   fetchMeetingList
-} from '@/services/tcfd'
+} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
 import {format} from 'date-fns'

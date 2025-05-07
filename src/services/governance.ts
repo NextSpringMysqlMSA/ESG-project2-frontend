@@ -33,6 +33,7 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/committee')
   return response.data
 }
+
 // 위원회 목록 조회
 export const createCommittee = async (committeeData: CreateCommitteeDto) => {
   return await api.post('/api/v1/tcfd/governance/committee', committeeData)

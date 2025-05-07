@@ -64,9 +64,22 @@ export default function SignUp() {
       })
       showSuccess('회원가입 성공! 로그인 페이지로 이동합니다.')
       window.location.href = '/login'
-    } catch (e: any) {
-      const errorMessage =
-        e?.response?.data?.message || '회원가입 실패: 입력값을 확인해주세요.'
+    } catch (e: unknown) {
+      let errorMessage = '회원가입 실패: 입력값을 확인해주세요.'
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'response' in e &&
+        typeof e.response === 'object' &&
+        e.response !== null &&
+        'data' in e.response &&
+        typeof e.response.data === 'object' &&
+        e.response.data !== null &&
+        'message' in e.response.data &&
+        typeof e.response.data.message === 'string'
+      ) {
+        errorMessage = e.response.data.message
+      }
       showError(errorMessage)
     }
   }

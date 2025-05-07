@@ -122,7 +122,7 @@ export default function Sidebar() {
             </div>
             <a
               href="/"
-              className="flex flex-row items-center justify-between w-full p-2 text-base font-semibold text-left rounded text-primary hover:bg-customG hover:text-white">
+              className="flex flex-row items-center justify-between w-full p-2 px-4 text-base font-semibold text-left rounded text-primary hover:bg-customG hover:text-white">
               GRI
             </a>
           </div>
