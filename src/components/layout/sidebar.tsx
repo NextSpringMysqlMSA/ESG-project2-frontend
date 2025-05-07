@@ -26,10 +26,12 @@ export default function Sidebar() {
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
     pathname.startsWith('/goal')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isSupplyActive =
     pathname.startsWith('/eudd') ||
     pathname.startsWith('/hrdd') ||
     pathname.startsWith('/edd')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isPartnerActive = pathname.startsWith('/financialRisk')
 
   const isSupplyChildActive =
@@ -120,11 +122,11 @@ export default function Sidebar() {
                 목표 및 지표
               </Link>
             </div>
-            <a
+            <Link
               href="/"
               className="flex flex-row items-center justify-between w-full p-2 px-4 text-base font-semibold text-left rounded text-primary hover:bg-customG hover:text-white">
               GRI
-            </a>
+            </Link>
           </div>
         </div>
         <div className="w-full">

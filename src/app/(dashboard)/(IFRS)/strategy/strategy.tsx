@@ -77,6 +77,7 @@ export default function Strategy() {
             </AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
+                type="scenario"
                 headers={scenarioHeader}
                 formContent={({onClose}) => <Scenario onClose={onClose} />}
                 dialogTitle="SSP 시나리오 분석"
@@ -90,6 +91,7 @@ export default function Strategy() {
             </AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
+                type="risk"
                 headers={riskHeader}
                 formContent={({onClose}) => <Risk onClose={onClose} />}
                 dialogTitle="리스크 식별 및 대응"

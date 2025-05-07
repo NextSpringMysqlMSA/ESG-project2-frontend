@@ -137,6 +137,7 @@ export default function Goal() {
             <AccordionTrigger className="text-base">KPI 목표</AccordionTrigger>
             <AccordionContent>
               <CollapsibleWindow
+                type="kpiGoal"
                 headers={kpiGoalHeader}
                 formContent={({onClose}) => <KPIGoal onClose={onClose} />}
                 dialogTitle="KPI 목표 설정"

@@ -6,6 +6,7 @@ import CustomSelect from '@/components/tools/customSelect'
 import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
 import {createScenario} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
+import axios from 'axios'
 
 type MeetingProps = {
   onClose: () => void
@@ -102,9 +103,11 @@ export default function Scenario({onClose}: MeetingProps) {
       })
       showSuccess('시나리오 정보가 저장되었습니다.')
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage =
-        err?.response?.data?.message || '저장 실패: 서버 오류가 발생했습니다.'
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '저장 실패: 서버 오류 발생'
       showError(errorMessage)
     }
   }
