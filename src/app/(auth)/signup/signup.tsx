@@ -5,6 +5,7 @@ import Link from 'next/link'
 import AuthInputBox from '@/components/tools/authInputBox'
 import {registerApi} from '@/services/auth'
 import {showError, showSuccess} from '@/util/toast'
+import axios from 'axios'
 
 export default function SignUp() {
   const [form, setForm] = useState({
@@ -66,18 +67,7 @@ export default function SignUp() {
       window.location.href = '/login'
     } catch (e: unknown) {
       let errorMessage = '회원가입 실패: 입력값을 확인해주세요.'
-      if (
-        typeof e === 'object' &&
-        e !== null &&
-        'response' in e &&
-        typeof e.response === 'object' &&
-        e.response !== null &&
-        'data' in e.response &&
-        typeof e.response.data === 'object' &&
-        e.response.data !== null &&
-        'message' in e.response.data &&
-        typeof e.response.data.message === 'string'
-      ) {
+      if (axios.isAxiosError(e) && e.response?.data?.message) {
         errorMessage = e.response.data.message
       }
       showError(errorMessage)
