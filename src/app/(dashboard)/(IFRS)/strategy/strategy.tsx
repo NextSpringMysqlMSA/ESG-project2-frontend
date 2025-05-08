@@ -45,16 +45,20 @@ export default function Strategy() {
     loadData()
   }, [setData, setScenarioData])
 
+  // 시나리오 테이블 헤더 (순서 업데이트)
   const scenarioHeader = [
     '분석 기준 연도',
     '행정구역',
     '시나리오',
     '위도/경도',
-    '지표',
-    '자산유형 입력',
-    '자산가치',
+    '기후 지표',
+    '산업 분야',
+    '자산 유형',
+    '자산 가치',
     '예상 피해액'
   ]
+
+  // 리스크 테이블 헤더 (유지)
   const riskHeader = [
     '리스크 종류',
     '리스크 요인',
@@ -67,7 +71,7 @@ export default function Strategy() {
 
   return (
     <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-8">
-      {/* Breadcrumb 부분 ======================================================================================*/}
+      {/* Breadcrumb 부분 */}
       <div className="flex flex-row px-4 mb-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -111,21 +115,19 @@ export default function Strategy() {
                     : ScenarioData.map(item => ({
                         id: item.id,
                         values: [
-                          String(item.regions ?? ''),
-                          String(item.longitude ?? ''),
-                          String(item.latitude ?? ''),
-                          String(item.warming ?? ''),
-                          String(item.industry ?? ''),
-                          String(item.scenario ?? ''),
-                          String(item.baseYear ?? ''),
-                          String(item.climate ?? ''),
-                          String(item.damage ?? ''),
-                          String(item.format ?? ''),
-                          String(item.responseStrategy ?? '')
+                          String(item.baseYear ?? ''), // 분석 기준 연도
+                          String(item.regions ?? ''), // 행정구역
+                          String(item.scenario ?? ''), // 시나리오
+                          `${item.latitude ?? ''}/${item.longitude ?? ''}`, // 위도/경도 통합
+                          String(item.climate ?? ''), // 기후 지표
+                          String(item.industry ?? ''), // 산업 분야
+                          String(item.assetType ?? ''), // 자산 유형
+                          String(item.assetValue ?? ''), // 자산 가치
+                          String(item.estimatedDamage ?? '0') // 예상 피해액 (단위 추가)
                         ]
                       }))
                 }
-                formContent={({onClose, row, rowId, mode}) => (
+                formContent={({onClose, rowId, mode}) => (
                   <Scenario onClose={onClose} rowId={rowId} mode={mode} />
                 )}
               />
