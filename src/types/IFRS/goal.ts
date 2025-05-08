@@ -1,4 +1,5 @@
-export interface netZeroState {
+export interface NetZeroState {
+  id: number
   industrialGroup: string
   scenario: string
   baseYear: number
@@ -8,7 +9,11 @@ export interface netZeroState {
   baseYearScope2: number
   baseYearScope3: number
 }
+
+export type NetZeroPayload = Omit<NetZeroState, 'id'>
+
 export interface KPIGoalState {
+  id: number
   indicator: string
   detailedIndicator: string
   unit: string
@@ -18,3 +23,5 @@ export interface KPIGoalState {
   currentValue: number
   targetValue: number
 }
+
+export type KPIGoalPayload = Omit<KPIGoalState, 'id'>

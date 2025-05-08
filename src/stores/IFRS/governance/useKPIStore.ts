@@ -1,9 +1,16 @@
 import {create} from 'zustand'
-import {persist} from 'zustand/middleware'
 import {kpiState as KPIFields} from '@/types/IFRS/governance'
+import {fetchKpiById} from '@/services/governance' // API 함수 import 추가
 
-// 개별 KPI 항목 타입 정의
 export type KPIItem = KPIFields
+
+const DEFAULT_FIELDS: KPIFields = {
+  id: -1,
+  executiveName: '',
+  kpiName: '',
+  targetValue: '',
+  achievedValue: ''
+}
 
 interface KPIStore extends KPIFields {
   data: KPIItem[]
@@ -12,45 +19,65 @@ interface KPIStore extends KPIFields {
   addItem: (item: KPIItem) => void
   clearList: () => void
   setData: (items: KPIItem[]) => void
+  persistToStorage: () => void
+  initFromStorage: () => void
+  initFromApi: (id: number) => Promise<void> // API 호출 함수 타입 추가
 }
 
-export const useKPIStore = create(
-  persist<KPIStore>(
-    set => ({
-      id: -1, // 기본값: 신규 항목을 의미
-      executiveName: '',
-      kpiName: '',
-      targetValue: '',
-      achievedValue: '',
-      data: [],
+export const useKPIStore = create<KPIStore>((set, get) => ({
+  ...DEFAULT_FIELDS,
+  data: [],
 
-      setField: (key, value) =>
-        set(state => ({
-          ...state,
-          [key]: value
-        })),
+  setField: (key, value) =>
+    set(state => ({
+      ...state,
+      [key]: value
+    })),
 
-      resetFields: () => {
-        set({
-          id: -1,
-          executiveName: '',
-          kpiName: '',
-          targetValue: '',
-          achievedValue: ''
-        })
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('kpi-storage')
-        }
-      },
+  resetFields: () => {
+    set({...DEFAULT_FIELDS})
+  },
 
-      addItem: item => set(state => ({data: [...state.data, item]})),
-
-      clearList: () => set({data: []}),
-
-      setData: items => set({data: items})
-    }),
-    {
-      name: 'kpi-storage'
+  persistToStorage: () => {
+    if (typeof window !== 'undefined') {
+      const state = get()
+      const dataToStore: KPIFields = {
+        id: -1,
+        executiveName: state.executiveName,
+        kpiName: state.kpiName,
+        targetValue: state.targetValue,
+        achievedValue: state.achievedValue
+      }
+      localStorage.setItem('kpi-storage', JSON.stringify(dataToStore))
     }
-  )
-)
+  },
+
+  initFromStorage: () => {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('kpi-storage')
+      if (!raw) return
+      try {
+        const parsed = JSON.parse(raw)
+        set({...parsed})
+      } catch (e) {
+        console.error('kpi-storage 복원 실패:', e)
+      }
+    }
+  },
+
+  // API에서 KPI 데이터를 가져와 상태를 초기화하는 함수 추가
+  initFromApi: async (id: number) => {
+    try {
+      const kpiData = await fetchKpiById(id)
+      set({...kpiData})
+    } catch (e) {
+      console.error('API에서 KPI 데이터 초기화 실패:', e)
+    }
+  },
+
+  addItem: item => set(state => ({data: [...state.data, item]})),
+
+  clearList: () => set({data: []}),
+
+  setData: items => set({data: items})
+}))

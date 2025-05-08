@@ -19,39 +19,46 @@ import axios from 'axios'
 
 type EducationProps = {
   onClose: () => void
-  row?: string[]
+  // row?: string[] // 제거: API에서 직접 데이터를 가져오기 때문에 필요 없음
   rowId?: number
   mode: 'add' | 'edit'
 }
 
-export default function Education({onClose, row, rowId, mode}: EducationProps) {
+export default function Education({onClose, rowId, mode}: EducationProps) {
+  const isEditMode = mode === 'edit'
+  const [submitting, setSubmitting] = useState(false)
+
   const {
-    data,
     educationTitle,
     educationDate,
     participantCount,
     content,
     setField,
     setData,
-    resetFields
+    resetFields,
+    persistToStorage,
+    initFromStorage,
+    initFromApi // API 데이터 초기화 함수 사용
   } = useEducationStore()
 
-  const [educationId, setEducationId] = useState<number | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
-  const isValidDateString = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s)
-
   useEffect(() => {
-    if (mode === 'edit' && row && rowId != null) {
-      setEducationId(rowId)
-      setField('educationDate', row[0] ? new Date(row[0]) : null)
-      setField('participantCount', row[1])
-      setField('educationTitle', row[2])
-      setField('content', row[3])
-    } else if (mode === 'add') {
-      setEducationId(null)
+    if (isEditMode && rowId !== undefined) {
+      // 수정 모드: API에서 데이터 로드
+      initFromApi(rowId)
+    } else {
+      // 추가 모드: 로컬 스토리지에서 데이터 로드
+      initFromStorage()
     }
-  }, [row, rowId, mode])
+
+    // 언마운트 시 저장 (추가 모드인 경우만)
+    return () => {
+      if (!isEditMode) {
+        persistToStorage()
+      } else {
+        resetFields() // 수정 모드일 때만 상태 초기화
+      }
+    }
+  }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage, resetFields])
 
   const handleSubmit = async () => {
     if (!educationTitle || !educationDate || !participantCount || !content) {
@@ -69,16 +76,17 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
     try {
       setSubmitting(true)
 
-      if (mode === 'edit' && educationId !== null) {
+      if (isEditMode && rowId !== undefined) {
         const updateData: UpdateEducationDto = {
           ...educationData,
-          id: educationId
+          id: rowId
         }
-        await updateEducation(educationId, updateData)
+        await updateEducation(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
         await createEducation(educationData)
         showSuccess('저장되었습니다.')
+        localStorage.removeItem('education-storage')
       }
 
       const updatedList = await fetchEducationList()
@@ -90,9 +98,6 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       )
 
       resetFields()
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('education-storage')
-      }
       onClose()
     } catch (err) {
       const errorMessage =
@@ -106,11 +111,11 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
   }
 
   const handleDelete = async () => {
-    if (!educationId) return
+    if (rowId === undefined) return
 
     try {
       setSubmitting(true)
-      await deleteEducation(educationId)
+      await deleteEducation(rowId)
       showSuccess('삭제되었습니다.')
 
       const updatedList = await fetchEducationList()
@@ -122,9 +127,6 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       )
 
       resetFields()
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('education-storage')
-      }
       onClose()
     } catch (err) {
       const errorMessage =
@@ -157,7 +159,7 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
       />
 
       <div className="flex justify-center mt-4 space-x-4">
-        {mode === 'edit' && (
+        {isEditMode && (
           <DashButton
             width="w-24"
             className="text-white bg-red-500 border-red-500 hover:bg-red-600"
@@ -167,7 +169,7 @@ export default function Education({onClose, row, rowId, mode}: EducationProps) {
           </DashButton>
         )}
         <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : mode === 'edit' ? '수정' : '저장'}
+          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
         </DashButton>
       </div>
     </div>
