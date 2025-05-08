@@ -187,14 +187,14 @@ export default function Sidebar() {
           </button>
           {hovered && (
             <div
-              className={`flex flex-col w-full items-start overflow-hidden transition-all duration-300 gap-y-2 ${
+              className={`flex flex-col pl-6 w-full items-start overflow-hidden transition-all duration-300 gap-y-2${
                 openPartnerChild
                   ? 'max-h-40 opacity-100 translate-y-0'
                   : 'max-h-0 opacity-0 -translate-y-2'
               }`}>
               <Link
                 href="/financialRisk"
-                className={`hover:underline hover:text-customG pl-6 text-sm ${
+                className={`flex w-full px-2 py-1 mt-2 text-sm text-left hover:underline hover:text-customG ${
                   pathname === '/financialRisk' ? 'text-customG' : 'text-primary'
                 }`}>
                 재무제표 리스크 관리

@@ -1,7 +1,20 @@
-// src/stores/useScenarioStore.ts
 import {create} from 'zustand'
-import type {scenarioState as ScenarioFields} from '@/types/IFRS/strategy'
 import {fetchScenarioById} from '@/services/strategy'
+
+// 타입 정의 업데이트
+export interface ScenarioFields {
+  id: number
+  regions: string
+  longitude: number | null
+  latitude: number | null
+  assetType: string
+  industry: string
+  scenario: string
+  baseYear: number
+  climate: string
+  assetValue: number
+  estimatedDamage: number | null // 예상 피해액
+}
 
 export type ScenarioItem = ScenarioFields
 
@@ -22,25 +35,20 @@ const DEFAULT_FIELDS: ScenarioFields = {
   regions: '',
   longitude: 0,
   latitude: 0,
-  warming: '',
+  assetValue: 0,
   industry: '',
   scenario: '',
   baseYear: 0,
   climate: '',
-  damage: 0,
-  format: '',
-  responseStrategy: ''
+  assetType: '',
+  estimatedDamage: 0
 }
 
-export const useScenarioStore = create<ScenarioStore>(set => ({
+export const useScenarioStore = create<ScenarioStore>((set, get) => ({
   ...DEFAULT_FIELDS,
   data: [],
 
-  setField: (key, value) =>
-    set(state => ({
-      ...state,
-      [key]: value
-    })),
+  setField: (key, value) => set(state => ({...state, [key]: value})),
 
   resetFields: () => {
     set({...DEFAULT_FIELDS})
@@ -52,7 +60,16 @@ export const useScenarioStore = create<ScenarioStore>(set => ({
       if (saved) {
         try {
           const parsed = JSON.parse(saved)
-          set({...DEFAULT_FIELDS, ...parsed})
+
+          // 필드명 변환 로직 (이전 백엔드 필드명 -> 새 필드명)
+          const convertedData = {
+            ...DEFAULT_FIELDS,
+            ...parsed,
+            assetType: parsed.damage || '', // 이전 필드명 매핑
+            assetValue: parsed.warming || 0 // 이전 필드명 매핑
+          }
+
+          set(convertedData)
         } catch (e) {
           console.error('시나리오 로컬스토리지 파싱 오류:', e)
         }
@@ -62,11 +79,21 @@ export const useScenarioStore = create<ScenarioStore>(set => ({
 
   persistToStorage: () => {
     if (typeof window !== 'undefined') {
-      set(state => {
-        const dataToStore: ScenarioFields = {...state, id: -1}
-        localStorage.setItem('scenario-storage', JSON.stringify(dataToStore))
-        return {}
-      })
+      const state = get()
+      const dataToStore: ScenarioFields = {
+        id: -1,
+        regions: state.regions,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        assetValue: state.assetValue,
+        industry: state.industry,
+        scenario: state.scenario,
+        baseYear: state.baseYear,
+        climate: state.climate,
+        assetType: state.assetType,
+        estimatedDamage: state.estimatedDamage // 추가된 필드 포함
+      }
+      localStorage.setItem('scenario-storage', JSON.stringify(dataToStore))
     }
   },
 
