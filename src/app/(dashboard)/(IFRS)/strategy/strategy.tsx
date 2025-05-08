@@ -46,15 +46,14 @@ export default function Strategy() {
   }, [setData, setScenarioData])
 
   const scenarioHeader = [
+    '분석 기준 연도',
     '행정구역',
     '시나리오',
-    'GWL',
     '위도/경도',
     '지표',
-    '변화량',
-    '단가',
-    '예상 피해액',
-    '전략권고'
+    '자산유형 입력',
+    '자산가치',
+    '예상 피해액'
   ]
   const riskHeader = [
     '리스크 종류',

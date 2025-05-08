@@ -98,12 +98,10 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
     try {
       setSubmitting(true)
       if (isEditMode && rowId !== undefined) {
-        console.log('Scenario Submitting update for ID:', rowId)
         const updateData: UpdateScenarioDto = {...scenarioData, id: rowId}
         await updateScenario(rowId, updateData)
         showSuccess('수정되었습니다.')
       } else {
-        console.log('Scenario Creating new scenario')
         await createScenario(scenarioData)
         showSuccess('저장되었습니다.')
       }
@@ -128,7 +126,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
 
     try {
       setSubmitting(true)
-      console.log('Scenario Deleting scenario ID:', rowId)
       await deleteScenario(rowId)
       showSuccess('삭제되었습니다.')
 
@@ -147,7 +144,14 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
     }
   }
 
-  const regions2 = [
+  // 1. 산업 분야 옵션
+  const industryOptions = ['ICT / 통신']
+
+  // 2. 기후 지표 옵션
+  const climateOptions = ['태풍', '홍수', '폭염', '가뭄']
+
+  // 3. 행정구역 옵션
+  const regionOptions = [
     '서울특별시',
     '부산광역시',
     '대구광역시',
@@ -166,97 +170,102 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
     '경상남도',
     '제주특별자치도'
   ]
-  const warming2 = ['+1.5°C', '+2.0°C', '+3.0°C']
-  const industry2 = [
-    'ICT/통신',
-    '에너지/전력',
-    '물류/운송',
-    '농업/식량',
-    '건설/기반시설',
-    '제조/공정'
-  ]
-  const scenario2 = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
-  const climate2 = [
-    'TX90 (90th 백분위 고온일수)',
-    'RX1D (1일 최대 강수량)',
-    'WS90 (강풍일수, 상위 10%)',
-    'TNx (연 최고기온)',
-    'FD (결빙일수)',
-    'D80 (80mm 초과 강수일)'
-  ]
-  const format2 = ['ASCill (텍스트 격자파일)', 'NetCDF (과학 격자자료)']
+
+  // 4. 위도 - InputBox 사용
+
+  // 5. 경도 - InputBox 사용
+
+  // 6. SSP 시나리오 옵션
+  const scenarioOptions = ['SSP 시나리오', 'SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
+
+  // 7. 자산 유형 - InputBox 사용
+
+  // 8. 자산 가치 - InputBox 사용
+
+  // 9. 분석 기준 연도 옵션
+  const baseYearOptions = ['분석기준연도', '2020', '2025', '2030', '2040', '2050']
+
+  // 포맷 옵션 (추가 필드)
+  const formatOptions = ['ASCill (텍스트 격자파일)', 'NetCDF (과학 격자자료)']
 
   return (
     <div className="flex flex-col h-full mt-4 space-y-4">
-      <div className="flex flex-col w-full space-y-4">
-        <div className="flex flex-row w-full">
-          <div className="flex flex-col w-[50%] pr-2 space-y-4">
-            <CustomSelect
-              placeholder="행정구역 선택"
-              options={regions2}
-              value={regions}
-              onValueChange={value => setField('regions', value)}
-            />
-            <InputBox
-              label="경도 (예: 126.97)"
-              value={longitude || ''}
-              onChange={e => setField('longitude', parseFloat(e.target.value) || 0)}
-            />
-            <CustomSelect
-              placeholder="온난화 수준"
-              options={warming2}
-              value={warming}
-              onValueChange={value => setField('warming', value)}
-            />
-            <CustomSelect
-              placeholder="산업 분야"
-              options={industry2}
-              value={industry}
-              onValueChange={value => setField('industry', value)}
-            />
-            <InputBox
-              label="분석 기준 연도 (예: 2030)"
-              value={baseYear || ''}
-              onChange={e => setField('baseYear', parseInt(e.target.value) || 0)}
-            />
-          </div>
-          <div className="flex flex-col w-[50%] ml-2 space-y-4">
-            <InputBox
-              label="위도 (예: 37.56)"
-              value={latitude || ''}
-              onChange={e => setField('latitude', parseFloat(e.target.value) || 0)}
-            />
-            <CustomSelect
-              placeholder="SSP 시나리오"
-              options={scenario2}
-              value={scenario}
-              onValueChange={value => setField('scenario', value)}
-            />
-            <CustomSelect
-              placeholder="기후 지표"
-              options={climate2}
-              value={climate}
-              onValueChange={value => setField('climate', value)}
-            />
-            <CustomSelect
-              placeholder="자료 포맷"
-              options={format2}
-              value={format}
-              onValueChange={value => setField('format', value)}
-            />
-            <InputBox
-              label="단위 피해(예: ₩/일 또는 ₩/mm)"
-              value={damage || ''}
-              onChange={e => setField('damage', parseFloat(e.target.value) || 0)}
-            />
-          </div>
+      <div className="flex w-full">
+        {/* 왼쪽 영역 */}
+        <div className="flex flex-col w-[50%] mr-2 space-y-4">
+          {/* 9. 분석 기준 연도 */}
+          <CustomSelect
+            placeholder="분석 기준 연도 선택"
+            options={baseYearOptions}
+            value={baseYear ? baseYear.toString() : ''}
+            onValueChange={value => setField('baseYear', parseInt(value))}
+          />
+          {/* 1. 산업 분야 */}
+          <CustomSelect
+            placeholder="산업 분야 선택"
+            options={industryOptions}
+            value={industry}
+            onValueChange={value => setField('industry', value)}
+          />
+          {/* 3. 행정구역 */}
+          <CustomSelect
+            placeholder="행정구역 선택"
+            options={regionOptions}
+            value={regions}
+            onValueChange={value => setField('regions', value)}
+          />
+          <CustomSelect
+            placeholder="SSP 시나리오 선택"
+            options={scenarioOptions}
+            value={scenario}
+            onValueChange={value => setField('scenario', value)}
+          />
+
+          {/* 8. 자산 가치 */}
+          <InputBox
+            label="자산 유형"
+            value={warming} // 백엔드 모델에서의 warming 필드를 자산 가치로 사용
+            onChange={e => setField('warming', e.target.value)}
+            // Remove helperText or update InputBox component to accept this prop
+          />
         </div>
-        <InputBox
-          label="대응 전략, 가정, 참고사항 입력 (예: RE100 전략, 저지대 배수로 개선 등)"
-          value={responseStrategy}
-          onChange={e => setField('responseStrategy', e.target.value)}
-        />
+        <div className="flex flex-col w-[50%] mr-2 space-y-4">
+          {/* 2. 기후 지표 */}
+          <CustomSelect
+            placeholder="기후 지표 선택"
+            options={climateOptions}
+            value={climate}
+            onValueChange={value => setField('climate', value)}
+          />
+
+          {/* 4. 위도 */}
+          <InputBox
+            label="위도 (예: 37.56)"
+            type="number"
+            value={latitude || ''}
+            onChange={e => setField('latitude', parseFloat(e.target.value) || 0)}
+          />
+
+          {/* 5. 경도 */}
+          <InputBox
+            label="경도 (예: 126.97)"
+            type="number"
+            value={longitude || ''}
+            onChange={e => setField('longitude', parseFloat(e.target.value) || 0)}
+          />
+          {/* 7. 자산 유형 */}
+          <InputBox
+            label="자산 가치 입력"
+            type="number"
+            value={damage} // 백엔드 모델에서의 damage 필드를 자산 유형으로 사용
+            onChange={e => setField('damage', e.target.value)}
+            // Remove helperText or update InputBox component to accept this prop
+          />
+        </div>
+
+        {/* 6. SSP 시나리오 */}
       </div>
+
       <div className="flex flex-row justify-center w-full gap-4">
         {isEditMode && (
           <DashButton
