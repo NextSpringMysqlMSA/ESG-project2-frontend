@@ -6,37 +6,44 @@ import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
 import {Command, CommandGroup, CommandItem, CommandList} from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import E1 from './(tables)/(Environmental)/E1'
-import E2 from './(tables)/(Environmental)/E2'
-import E3 from './(tables)/(Environmental)/E3'
-import S1 from './(tables)/(Social)/S1'
-import S2 from './(tables)/(Social)/S2'
-import S3 from './(tables)/(Social)/S3'
-import G1 from './(tables)/(Governance)/G1'
-import G2 from './(tables)/(Governance)/G2'
-import G3 from './(tables)/(Governance)/G3'
+import GRI2 from './(tables)/gri2'
+import GRI3 from './(tables)/gri3'
+import GRI200 from './(tables)/gri200'
+import GRI300 from './(tables)/gri300'
+import GRI400 from './(tables)/gri400'
 
-const fields = ['Environmental', 'Social', 'Governance']
-const fieldTables = {
-  Environmental: ['E1', 'E2', 'E3'],
-  Social: ['S1', 'S2', 'S3'],
-  Governance: ['G1', 'G2', 'G3']
+// ✅ key는 내부 처리용, label은 사용자에게 보여질 이름
+const tableOptions = [
+  {key: 'GRI2', label: 'GRI 2: 일반표준'},
+  {key: 'GRI3', label: 'GRI 3: 일반표준'},
+  {key: 'GRI200', label: 'GRI 200: 경제'},
+  {key: 'GRI300', label: 'GRI 300: 환경'},
+  {key: 'GRI400', label: 'GRI 400: 사회'}
+]
+
+const tableComponents: Record<string, React.FC> = {
+  GRI2,
+  GRI3,
+  GRI200,
+  GRI300,
+  GRI400
 }
 
-function FieldCombobox({
+// ✅ Combobox 컴포넌트
+function TableCombobox({
   options,
   value,
   onChange,
-  placeholder,
-  disabled = false
+  placeholder
 }: {
-  options: string[]
+  options: {key: string; label: string}[]
   value: string | null
   onChange: (value: string) => void
   placeholder: string
-  disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
+
+  const selected = options.find(option => option.key === value)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -46,7 +53,7 @@ function FieldCombobox({
           role="combobox"
           aria-expanded={open}
           className="w-[200px] justify-between">
-          {value || placeholder}
+          {selected?.label || placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
@@ -55,8 +62,8 @@ function FieldCombobox({
             <CommandGroup>
               {options.map(option => (
                 <CommandItem
-                  key={option}
-                  value={option}
+                  key={option.key}
+                  value={option.key}
                   onSelect={currentValue => {
                     onChange(currentValue === value ? '' : currentValue)
                     setOpen(false)
@@ -64,10 +71,10 @@ function FieldCombobox({
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
-                      value === option ? 'opacity-100' : 'opacity-0'
+                      value === option.key ? 'opacity-100' : 'opacity-0'
                     )}
                   />
-                  {option}
+                  {option.label}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -77,28 +84,10 @@ function FieldCombobox({
     </Popover>
   )
 }
-//Fields&Tables -------------------------------------------------------------------------------
+
+// ✅ 메인 GRI 컴포넌트
 export default function GRI() {
-  const [selectedField, setSelectedField] = useState<string | null>(null)
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
-
-  const tableComponents: Record<string, React.FC> = {
-    E1,
-    E2,
-    E3,
-    S1,
-    S2,
-    S3,
-    G1,
-    G2,
-    G3
-  }
-
-  // Reset table selection when field changes
-  const handleFieldChange = (field: string) => {
-    setSelectedField(field)
-    setSelectedTable(null)
-  }
 
   return (
     <div className="flex flex-col w-full h-full px-8 py-6 space-y-4 bg-[#F9FBFF]">
@@ -108,27 +97,16 @@ export default function GRI() {
       </div>
       <div className="flex flex-col w-full h-full p-4 space-y-4 bg-white border rounded">
         <div className="flex flex-row space-x-4">
-          <FieldCombobox
-            options={fields}
-            value={selectedField}
-            onChange={handleFieldChange}
-            placeholder="필드 선택"
-          />
-          <FieldCombobox
-            options={
-              selectedField ? fieldTables[selectedField as keyof typeof fieldTables] : []
-            }
+          <TableCombobox
+            options={tableOptions}
             value={selectedTable}
             onChange={setSelectedTable}
             placeholder="테이블 선택"
-            disabled={!selectedField}
           />
         </div>
-        {selectedField && selectedTable ? (
+
+        {selectedTable ? (
           <div className="flex flex-col">
-            <span className="flex text-xl font-medium">
-              {selectedField} - {selectedTable}
-            </span>
             <div className="flex w-full h-full">
               {(() => {
                 const TableComponent = tableComponents[selectedTable]
@@ -142,7 +120,7 @@ export default function GRI() {
           </div>
         ) : (
           <div className="flex flex-row items-center justify-center w-full h-64">
-            {!selectedField ? '필드를 선택해주세요.' : '테이블을 선택해주세요.'}
+            테이블을 선택해주세요.
           </div>
         )}
       </div>
