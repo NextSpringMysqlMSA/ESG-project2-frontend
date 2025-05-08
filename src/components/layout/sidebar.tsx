@@ -123,7 +123,7 @@ export default function Sidebar() {
               </Link>
             </div>
             <Link
-              href="/"
+              href="/GRI"
               className="flex flex-row items-center justify-between w-full p-2 px-4 text-base font-semibold text-left rounded text-primary hover:bg-customG hover:text-white">
               GRI
             </Link>
