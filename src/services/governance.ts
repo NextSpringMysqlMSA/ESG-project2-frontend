@@ -18,15 +18,8 @@ export type UpdateCommitteeDto = CommitteeItem
 
 // 위원회 상세 조회 (ID로 데이터 가져오기)
 export const fetchCommitteeById = async (id: number): Promise<CommitteeItem> => {
-  try {
-    console.log(`Fetching committee with ID: ${id}`) // 호출된 ID 출력
-    const response = await api.get(`/api/v1/tcfd/governance/committee/${id}`)
-    console.log('Response data:', response.data) // 응답 데이터 출력
-    return response.data
-  } catch (error) {
-    console.error('Error fetching committee data:', error) // 에러 로그 추가
-    throw error
-  }
+  const response = await api.get(`/api/v1/tcfd/governance/committee/${id}`)
+  return response.data
 }
 // 위원회 목록 조회 (ID 없이 모든 데이터 가져오기)
 export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
@@ -34,7 +27,7 @@ export const fetchCommitteeList = async (): Promise<CommitteeItem[]> => {
   return response.data
 }
 
-// 위원회 목록 조회
+// 위원회 생성
 export const createCommittee = async (committeeData: CreateCommitteeDto) => {
   return await api.post('/api/v1/tcfd/governance/committee', committeeData)
 }
@@ -58,6 +51,12 @@ export type MeetingItem = {
 
 export type CreateMeetingDto = Omit<MeetingItem, 'id'>
 export type UpdateMeetingDto = MeetingItem
+
+// 회의 상세 조회 함수 추가
+export const fetchMeetingById = async (id: number): Promise<MeetingItem> => {
+  const response = await api.get(`/api/v1/tcfd/governance/meeting/${id}`)
+  return response.data
+}
 
 export const fetchMeetingList = async (): Promise<MeetingItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/meeting')
@@ -88,6 +87,12 @@ export type KPIItem = {
 export type CreateKpiDto = Omit<KPIItem, 'id'>
 export type UpdateKpiDto = KPIItem
 
+// KPI 상세 조회 함수 수정 (경로 통일)
+export const fetchKpiById = async (id: number): Promise<KPIItem> => {
+  const response = await api.get(`/api/v1/tcfd/governance/executive-kpi/${id}`)
+  return response.data
+}
+
 export const fetchKpiList = async (): Promise<KPIItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/executive-kpi')
   return response.data
@@ -113,10 +118,15 @@ export type EducationItem = {
   participantCount: number
   content: string
 }
-//-------------------------------------------------------------------------------------------
 
 export type CreateEducationDto = Omit<EducationItem, 'id'>
 export type UpdateEducationDto = EducationItem
+
+// 교육 상세 조회 함수 추가
+export const fetchEducationById = async (id: number): Promise<EducationItem> => {
+  const response = await api.get(`/api/v1/tcfd/governance/education/${id}`)
+  return response.data
+}
 
 export const fetchEducationList = async (): Promise<EducationItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/education')

@@ -8,6 +8,7 @@ import {useAuthStore} from '@/stores/authStore'
 import {loginApi} from '@/services/auth'
 import {showError, showSuccess} from '@/util/toast'
 import toast from 'react-hot-toast'
+import axios from 'axios'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -34,25 +35,14 @@ export default function Login() {
       setAuth(token)
       showSuccess('로그인 성공!')
       router.push('/home')
-    } catch (err: unknown) {
-      let errorMessage = '로그인 실패: 알 수 없는 오류가 발생했습니다.'
-      if (err instanceof Error) {
-        errorMessage = err.message
-      } else if (
-        typeof err === 'object' &&
-        err !== null &&
-        'response' in err &&
-        typeof err.response === 'object' &&
-        err.response !== null &&
-        'data' in err.response &&
-        typeof err.response.data === 'object' &&
-        err.response.data !== null &&
-        'message' in err.response.data &&
-        typeof err.response.data.message === 'string'
-      ) {
-        errorMessage = err.response.data.message
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err.response?.data?.message || '로그인 실패: 서버 오류가 발생했습니다.'
+        showError(msg)
+      } else {
+        showError('로그인 실패: 알 수 없는 오류가 발생했습니다.')
       }
-      showError(errorMessage)
     }
   }
 

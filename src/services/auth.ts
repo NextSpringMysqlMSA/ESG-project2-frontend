@@ -42,11 +42,10 @@ export const uploadProfileImageApi = async (file: File): Promise<string> => {
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await api.put('/auth/profile-image', formData, {
-    headers: {'Content-Type': 'multipart/form-data'}
-  })
-  return response.data // 문자열 URL 반환
+  const response = await api.put('/auth/profile-image', formData)
+  return response.data
 }
+
 //------------------------------------------------------------------------------
 
 // 프로필 이미지 URL만 조회

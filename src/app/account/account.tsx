@@ -35,8 +35,7 @@ export default function Account() {
         await uploadProfileImageApi(file)
         await refreshProfileImage()
         showSuccess('프로필 이미지가 변경되었습니다.')
-      } catch (e) {
-        console.error(e)
+      } catch (e: unknown) {
         showError('이미지 업로드 실패')
       }
     }

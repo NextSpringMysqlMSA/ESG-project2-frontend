@@ -27,7 +27,7 @@ import {
   CategoryScale,
   LinearScale,
   PointElement,
-  LineElement // LineElement 임포트
+  LineElement
 } from 'chart.js'
 import {
   Dialog,
@@ -36,7 +36,10 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
+import {KPIGoalState} from '@/types/IFRS/goal'
+import {fetchKPIGoal} from '@/services/goal'
 
 ChartJS.register(
   ArcElement,
@@ -47,11 +50,17 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement
-) // LineElement 등록
+)
 
 export default function Goal() {
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const data = {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // KPI 목표 데이터 관련 상태 관리
+  const {data: kpiGoalData, setData: setKpiGoalData} = useKPIGoalStore()
+
+  const chartData = {
     labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월'],
     datasets: [
       {
@@ -74,6 +83,48 @@ export default function Goal() {
     '목표수치',
     '현재수치'
   ]
+
+  // KPI 목표 데이터 로드 함수
+  const loadKPIGoalData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await fetchKPIGoal()
+      setKpiGoalData(data)
+    } catch (err) {
+      console.error('KPI 목표 데이터 로드 실패:', err)
+      setError('KPI 목표 데이터를 불러오는데 실패했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    loadKPIGoalData()
+  }, [])
+
+  // KPI 목표 테이블에 표시할 데이터 형식으로 변환
+  const formatKPIGoalData = (data: KPIGoalState[]) => {
+    return data.map(item => ({
+      id: item.id,
+      values: [
+        item.indicator,
+        item.detailedIndicator,
+        item.unit,
+        item.goalYear.toString(),
+        item.baseYear.toString(),
+        item.referenceValue.toString(),
+        item.targetValue.toString(),
+        item.currentValue.toString()
+      ]
+    }))
+  }
+
+  const handleNetZeroClose = () => {
+    setIsAddOpen(false)
+  }
+
   return (
     <div className="flex flex-col w-full h-full p-8">
       {/* Breadcrumb ===================================================================================== */}
@@ -122,27 +173,40 @@ export default function Goal() {
                     <DialogHeader>
                       <DialogTitle>넷제로 목표 설정</DialogTitle>
                     </DialogHeader>
-                    <NetZero
-                      onClose={function (): void {
-                        throw new Error('Function not implemented.')
-                      }}
-                    />
+                    <NetZero onClose={handleNetZeroClose} />
                   </DialogContent>
                 </Dialog>
               </div>
-              <Line data={data} />
+              <Line data={chartData} />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
             <AccordionTrigger className="text-base">KPI 목표</AccordionTrigger>
             <AccordionContent>
-              <CollapsibleWindow
-                type="kpiGoal"
-                headers={kpiGoalHeader}
-                formContent={({onClose}) => <KPIGoal onClose={onClose} />}
-                dialogTitle="KPI 목표 설정"
-                data={[]} // 빈 배열로 기본값 명시
-              />
+              {loading ? (
+                <div className="flex justify-center p-8">
+                  <div className="w-8 h-8 border-t-2 border-b-2 rounded-full animate-spin border-customG"></div>
+                </div>
+              ) : error ? (
+                <div className="p-4 text-center text-red-500">{error}</div>
+              ) : (
+                <CollapsibleWindow
+                  type="kpiGoal"
+                  headers={kpiGoalHeader}
+                  formContent={({onClose, rowId, mode}) => (
+                    <KPIGoal
+                      onClose={() => {
+                        onClose()
+                        loadKPIGoalData() // 닫힐 때 데이터 다시 로드
+                      }}
+                      rowId={rowId}
+                      mode={mode || 'add'}
+                    />
+                  )}
+                  dialogTitle="KPI 목표 설정"
+                  data={formatKPIGoalData(kpiGoalData)}
+                />
+              )}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
