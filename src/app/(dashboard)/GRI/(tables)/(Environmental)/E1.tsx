@@ -13,9 +13,9 @@ export default function E1() {
       <div className="flex justify-end w-full">
         <Dialog>
           <DialogTrigger>
-            <button className="p-2 text-white border w-28 bg-customG rounded-xl hover:bg-white hover:text-customG border-customG">
+            <div className="p-2 text-white border w-28 bg-customG rounded-xl hover:bg-white hover:text-customG border-customG">
               + 항목 추가
-            </button>
+            </div>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -27,12 +27,14 @@ export default function E1() {
       </div>
       <table className="w-full text-center table-fixed">
         <thead className="border-b-2 border-b-black">
-          <th>김</th>
-          <th>동</th>
-          <th>환</th>
-          <th>김</th>
-          <th>동</th>
-          <th>환</th>
+          <tr>
+            <th>김</th>
+            <th>동</th>
+            <th>환</th>
+            <th>김</th>
+            <th>동</th>
+            <th>환</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
