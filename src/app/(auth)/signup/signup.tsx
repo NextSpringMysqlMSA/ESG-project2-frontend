@@ -137,11 +137,11 @@ export default function SignUp() {
           <div className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2">
             {icon}
           </div>
-        )}
+        )}{' '}
         <div
           className={`w-full ${
             icon ? 'pl-10' : 'pl-4'
-          } pr-4 py-2.5 text-gray-700 transition-colors border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-transparent`}>
+          } pr-4 py-2.5 text-gray-700 transition-colors border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-customGRing focus-within:border-transparent`}>
           <AuthInputBox
             type={type}
             placeholder={placeholder || label}
@@ -157,21 +157,21 @@ export default function SignUp() {
   )
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-emerald-50 to-gray-50">
+    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-customGLight to-gray-50">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.5}}
         className="flex items-center justify-center mb-6">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center justify-center w-12 h-12 shadow-md bg-emerald-600 rounded-xl">
+          <div className="flex items-center justify-center w-12 h-12 shadow-md bg-customG rounded-xl">
             <Leaf className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-bold tracking-tight text-emerald-800">
+            <span className="text-2xl font-bold tracking-tight text-customGTextLight">
               ESG
             </span>
-            <span className="text-sm font-medium text-emerald-600">Dashboard</span>
+            <span className="text-sm font-medium text-customG">Dashboard</span>
           </div>
         </div>
       </motion.div>
@@ -258,7 +258,7 @@ export default function SignUp() {
             whileTap={{scale: 0.98}}
             onClick={handleSubmit}
             disabled={isLoading}
-            className="flex items-center justify-center w-full py-3 text-white transition-all duration-300 rounded-lg bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70">
+            className="flex items-center justify-center w-full py-3 text-white transition-all duration-300 rounded-lg bg-customG hover:bg-customGDark focus:outline-none focus:ring-2 focus:ring-customGRing focus:ring-offset-2 disabled:opacity-70">
             {isLoading ? (
               <svg
                 className="w-5 h-5 text-white animate-spin"
@@ -291,7 +291,7 @@ export default function SignUp() {
             이미 계정이 있으신가요?{' '}
             <Link
               href="/login"
-              className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline">
+              className="font-medium text-customG hover:text-customGDark hover:underline">
               로그인
             </Link>
           </div>
@@ -305,10 +305,10 @@ export default function SignUp() {
         className="mt-6 text-xs text-center text-gray-500">
         © 2025 ESG Dashboard. All rights reserved.
         <div className="mt-1">
-          <Link href="/terms" className="mx-2 hover:text-emerald-600">
+          <Link href="/terms" className="mx-2 hover:text-customG">
             이용약관
           </Link>
-          <Link href="/privacy" className="mx-2 hover:text-emerald-600">
+          <Link href="/privacy" className="mx-2 hover:text-customG">
             개인정보처리방침
           </Link>
         </div>

@@ -465,10 +465,10 @@ export default function Home() {
           <Card className="overflow-hidden h-[320px]">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl text-emerald-600">GRI 작성 현황</CardTitle>
+                <CardTitle className="text-xl text-customG">GRI 작성 현황</CardTitle>
                 <Badge
                   variant="outline"
-                  className="font-medium bg-emerald-50 text-emerald-600 border-emerald-200">
+                  className="font-medium bg-customGLight text-customG border-customGLight">
                   50% 완료
                 </Badge>
               </div>

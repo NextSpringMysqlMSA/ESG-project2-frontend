@@ -13,7 +13,7 @@ export default function NavBar() {
     <div className="z-40 flex items-center justify-between w-full px-4 py-3 bg-white shadow-sm lg:px-6">
       {/* 로고 영역 */}
       <Link href="/" className="flex items-center space-x-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg shadow-sm bg-emerald-600">
+        <div className="flex items-center justify-center w-10 h-10 rounded-lg shadow-sm bg-customG">
           <Leaf className="text-white" size={20} />
         </div>
         <motion.div
@@ -21,8 +21,10 @@ export default function NavBar() {
           animate={{opacity: 1, x: 0}}
           transition={{duration: 0.3}}
           className="flex flex-col">
-          <span className="text-xl font-bold tracking-tight text-emerald-800">NSMM</span>
-          <span className="-mt-1 text-xs font-medium text-emerald-600">Dashboard</span>
+          <span className="text-xl font-bold tracking-tight text-customGTextLight">
+            NSMM
+          </span>
+          <span className="-mt-1 text-xs font-medium text-customG">Dashboard</span>
         </motion.div>
       </Link>
     </div>
@@ -43,7 +45,7 @@ const NavLink = ({
 }) => (
   <Link
     href={href}
-    className={`px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-emerald-700 hover:bg-emerald-50 ${className}`}>
+    className={`px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight ${className}`}>
     {text}
   </Link>
 )

@@ -121,7 +121,7 @@ export default function Account() {
   ]
 
   return (
-    <div className="flex flex-col w-full min-h-screen px-4 py-8 bg-gradient-to-br from-emerald-50 to-gray-50">
+    <div className="flex flex-col w-full min-h-screen px-4 py-8 bg-gradient-to-br from-customGLight to-gray-50">
       <div className="w-full max-w-5xl mx-auto">
         <motion.div
           initial={{opacity: 0, y: 10}}
@@ -130,7 +130,7 @@ export default function Account() {
           className="mb-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center transition-colors text-emerald-600 hover:text-emerald-700">
+            className="flex items-center transition-colors bg-customG hover:text-customGDark">
             <ChevronLeft size={20} />
             <span className="ml-1 font-medium">돌아가기</span>
           </button>
@@ -146,7 +146,7 @@ export default function Account() {
             <div className="flex flex-col md:flex-row md:items-start">
               <div className="flex-1">
                 <h2 className="flex items-center mb-4 text-xl font-bold text-gray-800">
-                  <User size={20} className="mr-2 text-emerald-600" />
+                  <User size={20} className="mr-2 bg-customG" />
                   계정 정보
                 </h2>
 
@@ -154,8 +154,8 @@ export default function Account() {
                   {profileItems.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center p-3 transition-colors rounded-lg hover:bg-emerald-50">
-                      <div className="flex items-center justify-center w-10 h-10 mr-4 rounded-full bg-emerald-100 text-emerald-600">
+                      className="flex items-center p-3 transition-colors rounded-lg hover:bg-customGLight">
+                      <div className="flex items-center justify-center w-10 h-10 mr-4 text-white rounded-full bg-customG">
                         {item.icon}
                       </div>
                       <div className="flex-1">
@@ -170,7 +170,7 @@ export default function Account() {
               {/* 프로필 사진 섹션 - 오른쪽으로 이동 */}
               <div className="flex flex-col items-center mt-6 md:mt-0 md:ml-8">
                 <div className="relative group">
-                  <div className="overflow-hidden bg-white border-2 rounded-full w-60 h-60 border-emerald-200 ring-2 ring-emerald-50">
+                  <div className="overflow-hidden bg-white border-2 rounded-full w-60 h-60 border-customGLight ring-2 ring-customGLight">
                     {profile?.profileImageUrl ? (
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
@@ -193,7 +193,7 @@ export default function Account() {
                   <button
                     onClick={handleEditClick}
                     disabled={isLoading}
-                    className="mt-3 py-1.5 px-3 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 disabled:opacity-70 flex items-center justify-center font-medium w-full">
+                    className="mt-3 py-1.5 px-3 bg-customG text-white text-sm rounded-lg hover:bg-customGDark transition-colors focus:outline-none focus:ring-2 focus:ring-customGRing focus:ring-offset-1 disabled:opacity-70 flex items-center justify-center font-medium w-full">
                     {isLoading ? '업로드 중...' : '사진 변경'}
                   </button>
                 </div>
@@ -208,7 +208,7 @@ export default function Account() {
             transition={{duration: 0.5, delay: 0.4}}
             className="p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
             <h2 className="flex items-center mb-6 text-xl font-bold text-gray-800">
-              <ShieldCheck size={20} className="mr-2 text-emerald-600" />
+              <ShieldCheck size={20} className="mr-2 bg-customG" />
               비밀번호 변경
             </h2>
 
@@ -228,7 +228,7 @@ export default function Account() {
                       )
                     }
                     placeholder={item.placeholder}
-                    className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customGRing focus:border-transparent"
                   />
                 </div>
               ))}
@@ -237,7 +237,7 @@ export default function Account() {
                 <button
                   onClick={handlePasswordSubmit}
                   disabled={isLoading}
-                  className="py-2.5 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 w-full flex items-center justify-center font-medium">
+                  className="py-2.5 px-4 bg-customG text-white rounded-lg hover:bg-customGDark transition-colors focus:outline-none focus:ring-2 focus:ring-customGRing focus:ring-offset-2 disabled:opacity-70 w-full flex items-center justify-center font-medium">
                   {isLoading ? '처리 중...' : '비밀번호 변경하기'}
                 </button>
               </div>

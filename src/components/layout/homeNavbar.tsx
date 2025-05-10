@@ -62,7 +62,7 @@ export default function HomeNavbar() {
         {/* 로고 영역 */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-600">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-customG">
               <Leaf className="text-white" size={20} />
             </div>
             <motion.div
@@ -70,12 +70,10 @@ export default function HomeNavbar() {
               animate={{opacity: 1}}
               transition={{delay: 0.2}}
               className="hidden md:flex md:flex-col">
-              <span className="text-xl font-bold tracking-tight text-emerald-800">
+              <span className="text-xl font-bold tracking-tight text-customGTextLight">
                 NSMM
               </span>
-              <span className="-mt-1 text-xs font-medium text-emerald-600">
-                Dashboard
-              </span>
+              <span className="-mt-1 text-xs font-medium text-customG">Dashboard</span>
             </motion.div>
           </Link>
         </div>
@@ -89,7 +87,7 @@ export default function HomeNavbar() {
           <HoverCard>
             <HoverCardTrigger asChild>
               <button className="flex items-center transition-opacity rounded-full hover:opacity-80">
-                <Avatar className="border-2 w-9 h-9 border-emerald-100">
+                <Avatar className="border-2 w-9 h-9 border-customGBorder">
                   {profile?.profileImageUrl ? (
                     <AvatarImage
                       src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
@@ -97,7 +95,7 @@ export default function HomeNavbar() {
                       className="object-cover"
                     />
                   ) : (
-                    <AvatarFallback className="text-white bg-emerald-700">
+                    <AvatarFallback className="text-white bg-customGDark">
                       {userInitials}
                     </AvatarFallback>
                   )}
@@ -106,7 +104,7 @@ export default function HomeNavbar() {
             </HoverCardTrigger>
             <HoverCardContent className="p-4 w-80" align="end">
               <div className="flex space-x-4">
-                <Avatar className="w-16 h-16 border-2 border-emerald-100">
+                <Avatar className="w-16 h-16 border-2 border-customGBorder">
                   {profile?.profileImageUrl ? (
                     <AvatarImage
                       src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
@@ -114,7 +112,7 @@ export default function HomeNavbar() {
                       className="object-cover"
                     />
                   ) : (
-                    <AvatarFallback className="text-xl text-white bg-emerald-700">
+                    <AvatarFallback className="text-xl text-white bg-customGDark">
                       {userInitials}
                     </AvatarFallback>
                   )}
@@ -145,7 +143,7 @@ export default function HomeNavbar() {
               <div className="flex justify-end mt-4">
                 <Link
                   href="/account"
-                  className="text-xs text-emerald-600 hover:text-emerald-800 hover:underline">
+                  className="text-xs text-customG hover:text-customGTextLight hover:underline">
                   프로필 관리
                 </Link>
               </div>
@@ -174,7 +172,7 @@ export default function HomeNavbar() {
                       alt={fullName}
                     />
                   ) : (
-                    <AvatarFallback className="text-white bg-emerald-700">
+                    <AvatarFallback className="text-white bg-customGDark">
                       {userInitials}
                     </AvatarFallback>
                   )}

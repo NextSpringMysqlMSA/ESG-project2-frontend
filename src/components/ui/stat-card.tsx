@@ -18,7 +18,7 @@ export function StatCard({title, count, icon, color, description}: StatCardProps
   // 색상 클래스 매핑
   const colorVariants = {
     blue: 'from-blue-50 to-white border-blue-200',
-    emerald: 'from-emerald-50 to-white border-emerald-200',
+    emerald: 'from-customGLight to-white border-customGBorder200',
     purple: 'from-purple-50 to-white border-purple-200',
     amber: 'from-amber-50 to-white border-amber-200'
   }
@@ -34,7 +34,9 @@ export function StatCard({title, count, icon, color, description}: StatCardProps
             <p className="mt-1 text-xs text-gray-500">{description}</p>
           </div>
           <div
-            className={`p-2 rounded-full bg-white shadow-sm border border-${color}-100`}>
+            className={`p-2 rounded-full bg-white shadow-sm border ${
+              color === 'emerald' ? 'border-customGBorder' : `border-${color}-100`
+            }`}>
             {icon}
           </div>
         </div>

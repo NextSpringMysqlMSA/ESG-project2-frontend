@@ -80,24 +80,24 @@ export default function Login() {
 
   // 커스텀 입력 필드 스타일 클래스
   const inputStyle =
-    'w-full py-3 pl-10 pr-4 text-gray-700 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'w-full py-3 pl-10 pr-4 text-gray-700 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customGRing focus:border-transparent'
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-emerald-50 to-gray-50">
+    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-customGEnd to-gray-50">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.5}}
         className="flex items-center justify-center mb-8">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center justify-center w-12 h-12 shadow-md bg-emerald-600 rounded-xl">
+          <div className="flex items-center justify-center w-12 h-12 shadow-md bg-customG rounded-xl">
             <Leaf className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-bold tracking-tight text-emerald-800">
+            <span className="text-2xl font-bold tracking-tight text-customGTextLight">
               NSMM
             </span>
-            <span className="text-sm font-medium text-emerald-600">Dashboard</span>
+            <span className="text-sm font-medium text-customG">Dashboard</span>
           </div>
         </div>
       </motion.div>
@@ -158,7 +158,7 @@ export default function Login() {
           whileTap={{scale: 0.98}}
           type="submit"
           disabled={isLoading}
-          className="flex items-center justify-center w-full py-3 text-white transition-all duration-300 rounded-lg bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70">
+          className="flex items-center justify-center w-full py-3 text-white transition-all duration-300 rounded-lg bg-customG hover:bg-customGDark focus:outline-none focus:ring-2 focus:ring-customGRing focus:ring-offset-2 disabled:opacity-70">
           {isLoading ? (
             <svg
               className="w-5 h-5 text-white animate-spin"
@@ -190,7 +190,7 @@ export default function Login() {
             계정이 없으신가요?{' '}
             <Link
               href="/signup"
-              className="font-medium text-emerald-600 hover:text-emerald-700">
+              className="font-medium text-customG hover:text-customGDark hover:underline">
               회원가입
             </Link>
           </div>
@@ -204,10 +204,10 @@ export default function Login() {
         className="mt-6 text-xs text-center text-gray-500">
         © 2025 NSMM Dashboard. All rights reserved.
         <div className="mt-1">
-          <Link href="/terms" className="mx-2 hover:text-emerald-600">
+          <Link href="/terms" className="mx-2 hover:text-customG">
             이용약관
           </Link>
-          <Link href="/privacy" className="mx-2 hover:text-emerald-600">
+          <Link href="/privacy" className="mx-2 hover:text-customG">
             개인정보처리방침
           </Link>
         </div>

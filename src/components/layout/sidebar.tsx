@@ -207,7 +207,7 @@ export default function Sidebar() {
       href={href || '#'}
       className={cn(
         'flex items-center py-2.5 px-4 rounded-lg group transition-all duration-200 relative',
-        isActive ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-100',
+        isActive ? 'bg-customGLight text-customGDark' : 'text-gray-600 hover:bg-gray-100',
         hovered ? 'justify-start' : 'justify-center'
       )}
       onClick={
@@ -223,7 +223,7 @@ export default function Sidebar() {
         <div
           className={cn(
             'flex items-center justify-center h-7 w-7',
-            isActive ? 'text-emerald-600' : 'text-gray-500'
+            isActive ? 'text-customG' : 'text-gray-500'
           )}>
           <Icon size={20} />
         </div>
@@ -255,7 +255,7 @@ export default function Sidebar() {
 
       {/* 활성화된 메뉴 표시를 위한 왼쪽 세로 바 */}
       {isActive && (
-        <div className="absolute left-0 w-1 h-6 transform -translate-y-1/2 rounded-r-full bg-emerald-600 top-1/2" />
+        <div className="absolute left-0 w-1 h-6 transform -translate-y-1/2 rounded-r-full bg-customG top-1/2" />
       )}
     </Link>
   )
@@ -271,14 +271,14 @@ export default function Sidebar() {
       className={cn(
         'flex items-center py-2 px-4 rounded-md group transition-colors duration-200 ml-10',
         isActive
-          ? 'text-emerald-700 bg-emerald-50 font-medium'
-          : 'text-gray-500 hover:text-emerald-700 hover:bg-emerald-50'
+          ? 'text-customGDark bg-customGLight font-medium'
+          : 'text-gray-500 hover:text-customGDark hover:bg-customGLight'
       )}>
       <span className="relative text-sm">
         {text}
         {/* 활성화된 하위 메뉴 표시를 위한 밑줄 */}
         {isActive && (
-          <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-emerald-600 rounded-full"></span>
+          <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-customG rounded-full"></span>
         )}
       </span>
     </Link>
@@ -301,7 +301,7 @@ export default function Sidebar() {
           )}>
           <div className="flex items-center gap-2">
             {/* 로고 아이콘 - 녹색으로 변경 */}
-            <div className="flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-md bg-emerald-600">
+            <div className="flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-md bg-customG">
               <Leaf size={18} className="text-white" />
             </div>
 
@@ -313,8 +313,8 @@ export default function Sidebar() {
                   animate={{opacity: 1, width: 'auto'}}
                   exit={{opacity: 0, width: 0}}
                   className="overflow-hidden">
-                  <span className="font-semibold text-emerald-800">ESG</span>
-                  <span className="font-medium text-emerald-600">Dashboard</span>
+                  <span className="font-semibold text-customGTextLight">ESG</span>
+                  <span className="font-medium text-customG">Dashboard</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -367,8 +367,8 @@ export default function Sidebar() {
                         className={cn(
                           'px-2 py-1.5 text-sm rounded-md flex items-center justify-between w-full',
                           isESGChildActive
-                            ? 'text-emerald-700 font-medium'
-                            : 'text-gray-600 hover:text-emerald-700'
+                            ? 'text-customGDark font-medium'
+                            : 'text-gray-600 hover:text-customGDark'
                         )}>
                         <motion.span variants={itemVariants}>IFRS S2</motion.span>
                         <ChevronRight
@@ -413,8 +413,8 @@ export default function Sidebar() {
                       className={cn(
                         'px-2 py-1.5 text-sm rounded-md w-full',
                         pathname === '/GRI'
-                          ? 'text-emerald-700 font-medium'
-                          : 'text-gray-600 hover:text-emerald-700'
+                          ? 'text-customGDark font-medium'
+                          : 'text-gray-600 hover:text-customGDark'
                       )}>
                       <motion.span variants={itemVariants}>GRI</motion.span>
                     </Link>
@@ -426,13 +426,13 @@ export default function Sidebar() {
               openParent && (
                 <div className="flex flex-col items-center py-1 mt-1 space-y-2">
                   {isESGChildActive ? (
-                    <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                    <div className="w-2 h-2 rounded-full bg-customG" />
                   ) : (
                     <div className="w-2 h-2 bg-gray-300 rounded-full" />
                   )}
 
                   {pathname === '/GRI' && (
-                    <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                    <div className="w-2 h-2 rounded-full bg-customG" />
                   )}
                 </div>
               )
@@ -481,13 +481,13 @@ export default function Sidebar() {
             openSupplyChild && (
               <div className="flex flex-col items-center py-1 mt-1 space-y-2">
                 {pathname === '/eudd' && (
-                  <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <div className="w-2 h-2 rounded-full bg-customG" />
                 )}
                 {pathname === '/hrdd' && (
-                  <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <div className="w-2 h-2 rounded-full bg-customG" />
                 )}
                 {pathname === '/edd' && (
-                  <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <div className="w-2 h-2 rounded-full bg-customG" />
                 )}
               </div>
             )
@@ -525,7 +525,7 @@ export default function Sidebar() {
             openPartnerChild && (
               <div className="flex flex-col items-center py-1 mt-1">
                 {pathname === '/financialRisk' && (
-                  <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <div className="w-2 h-2 rounded-full bg-customG" />
                 )}
               </div>
             )

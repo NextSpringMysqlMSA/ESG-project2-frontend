@@ -217,11 +217,11 @@ export default function Governance() {
           icon={<Users className="w-5 h-5 text-blue-600" />}
           color="blue"
           description="기후 관련 위원회"
-        />
+        />{' '}
         <StatCard
           title="회의"
           count={stats.meetings}
-          icon={<CalendarDays className="w-5 h-5 text-emerald-600" />}
+          icon={<CalendarDays className="w-5 h-5 text-customG" />}
           color="emerald"
           description="거버넌스 회의"
         />
@@ -307,13 +307,13 @@ export default function Governance() {
                 <AccordionItem
                   value="item-2"
                   className="mb-3 overflow-hidden border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-emerald-50 to-white">
+                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-customGLight to-white">
                     <div className="flex items-center">
-                      <CalendarDays className="w-5 h-5 mr-2 text-emerald-600" />
+                      <CalendarDays className="w-5 h-5 mr-2 text-customG" />
                       회의 관리
                       <Badge
                         variant="outline"
-                        className="ml-2 bg-emerald-50 border-emerald-100">
+                        className="ml-2 bg-customGLight border-customGLight">
                         {meetingData.length}
                       </Badge>
                     </div>

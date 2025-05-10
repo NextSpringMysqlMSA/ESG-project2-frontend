@@ -55,8 +55,8 @@ const tableOptions = [
     label: 'GRI 300: 환경',
     description: '환경적 성과 및 영향',
     icon: '🌱',
-    color: 'from-emerald-50 to-green-50',
-    borderColor: 'border-emerald-200',
+    color: 'from-customGLight to-green-50',
+    borderColor: 'border-customGLight',
     categories: '자원, 용수, 배출, 생물다양성, 폐기물'
   },
   {
