@@ -234,9 +234,15 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
           {/* 8. 자산 가치 */}
           <InputBox
             label="자산 가치 입력"
-            type="number"
-            value={assetValue || 0}
-            onChange={e => setField('assetValue', parseFloat(e.target.value) || 0)}
+            type="text"
+            value={
+              typeof assetValue === 'number' ? assetValue.toLocaleString('ko-KR') : '0'
+            }
+            onChange={e => {
+              // Remove non-numeric characters for processing
+              const numericValue = e.target.value.replace(/[^0-9]/g, '')
+              setField('assetValue', numericValue ? parseFloat(numericValue) : 0)
+            }}
           />
 
           {/* 9. 분석 기준 연도 */}
