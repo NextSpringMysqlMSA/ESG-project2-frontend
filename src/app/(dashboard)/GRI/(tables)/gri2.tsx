@@ -1,6 +1,31 @@
+'use client'
+
+import {useState} from 'react'
 import GriTable from '@/components/tools/griTable'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {cn} from '@/lib/utils'
+import {
+  Info,
+  BookOpen,
+  Building,
+  Users,
+  LayoutGrid,
+  HandCoins,
+  ClipboardList,
+  ChevronDown,
+  ListFilter
+} from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
 export default function GRI2() {
+  const [activeTab, setActiveTab] = useState('all')
+
   const headers = ['Topic', 'No.', '지표명', '내용']
 
   const rows = [
@@ -46,12 +71,265 @@ export default function GRI2() {
     ['2-30', '단체협약', '']
   ]
 
+  // 카테고리별 행 필터링 함수
+  const getFilteredRows = (category: string) => {
+    if (category === 'all') return rows
+
+    return rows.filter(row => {
+      if (typeof row[0] === 'object' && row[0].value === category) {
+        return true
+      } else if (
+        rows.some(
+          r =>
+            typeof r[0] === 'object' &&
+            r[0].value === category &&
+            r[0].rowSpan &&
+            rows.indexOf(r) < rows.indexOf(row) &&
+            rows.indexOf(row) < rows.indexOf(r) + r[0].rowSpan
+        )
+      ) {
+        return true
+      }
+      return false
+    })
+  }
+
+  // 테이블 카테고리 추출
+  const categories = [
+    'all',
+    ...new Set(
+      rows
+        .filter(row => typeof row[0] === 'object')
+        .map(row => (row[0] as {value: string}).value)
+    )
+  ]
+
+  // 항목 그룹화
+  const categoryGroups = {
+    organization: {
+      title: '조직 정보',
+      icon: Building,
+      keys: ['조직 및 보고 관행', '기업활동 및 임직원'],
+      description: '조직 세부사항, 보고 관행, 기업활동 및 임직원 관련 지표'
+    },
+    governance: {
+      title: '지배구조',
+      icon: LayoutGrid,
+      keys: ['지배구조'],
+      description: '의사결정기구, 보수, 거버넌스 구조 관련 지표'
+    },
+    strategy: {
+      title: '전략 및 정책',
+      icon: ClipboardList,
+      keys: ['전략, 정책 및 관행', '이해관계자 참여'],
+      description: '지속가능성 전략, 정책, 이해관계자 참여 관련 지표'
+    }
+  }
+
+  // 항목 아이콘 설정
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case '조직 및 보고 관행':
+        return <Building className="w-4 h-4 mr-2" />
+      case '기업활동 및 임직원':
+        return <Users className="w-4 h-4 mr-2" />
+      case '지배구조':
+        return <LayoutGrid className="w-4 h-4 mr-2" />
+      case '전략, 정책 및 관행':
+        return <ClipboardList className="w-4 h-4 mr-2" />
+      case '이해관계자 참여':
+        return <HandCoins className="w-4 h-4 mr-2" />
+      default:
+        return null
+    }
+  }
+
+  // 카테고리별 항목 수 계산
+  const getCategoryItemCount = (category: string) => {
+    return getFilteredRows(category).length
+  }
+
+  // 그룹별 항목 수 계산
+  const getGroupItemCount = (groupKeys: string[]) => {
+    let count = 0
+    groupKeys.forEach(key => {
+      count += getCategoryItemCount(key)
+    })
+    return count
+  }
+
   return (
-    <div className="flex flex-col w-full h-full space-y-4">
-      <span className="flex justify-center w-full text-xl font-bold">
-        GRI 2: 일반 표준(Universal standards)
-      </span>
-      <GriTable headers={headers} rows={rows} tableId="GRI2" />
+    <div className="flex flex-col w-full h-full px-1 space-y-6">
+      {/* 헤더 섹션 */}
+      <Card className="border-none shadow-sm bg-gradient-to-r from-customG/10 to-white">
+        <CardHeader className="pb-4">
+          <div className="flex items-center space-x-2">
+            <BookOpen className="w-6 h-6 text-customG" />
+            <CardTitle className="text-2xl font-bold text-gray-800">
+              GRI 2: 일반 표준
+            </CardTitle>
+          </div>
+          <p className="mt-2 text-gray-600">
+            기업의 지속가능성을 위한 일반 공시 항목으로, 조직의 기본 정보와 지배구조, 전략
+            및 이해관계자 참여 등을 다룹니다.
+          </p>
+        </CardHeader>
+      </Card>
+
+      {/* 간소화된 항목 필터 섹션 - GRI300과 동일한 패턴 적용 */}
+      <div className="flex flex-col space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 전체 보기 버튼 */}
+          <button
+            onClick={() => setActiveTab('all')}
+            className={cn(
+              'flex items-center whitespace-nowrap px-6 py-1.5 rounded-md border text-sm transition-all',
+              activeTab === 'all'
+                ? 'bg-customG text-white border-customG font-medium'
+                : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
+            )}>
+            <ClipboardList className="w-4 h-4 mr-2" />
+            모든 항목
+            <span className="ml-1.5 text-xs opacity-80">({rows.length})</span>
+          </button>
+
+          {/* 모든 세부 항목 드롭다운 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">
+                <ListFilter className="w-4 h-4 text-customG" />
+                세부 항목
+                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="min-w-[220px] max-h-[400px] overflow-y-auto">
+              <div className="p-2 mb-1 text-xs font-medium text-gray-600 border-b">
+                모든 GRI 2 세부 항목
+              </div>
+              <DropdownMenuGroup>
+                {categories.slice(1).map(category => (
+                  <DropdownMenuItem
+                    key={category}
+                    className={cn(
+                      'flex justify-between cursor-pointer px-3 py-1.5',
+                      activeTab === category && 'bg-customG/10 text-customG font-medium'
+                    )}
+                    onClick={() => setActiveTab(category)}>
+                    <div className="flex items-center">
+                      {getCategoryIcon(category)}
+                      <span>{category}</span>
+                    </div>
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                      {getCategoryItemCount(category)}
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 항목 그룹 드롭다운 메뉴들 */}
+          {Object.entries(categoryGroups).map(([groupKey, groupData]) => {
+            // 현재 그룹에 속한 항목이 활성화되어 있는지 확인
+            const isGroupActive = groupData.keys.includes(activeTab)
+
+            return (
+              <DropdownMenu key={groupKey}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border transition-colors',
+                      isGroupActive
+                        ? 'bg-customG text-white border-customG font-medium'
+                        : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
+                    )}>
+                    <groupData.icon className="w-4 h-4" />
+                    {groupData.title}
+                    <span className="ml-1 text-xs opacity-80">
+                      ({getGroupItemCount(groupData.keys)})
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-70" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-[260px]">
+                  <div className="p-2 mb-1 text-sm font-medium border-b text-customG bg-customG/5">
+                    <div className="flex items-center">
+                      <groupData.icon className="w-4 h-4 mr-2" />
+                      {groupData.title}
+                    </div>
+                    <div className="mt-1 text-xs font-normal text-gray-600">
+                      {groupData.description}
+                    </div>
+                  </div>
+                  <DropdownMenuGroup className="p-1">
+                    {groupData.keys.map(key => (
+                      <DropdownMenuItem
+                        key={key}
+                        className={cn(
+                          'flex justify-between cursor-pointer px-3 py-2 rounded-md',
+                          activeTab === key && 'bg-customG/10 text-customG font-medium'
+                        )}
+                        onClick={() => setActiveTab(key)}>
+                        <div className="flex items-center">
+                          {getCategoryIcon(key)}
+                          <span>{key}</span>
+                        </div>
+                        <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                          {getCategoryItemCount(key)}
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 범례 및 필터링 정보 통합 */}
+      <div className="flex items-center justify-between p-3 rounded-md bg-gray-50">
+        <div className="text-sm">
+          <span className="font-medium text-customG">
+            {activeTab === 'all' ? '전체 항목' : activeTab}
+          </span>
+          <span className="ml-2 text-xs text-gray-500">
+            {getFilteredRows(activeTab).length}개 항목
+          </span>
+        </div>
+
+        {/* 범례 */}
+        <div className="flex items-center text-xs text-gray-500">
+          <Info className="h-3.5 w-3.5 text-customG mr-1" />
+          <span>내용란을 클릭하여 정보 입력</span>
+        </div>
+      </div>
+
+      {/* 테이블 */}
+      <Card className="overflow-hidden border rounded-lg shadow-sm">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <GriTable
+              headers={headers}
+              rows={getFilteredRows(activeTab)}
+              tableId="GRI2"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 하단 정보 */}
+      <div className="flex items-start p-4 rounded-md bg-customG/5">
+        <div className="flex-1 text-sm text-gray-600">
+          <h4 className="mb-2 font-medium text-customG">GRI 2 개요</h4>
+          <p>
+            GRI 2는 조직의 일반적인 세부사항과 지속가능성 보고 관행에 대한 정보를
+            공시합니다. 이 표준은 모든 보고 조직이 적용해야 하는 필수 요구사항입니다.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
