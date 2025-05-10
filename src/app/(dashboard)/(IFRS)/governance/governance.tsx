@@ -255,20 +255,6 @@ export default function Governance() {
                   지속가능성 거버넌스 구조 및 활동에 대한 정보를 관리합니다
                 </CardDescription>
               </div>
-
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full md:w-auto">
-                <TabsList className="grid w-full grid-cols-2 p-1 md:flex md:space-x-1">
-                  <TabsTrigger value="all" className="text-xs md:text-sm">
-                    전체 보기
-                  </TabsTrigger>
-                  <TabsTrigger value="committee" className="text-xs md:text-sm">
-                    위원회 구성
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
             </div>
           </CardHeader>
 
