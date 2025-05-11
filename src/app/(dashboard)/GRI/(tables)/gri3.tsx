@@ -6,10 +6,12 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Info, BookOpen, LucideClipboardList} from 'lucide-react'
 
 export default function GRI3() {
-  const headers = ['Topic', 'No.', '지표명', '내용']
+  // 헤더에서 토픽 제거
+  const headers = ['No.', '지표명', '내용']
 
+  // rows에서 토픽 관련 첫 번째 열 제거
   const rows = [
-    [{value: '중대 토픽 공시', rowSpan: 3}, '3-1', '중요 이슈를 결정하는 프로세스', ''],
+    ['3-1', '중요 이슈를 결정하는 프로세스', ''],
     ['3-2', '중요 이슈 목록', ''],
     ['3-3', '중요 이슈 관리', '']
   ]
@@ -22,7 +24,7 @@ export default function GRI3() {
           <div className="flex items-center space-x-2">
             <BookOpen className="w-6 h-6 text-customG" />
             <CardTitle className="text-2xl font-bold text-gray-800">
-              GRI 3: 일반 표준
+              GRI 3: 중요 토픽
             </CardTitle>
           </div>
           <p className="mt-2 text-gray-600">
@@ -32,25 +34,25 @@ export default function GRI3() {
         </CardHeader>
       </Card>
 
-      {/* 간소화된 정보 섹션 */}
-      <div className="flex items-center justify-between p-3 rounded-md bg-gray-50">
+      {/* 간소화된 정보 섹션 - 테마색 적용 */}
+      <div className="flex items-center justify-between p-3 border rounded-md bg-customGLight/30 border-customGBorder/30">
         <div className="text-sm">
-          <span className="font-medium text-customG">
-            <LucideClipboardList className="inline-block w-4 h-4 mr-1.5 -mt-0.5" />
+          <span className="font-medium text-customGTextDark">
+            <LucideClipboardList className="inline-block w-4 h-4 mr-1.5 -mt-0.5 text-customG" />
             전체 항목
           </span>
-          <span className="ml-2 text-xs text-gray-500">{rows.length}개 지표</span>
+          <span className="ml-2 text-xs text-customG/80">{rows.length}개 지표</span>
         </div>
 
         {/* 범례 */}
-        <div className="flex items-center text-xs text-gray-500">
+        <div className="flex items-center text-xs text-customG/90">
           <Info className="h-3.5 w-3.5 text-customG mr-1" />
           <span>내용란을 클릭하여 정보 입력</span>
         </div>
       </div>
 
-      {/* 테이블 */}
-      <Card className="overflow-hidden border rounded-lg shadow-sm">
+      {/* 테이블 - 테마색 적용 */}
+      <Card className="overflow-hidden border rounded-lg shadow-sm border-customGBorder/50">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <GriTable headers={headers} rows={rows} tableId="GRI3" />
@@ -58,8 +60,8 @@ export default function GRI3() {
         </CardContent>
       </Card>
 
-      {/* 하단 정보 */}
-      <div className="flex items-start p-4 rounded-md bg-customG/5">
+      {/* 하단 정보 - 테마색 적용 */}
+      <div className="flex items-start p-4 border rounded-md bg-customGLight/20 border-customGBorder/30">
         <div className="flex-1 text-sm text-gray-600">
           <h4 className="mb-2 font-medium text-customG">GRI 3 개요</h4>
           <p>

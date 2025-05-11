@@ -3,7 +3,7 @@
 import {useState} from 'react'
 import TextModal from '@/app/(dashboard)/GRI/(tables)/textModal'
 import {cn} from '@/lib/utils'
-import {Edit2} from 'lucide-react'
+import {Edit2, CheckCircle2} from 'lucide-react'
 
 // 테이블 셀 타입 정의
 type TableCell = string | {value: string; rowSpan?: number}
@@ -16,6 +16,25 @@ type TableProps = {
 }
 
 const getCellValue = (cell: TableCell) => (typeof cell === 'string' ? cell : cell.value)
+
+// 간단한 커스텀 툴팁 컴포넌트
+const SimpleTooltip = ({
+  children,
+  content
+}: {
+  children: React.ReactNode
+  content: string
+}) => {
+  return (
+    <div className="relative group">
+      {children}
+      <div className="absolute z-50 px-2 py-1 mb-2 text-xs text-white transition-opacity duration-200 -translate-x-1/2 rounded-md opacity-0 pointer-events-none bottom-full left-1/2 bg-customGDark group-hover:opacity-100 whitespace-nowrap">
+        {content}
+        <div className="absolute -translate-x-1/2 border-4 border-transparent top-full left-1/2 border-t-customGDark"></div>
+      </div>
+    </div>
+  )
+}
 
 export default function GriTable({headers, rows, tableId}: TableProps) {
   // 모달 관련 상태 변수들
@@ -48,12 +67,12 @@ export default function GriTable({headers, rows, tableId}: TableProps) {
     setModalContent('')
   }
 
-  // 행 디자인 설정 함수
+  // 행 디자인 설정 함수 - 테마색 적용
   const getRowStyle = (index: number) => {
     return cn(
-      'transition-colors duration-150',
-      index % 2 === 0 ? 'bg-white' : 'bg-gray-50',
-      hoveredRow === index && 'bg-gray-100'
+      'transition-colors duration-200',
+      index % 2 === 0 ? 'bg-white' : 'bg-customGLight/20',
+      hoveredRow === index && 'bg-customGLight/40'
     )
   }
 
@@ -63,7 +82,7 @@ export default function GriTable({headers, rows, tableId}: TableProps) {
   }
 
   return (
-    <div className="relative overflow-x-auto">
+    <div className="relative overflow-x-auto rounded-lg">
       <TextModal
         open={modalOpen}
         title={modalTitle}
@@ -72,23 +91,27 @@ export default function GriTable({headers, rows, tableId}: TableProps) {
         onClose={closeModal}
       />
 
-      <div className="overflow-hidden border rounded-md shadow-sm">
+      <div className="overflow-hidden border-0 rounded-lg shadow-sm">
         <table className="w-full border-collapse table-auto">
           <thead>
-            <tr className="text-sm font-medium text-gray-700 bg-gray-100">
+            <tr className="text-sm font-medium text-customGTextDark bg-customGLight">
               {headers.map((header, index) => (
                 <th
                   key={index}
                   className={cn(
                     'px-4 py-3 text-left',
-                    index !== headers.length - 1 ? 'border-r border-gray-200' : ''
+                    index !== headers.length - 1
+                      ? 'border-r border-customGBorder/30'
+                      : '',
+                    index === 0 && 'rounded-tl-lg',
+                    index === headers.length - 1 && 'rounded-tr-lg'
                   )}>
                   {header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-customGBorder/30">
             {rows.map((row, i) => (
               <tr
                 key={i}
@@ -100,10 +123,9 @@ export default function GriTable({headers, rows, tableId}: TableProps) {
                   const isLastCol = j === row.length - 1
                   const cellValue = content.value
 
-                  // No. 또는 Topic 컬럼에 대한 값 추출
-                  const noValue = row.length >= 3 ? getCellValue(row[row.length - 3]) : ''
-                  const title =
-                    row.length >= 2 ? getCellValue(row[row.length - 2]) : '세부 내용'
+                  // No. 또는 Topic 컬럼에 대한 값 추출 - getCellValue 함수 적용
+                  const noValue = row.length > 0 ? getCellValue(row[0]) : ''
+                  const title = row.length > 1 ? getCellValue(row[1]) : '세부 내용'
 
                   // 모달을 구분할 key 생성
                   const modalKey = `${tableId}:${noValue}`
@@ -126,49 +148,57 @@ export default function GriTable({headers, rows, tableId}: TableProps) {
                       key={j}
                       rowSpan={content.rowSpan}
                       className={cn(
-                        'px-4 py-3 text-sm',
-                        j !== row.length - 1 ? 'border-r border-gray-200' : '',
+                        'px-4 py-2.5 text-sm',
+                        j !== row.length - 1 ? 'border-r border-customGBorder/20' : '',
                         isLastCol
                           ? 'w-full min-w-[300px] cursor-pointer group relative'
                           : j === 0
-                          ? 'font-medium text-gray-700 whitespace-nowrap'
-                          : 'text-gray-600 whitespace-nowrap'
+                          ? 'font-medium text-customGTextDark whitespace-nowrap'
+                          : 'text-gray-700 whitespace-nowrap'
                       )}
                       onClick={() => {
                         if (isLastCol)
                           openModal(modalKey, title, modalContents[modalKey] || cellValue)
                       }}>
                       {isLastCol ? (
-                        <div className="flex items-center">
+                        <div className="flex items-center justify-between">
                           <span
-                            className={
-                              isEmpty ? 'text-gray-400 italic' : 'text-gray-700'
-                            }>
+                            className={cn(
+                              'transition-colors duration-200',
+                              isEmpty ? 'text-gray-400 italic' : 'text-customGTextDark'
+                            )}>
                             {isEmpty ? '내용을 입력하려면 클릭하세요' : shortContent}
                           </span>
-                          <span className="ml-2 transition-opacity opacity-0 group-hover:opacity-100">
-                            <Edit2 className="h-3.5 w-3.5 text-customG" />
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            {hasCellContent(modalKey) && (
+                              <SimpleTooltip content="내용이 작성되었습니다">
+                                <CheckCircle2 className="w-4 h-4 text-customG" />
+                              </SimpleTooltip>
+                            )}
+                            <span className="transition-all opacity-0 group-hover:opacity-100">
+                              <SimpleTooltip content="내용 편집하기">
+                                <Edit2 className="w-4 h-4 text-customG hover:text-customGDark" />
+                              </SimpleTooltip>
+                            </span>
+                          </div>
                         </div>
                       ) : (
                         cellValue
-                      )}
-
-                      {/* 작성 상태 표시 - 마지막 열이고 내용이 있는 경우 */}
-                      {isLastCol && (
-                        <div className="absolute transform -translate-y-1/2 right-2 top-1/2">
-                          {hasCellContent(modalKey) && (
-                            <div
-                              className="w-2 h-2 bg-green-500 rounded-full"
-                              title="내용이 작성되었습니다"></div>
-                          )}
-                        </div>
                       )}
                     </td>
                   )
                 })}
               </tr>
             ))}
+            {rows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={headers.length}
+                  className="px-4 py-8 text-center bg-customGLight/10 text-customGTextDark">
+                  데이터가 없습니다.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

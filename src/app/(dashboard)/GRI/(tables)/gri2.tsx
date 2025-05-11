@@ -26,83 +26,76 @@ import {
 export default function GRI2() {
   const [activeTab, setActiveTab] = useState('all')
 
-  const headers = ['Topic', 'No.', '지표명', '내용']
+  // Topic 제거: 헤더에서 'Topic' 항목 삭제
+  const headers = ['No.', '지표명', '내용']
 
-  const rows = [
-    [{value: '조직 및 보고 관행', rowSpan: 5}, '2-1', '조직 세부사항', ''],
-    ['2-2', '조직의 지속가능경영보고에 포함된 법인', ''],
-    ['2-3', '보고 기간, 주기 및 문의처', ''],
-    ['2-4', '정보의 수정', ''],
-    ['2-5', '외부 검증', ''],
-    [{value: '기업활동 및 임직원', rowSpan: 3}, '2-6', '활동, 가치사슬, 사업 관계', ''],
-    ['2-7', '임직원', ''],
-    ['2-8', '임직원이 아닌 근로자', ''],
-    [{value: '지배구조', rowSpan: 13}, '2-9', '지배 구조 및 구성', ''],
-    ['2-10', '최고의사결정기구의 임명 및 선정', ''],
-    ['2-11', '최고의사결정기구 의장', ''],
-    ['2-12', '영향 관리 감독에 대한 최고의사결정기구의 역할', ''],
-    ['2-13', '영향 관리에 대한 책임의 위임', ''],
-    ['2-14', '지속가능성 보고에 대한 최고의사결정기구의 역할', ''],
-    ['2-15', '이해관계 상충', ''],
-    ['2-16', '중요 사안에 대한 커뮤니케이션', ''],
-    ['2-17', '최고의사결정기구의 집단지식', ''],
-    ['2-18', '최고의사결정기구 성과 평가', ''],
-    ['2-19', '보수 정책', ''],
-    ['2-20', '보수 결정 절차', ''],
-    ['2-21', '연간 총 보상 비율', ''],
-    [
-      {value: '전략, 정책 및 관행', rowSpan: 7},
-      '2-22',
-      '지속가능한 개발 전략에 대한 성명서',
-      ''
-    ],
-    ['2-23', '정책 약속', ''],
-    ['2-24', '정책 약속 내재', ''],
-    ['2-25', '부정적 영향 개선을 위한 프로세스', ''],
-    ['2-26', '자문 및 우려 제기에 대한 절차', ''],
-    ['2-27', '법률 및 규정에 대한 컴플라이언스', ''],
-    ['2-28', '가입 협회', ''],
-    [
-      {value: '이해관계자 참여', rowSpan: 2},
-      '2-29',
-      '이해관계자 참여에 대한 접근방식',
-      ''
-    ],
-    ['2-30', '단체협약', '']
+  // 데이터 구조 변경: 첫 번째 컬럼을 메타데이터로 변경하고 실제 행에서는 제거
+  const rowsWithCategory = [
+    {category: '조직 및 보고 관행', data: ['2-1', '조직 세부사항', '']},
+    {
+      category: '조직 및 보고 관행',
+      data: ['2-2', '조직의 지속가능경영보고에 포함된 법인', '']
+    },
+    {category: '조직 및 보고 관행', data: ['2-3', '보고 기간, 주기 및 문의처', '']},
+    {category: '조직 및 보고 관행', data: ['2-4', '정보의 수정', '']},
+    {category: '조직 및 보고 관행', data: ['2-5', '외부 검증', '']},
+    {category: '기업활동 및 임직원', data: ['2-6', '활동, 가치사슬, 사업 관계', '']},
+    {category: '기업활동 및 임직원', data: ['2-7', '임직원', '']},
+    {category: '기업활동 및 임직원', data: ['2-8', '임직원이 아닌 근로자', '']},
+    {category: '지배구조', data: ['2-9', '지배 구조 및 구성', '']},
+    {category: '지배구조', data: ['2-10', '최고의사결정기구의 임명 및 선정', '']},
+    {category: '지배구조', data: ['2-11', '최고의사결정기구 의장', '']},
+    {
+      category: '지배구조',
+      data: ['2-12', '영향 관리 감독에 대한 최고의사결정기구의 역할', '']
+    },
+    {category: '지배구조', data: ['2-13', '영향 관리에 대한 책임의 위임', '']},
+    {
+      category: '지배구조',
+      data: ['2-14', '지속가능성 보고에 대한 최고의사결정기구의 역할', '']
+    },
+    {category: '지배구조', data: ['2-15', '이해관계 상충', '']},
+    {category: '지배구조', data: ['2-16', '중요 사안에 대한 커뮤니케이션', '']},
+    {category: '지배구조', data: ['2-17', '최고의사결정기구의 집단지식', '']},
+    {category: '지배구조', data: ['2-18', '최고의사결정기구 성과 평가', '']},
+    {category: '지배구조', data: ['2-19', '보수 정책', '']},
+    {category: '지배구조', data: ['2-20', '보수 결정 절차', '']},
+    {category: '지배구조', data: ['2-21', '연간 총 보상 비율', '']},
+    {
+      category: '전략, 정책 및 관행',
+      data: ['2-22', '지속가능한 개발 전략에 대한 성명서', '']
+    },
+    {category: '전략, 정책 및 관행', data: ['2-23', '정책 약속', '']},
+    {category: '전략, 정책 및 관행', data: ['2-24', '정책 약속 내재', '']},
+    {
+      category: '전략, 정책 및 관행',
+      data: ['2-25', '부정적 영향 개선을 위한 프로세스', '']
+    },
+    {category: '전략, 정책 및 관행', data: ['2-26', '자문 및 우려 제기에 대한 절차', '']},
+    {
+      category: '전략, 정책 및 관행',
+      data: ['2-27', '법률 및 규정에 대한 컴플라이언스', '']
+    },
+    {category: '전략, 정책 및 관행', data: ['2-28', '가입 협회', '']},
+    {category: '이해관계자 참여', data: ['2-29', '이해관계자 참여에 대한 접근방식', '']},
+    {category: '이해관계자 참여', data: ['2-30', '단체협약', '']}
   ]
+
+  // 기존 rows 배열을 단순화하여 카테고리 없이 데이터만 포함
+  const rows = rowsWithCategory.map(item => item.data)
 
   // 카테고리별 행 필터링 함수
   const getFilteredRows = (category: string) => {
     if (category === 'all') return rows
 
-    return rows.filter(row => {
-      if (typeof row[0] === 'object' && row[0].value === category) {
-        return true
-      } else if (
-        rows.some(
-          r =>
-            typeof r[0] === 'object' &&
-            r[0].value === category &&
-            r[0].rowSpan &&
-            rows.indexOf(r) < rows.indexOf(row) &&
-            rows.indexOf(row) < rows.indexOf(r) + r[0].rowSpan
-        )
-      ) {
-        return true
-      }
-      return false
-    })
+    // 선택된 카테고리에 해당하는 행만 필터링
+    return rowsWithCategory
+      .filter(item => item.category === category)
+      .map(item => item.data)
   }
 
   // 테이블 카테고리 추출
-  const categories = [
-    'all',
-    ...new Set(
-      rows
-        .filter(row => typeof row[0] === 'object')
-        .map(row => (row[0] as {value: string}).value)
-    )
-  ]
+  const categories = ['all', ...new Set(rowsWithCategory.map(item => item.category))]
 
   // 항목 그룹화
   const categoryGroups = {
@@ -153,7 +146,7 @@ export default function GRI2() {
   const getGroupItemCount = (groupKeys: string[]) => {
     let count = 0
     groupKeys.forEach(key => {
-      count += getCategoryItemCount(key)
+      count += rowsWithCategory.filter(item => item.category === key).length
     })
     return count
   }
@@ -176,7 +169,7 @@ export default function GRI2() {
         </CardHeader>
       </Card>
 
-      {/* 간소화된 항목 필터 섹션 - GRI300과 동일한 패턴 적용 */}
+      {/* 간소화된 항목 필터 섹션 */}
       <div className="flex flex-col space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           {/* 전체 보기 버튼 */}
@@ -276,7 +269,7 @@ export default function GRI2() {
                           {getCategoryIcon(key)}
                           <span>{key}</span>
                         </div>
-                        <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                        <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full bg-customGLight/50 text-customGTextDark">
                           {getCategoryItemCount(key)}
                         </span>
                       </DropdownMenuItem>
@@ -289,26 +282,26 @@ export default function GRI2() {
         </div>
       </div>
 
-      {/* 범례 및 필터링 정보 통합 */}
-      <div className="flex items-center justify-between p-3 rounded-md bg-gray-50">
+      {/* 범례 및 필터링 정보 통합 - 테마 색상으로 개선 */}
+      <div className="flex items-center justify-between p-3 border rounded-md bg-customGLight/30 border-customGBorder/30">
         <div className="text-sm">
-          <span className="font-medium text-customG">
+          <span className="font-medium text-customGTextDark">
             {activeTab === 'all' ? '전체 항목' : activeTab}
           </span>
-          <span className="ml-2 text-xs text-gray-500">
+          <span className="ml-2 text-xs text-customG/80">
             {getFilteredRows(activeTab).length}개 항목
           </span>
         </div>
 
         {/* 범례 */}
-        <div className="flex items-center text-xs text-gray-500">
+        <div className="flex items-center text-xs text-customG/90">
           <Info className="h-3.5 w-3.5 text-customG mr-1" />
           <span>내용란을 클릭하여 정보 입력</span>
         </div>
       </div>
 
-      {/* 테이블 */}
-      <Card className="overflow-hidden border rounded-lg shadow-sm">
+      {/* 테이블 - 테마 색상으로 개선된 테이블 적용 */}
+      <Card className="overflow-hidden border rounded-lg shadow-sm border-customGBorder/50">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <GriTable
@@ -320,8 +313,8 @@ export default function GRI2() {
         </CardContent>
       </Card>
 
-      {/* 하단 정보 */}
-      <div className="flex items-start p-4 rounded-md bg-customG/5">
+      {/* 하단 정보 - 테마 색상으로 개선 */}
+      <div className="flex items-start p-4 border rounded-md bg-customGLight/20 border-customGBorder/30">
         <div className="flex-1 text-sm text-gray-600">
           <h4 className="mb-2 font-medium text-customG">GRI 2 개요</h4>
           <p>
