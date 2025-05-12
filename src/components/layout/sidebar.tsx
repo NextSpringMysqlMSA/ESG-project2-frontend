@@ -66,7 +66,6 @@ export default function Sidebar() {
   // 메뉴 상태 관리
   const [openParent, setOpenParent] = useState(false)
   const [openESGChild, setOpenESGChild] = useState(false)
-  const [openSupplyChild, setOpenSupplyChild] = useState(false)
   const [openPartnerChild, setOpenPartnerChild] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
@@ -86,12 +85,6 @@ export default function Sidebar() {
       ) {
         setOpenParent(true)
         setOpenESGChild(true)
-      } else if (
-        pathname.startsWith('/eudd') ||
-        pathname.startsWith('/hrdd') ||
-        pathname.startsWith('/edd')
-      ) {
-        setOpenSupplyChild(true)
       } else if (pathname.startsWith('/financialRisk')) {
         setOpenPartnerChild(true)
       }
@@ -109,15 +102,9 @@ export default function Sidebar() {
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
     pathname.startsWith('/goal')
-  const isSupplyActive =
-    pathname.startsWith('/eudd') ||
-    pathname.startsWith('/hrdd') ||
-    pathname.startsWith('/edd')
+  const isSupplyActive = pathname === '/CSDDD'
   const isPartnerActive = pathname.startsWith('/financialRisk')
-  const isSupplyChildActive =
-    pathname.startsWith('/eudd') ||
-    pathname.startsWith('/hrdd') ||
-    pathname.startsWith('/edd')
+  const isSupplyChildActive = pathname === '/CSDDD'
   const isPartnerChildActive = pathname.startsWith('/financialRisk')
 
   /**
@@ -133,7 +120,6 @@ export default function Sidebar() {
   const handleMouseLeave = () => {
     setHovered(false)
     if (!isESGActive) setOpenESGChild(false)
-    if (!isSupplyActive) setOpenSupplyChild(false)
     if (!isPartnerActive) setOpenPartnerChild(false)
 
     // 활성화된 메뉴를 제외하고 모두 닫기
@@ -441,57 +427,11 @@ export default function Sidebar() {
 
           {/* 공급망 실사 메뉴 */}
           <MenuItem
-            href="#"
+            href="/CSDDD" // URL 경로 수정
             icon={Shield}
             text="공급망 실사"
-            isActive={isSupplyActive}
-            hasSubmenu={true}
-            isSubmenuOpen={openSupplyChild}
-            onClick={() => setOpenSupplyChild(!openSupplyChild)}
+            isActive={pathname === '/CSDDD'} // 활성화 조건 수정
           />
-
-          {/* 공급망 실사 하위 메뉴 수정 */}
-          {openSupplyChild && hovered ? (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              variants={menuVariants}
-              className="overflow-hidden">
-              <div className="pl-4 mt-1 space-y-1">
-                <SubMenuItem
-                  href="/eudd"
-                  text="EU 공급망 실사"
-                  isActive={pathname === '/eudd'}
-                />
-                <SubMenuItem
-                  href="/hrdd"
-                  text="인권 실사"
-                  isActive={pathname === '/hrdd'}
-                />
-                <SubMenuItem
-                  href="/edd"
-                  text="환경 실사"
-                  isActive={pathname === '/edd'}
-                />
-              </div>
-            </motion.div>
-          ) : (
-            // 축소 상태에서는 활성화된 하위 메뉴만 작은 점으로 표시
-            openSupplyChild && (
-              <div className="flex flex-col items-center py-1 mt-1 space-y-2">
-                {pathname === '/eudd' && (
-                  <div className="w-2 h-2 rounded-full bg-customG" />
-                )}
-                {pathname === '/hrdd' && (
-                  <div className="w-2 h-2 rounded-full bg-customG" />
-                )}
-                {pathname === '/edd' && (
-                  <div className="w-2 h-2 rounded-full bg-customG" />
-                )}
-              </div>
-            )
-          )}
 
           {/* 협력사 관리 메뉴 */}
           <MenuItem
