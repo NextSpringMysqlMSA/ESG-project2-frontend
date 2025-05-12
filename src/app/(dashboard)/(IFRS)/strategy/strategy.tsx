@@ -34,9 +34,13 @@ import {Badge} from '@/components/ui/badge'
 import {Separator} from '@/components/ui/separator'
 import {motion} from 'framer-motion'
 import {Skeleton} from '@/components/ui/skeleton'
+import {PageHeader} from '@/components/layout/PageHeader'
+import {LoadingState} from '@/components/ui/loading-state'
+import {StatusBadge} from '@/components/ui/status-badge'
 
 export default function Strategy() {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const {data: RiskData, setData} = useRiskStore()
   const {data: ScenarioData, setData: setScenarioData} = useScenarioStore()
 
@@ -49,6 +53,7 @@ export default function Strategy() {
       setScenarioData(ScenarioData)
     } catch (e) {
       console.error('데이터 불러오기 실패:', e)
+      setError('데이터를 불러오는 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
@@ -105,7 +110,7 @@ export default function Strategy() {
 
   return (
     <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-4 md:p-8 space-y-6">
-      {/* 상단 네비게이션 - 거버넌스처럼 수정 */}
+      {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-2 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
         <BreadcrumbLink href="/official" className="hover:text-blue-600">
@@ -119,295 +124,262 @@ export default function Strategy() {
         <span className="font-medium text-blue-600">전략</span>
       </div>
 
-      {/* 헤더 섹션 */}
-      <motion.div
-        initial={{opacity: 0, y: -10}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.3}}
-        className="flex flex-col items-start justify-between w-full gap-4 md:flex-row md:items-center">
-        <div className="flex items-center">
-          <div className="p-2 mr-3 rounded-full bg-gradient-to-r from-blue-100 to-blue-50">
-            <LineChart className="w-6 h-6 text-blue-600" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">기후변화 전략 관리</h1>
-            <p className="mt-1 text-gray-500">
-              기후변화 관련 위험과 기회, 시나리오 분석을 통한 전략적 접근
-            </p>
-          </div>
-        </div>
+      {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
+      <PageHeader
+        icon={<LineChart className="w-6 h-6" />}
+        title="기후변화 전략 관리"
+        description="기후변화 관련 위험과 기회, 시나리오 분석을 통한 전략적 접근"
+        module="IFRS"
+        submodule="strategy">
+        <Badge
+          variant="outline"
+          className="bg-blue-50 text-blue-700 border-blue-200 pl-1.5">
+          <LineChart className="w-3.5 h-3.5 mr-1" />
+          IFRS S2
+        </Badge>
+        <Badge
+          variant="outline"
+          className="bg-amber-50 text-amber-700 border-amber-200 pl-1.5">
+          <LineChart className="w-3.5 h-3.5 mr-1" />
+          TCFD
+        </Badge>
+      </PageHeader>
 
+      <LoadingState
+        isLoading={loading}
+        error={error}
+        isEmpty={RiskData?.length === 0 && ScenarioData?.length === 0}>
         {/* 요약 통계 */}
-        <div className="flex flex-wrap gap-2">
-          <Badge
-            variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200 pl-1.5">
-            <LineChart className="w-3.5 h-3.5 mr-1" />
-            IFRS S2
-          </Badge>
-          <Badge
-            variant="outline"
-            className="bg-amber-50 text-amber-700 border-amber-200 pl-1.5">
-            <LineChart className="w-3.5 h-3.5 mr-1" />
-            TCFD
-          </Badge>
-        </div>
-      </motion.div>
-
-      {/* 요약 통계 */}
-      <motion.div
-        initial={{opacity: 0}}
-        animate={{opacity: 1}}
-        transition={{duration: 0.4, delay: 0.1}}
-        className="grid grid-cols-1 gap-4 mb-2 md:grid-cols-4">
-        <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
-          <CardContent className="flex items-center p-4">
-            <div className="p-2 mr-3 bg-blue-100 rounded-full">
-              <LineChart className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">시나리오</p>
-              <h3 className="text-2xl font-bold">
-                {loading ? <Skeleton className="w-8 h-8" /> : scenarioCount}
-                <span className="ml-1 text-sm font-normal text-gray-500">개</span>
-              </h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-orange-100 bg-gradient-to-br from-orange-50 to-white">
-          <CardContent className="flex items-center p-4">
-            <div className="p-2 mr-3 bg-orange-100 rounded-full">
-              <Zap className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">물리적 리스크</p>
-              <h3 className="text-2xl font-bold">
-                {loading ? (
-                  <Skeleton className="w-8 h-8" />
-                ) : (
-                  riskTypeCount['물리적 리스크']
-                )}
-                <span className="ml-1 text-sm font-normal text-gray-500">개</span>
-              </h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-rose-50 to-white border-rose-100">
-          <CardContent className="flex items-center p-4">
-            <div className="p-2 mr-3 rounded-full bg-rose-100">
-              <Building className="w-5 h-5 text-rose-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">전환 리스크</p>
-              <h3 className="text-2xl font-bold">
-                {loading ? (
-                  <Skeleton className="w-8 h-8" />
-                ) : (
-                  riskTypeCount['전환 리스크']
-                )}
-                <span className="ml-1 text-sm font-normal text-gray-500">개</span>
-              </h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-green-100 bg-gradient-to-br from-green-50 to-white">
-          <CardContent className="flex items-center p-4">
-            <div className="p-2 mr-3 bg-green-100 rounded-full">
-              <BarChart3 className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">기회 요인</p>
-              <h3 className="text-2xl font-bold">
-                {loading ? <Skeleton className="w-8 h-8" /> : riskTypeCount['기회 요인']}
-                <span className="ml-1 text-sm font-normal text-gray-500">개</span>
-              </h3>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      <Separator />
-
-      {/* 정보 카드 */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <motion.div
-          initial={{opacity: 0, y: 20}}
-          animate={{opacity: 1, y: 0}}
-          transition={{duration: 0.5, delay: 0.1}}>
-          <Card className="h-full overflow-hidden border-l-4 border-l-blue-500">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Cloud className="w-5 h-5 text-blue-500" />
-                시나리오 분석의 중요성
-              </CardTitle>
-              <CardDescription>
-                SSP 기후 시나리오에 기반한 재무적 영향 분석
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col justify-between h-[calc(100%-80px)]">
-              <p className="text-sm text-gray-600">
-                물리적 기후변화 영향을 SSP 시나리오에 기반하여 분석합니다. 기업의 자산,
-                운영, 공급망에 대한 잠재적 위험과 기회를 식별하고, 장기적 전략에 반영할 수
-                있습니다.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <Badge
-                  variant="outline"
-                  className="text-green-700 border-green-200 bg-green-50">
-                  SSP1-1.9
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-blue-700 border-blue-200 bg-blue-50">
-                  SSP2-4.5
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-orange-700 border-orange-200 bg-orange-50">
-                  SSP3-7.0
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="bg-rose-50 text-rose-700 border-rose-200">
-                  SSP5-8.5
-                </Badge>
+          initial={{opacity: 0}}
+          animate={{opacity: 1}}
+          transition={{duration: 0.4, delay: 0.1}}
+          className="grid grid-cols-1 gap-4 mb-2 md:grid-cols-4">
+          <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-blue-100 rounded-full">
+                <LineChart className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">시나리오</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : scenarioCount}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-orange-100 bg-gradient-to-br from-orange-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-orange-100 rounded-full">
+                <Zap className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">물리적 리스크</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? (
+                    <Skeleton className="w-8 h-8" />
+                  ) : (
+                    riskTypeCount['물리적 리스크']
+                  )}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-rose-50 to-white border-rose-100">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 rounded-full bg-rose-100">
+                <Building className="w-5 h-5 text-rose-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">전환 리스크</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? (
+                    <Skeleton className="w-8 h-8" />
+                  ) : (
+                    riskTypeCount['전환 리스크']
+                  )}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-green-100 bg-gradient-to-br from-green-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-green-100 rounded-full">
+                <BarChart3 className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">기회 요인</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? (
+                    <Skeleton className="w-8 h-8" />
+                  ) : (
+                    riskTypeCount['기회 요인']
+                  )}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        <motion.div
-          initial={{opacity: 0, y: 20}}
-          animate={{opacity: 1, y: 0}}
-          transition={{duration: 0.5, delay: 0.2}}>
-          <Card className="h-full overflow-hidden border-l-4 border-l-rose-500">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Zap className="w-5 h-5 text-rose-500" />
-                리스크 및 기회 식별
-              </CardTitle>
-              <CardDescription>기후변화 관련 위험과 기회 관리 체계</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col justify-between h-[calc(100%-80px)]">
-              <p className="text-sm text-gray-600">
-                기업 특성에 맞춘 물리적/전환 리스크를 식별하고 이를 관리하기 위한 체계적인
-                대응 전략을 수립합니다. 또한 기후변화에서 발생하는 새로운 사업 기회를
-                발굴하여 경쟁력을 강화합니다.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <Badge
-                  variant="outline"
-                  className="text-orange-700 border-orange-200 bg-orange-50">
-                  물리적 리스크
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="bg-rose-50 text-rose-700 border-rose-200">
-                  전환 리스크
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-green-700 border-green-200 bg-green-50">
-                  기회 요인
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+        <Separator />
 
-      {/* Accordion 섹션 */}
-      <div className="overflow-hidden bg-white border rounded-lg shadow-sm">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">기후변화 전략 관리</h2>
-          <Badge variant="outline">TCFD 권고안 준수</Badge>
+        {/* 정보 카드 */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <motion.div
+            initial={{opacity: 0, y: 20}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.5, delay: 0.1}}>
+            <Card className="h-full overflow-hidden border-l-4 border-l-blue-500">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Cloud className="w-5 h-5 text-blue-500" />
+                  시나리오 분석의 중요성
+                </CardTitle>
+                <CardDescription>
+                  SSP 기후 시나리오에 기반한 재무적 영향 분석
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col justify-between h-[calc(100%-80px)]">
+                <p className="text-sm text-gray-600">
+                  물리적 기후변화 영향을 SSP 시나리오에 기반하여 분석합니다. 기업의 자산,
+                  운영, 공급망에 대한 잠재적 위험과 기회를 식별하고, 장기적 전략에 반영할
+                  수 있습니다.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <StatusBadge text="SSP1-1.9" severity="success" />
+                  <StatusBadge text="SSP2-4.5" severity="info" />
+                  <StatusBadge text="SSP3-7.0" severity="warning" />
+                  <StatusBadge text="SSP5-8.5" severity="error" />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{opacity: 0, y: 20}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.5, delay: 0.2}}>
+            <Card className="h-full overflow-hidden border-l-4 border-l-rose-500">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Zap className="w-5 h-5 text-rose-500" />
+                  리스크 및 기회 식별
+                </CardTitle>
+                <CardDescription>기후변화 관련 위험과 기회 관리 체계</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col justify-between h-[calc(100%-80px)]">
+                <p className="text-sm text-gray-600">
+                  기업 특성에 맞춘 물리적/전환 리스크를 식별하고 이를 관리하기 위한
+                  체계적인 대응 전략을 수립합니다. 또한 기후변화에서 발생하는 새로운 사업
+                  기회를 발굴하여 경쟁력을 강화합니다.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <StatusBadge text="물리적 리스크" severity="warning" />
+                  <StatusBadge text="전환 리스크" severity="error" />
+                  <StatusBadge text="기회 요인" severity="success" />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
-        <Accordion type="multiple" className="px-2">
-          <AccordionItem value="item-1" className="py-2 border-t border-b-0">
-            <AccordionTrigger className="text-base font-medium hover:no-underline py-3 px-2 data-[state=open]:text-blue-600">
-              <div className="flex items-center">
-                <Cloud className="w-5 h-5 mr-2 text-blue-600" />
-                SSP 시나리오 분석 결과
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-2 pb-4">
-              <Card className="border-0 shadow-none">
-                <CardContent className="p-0">
-                  <CollapsibleWindow
-                    type="scenario"
-                    headers={scenarioHeader}
-                    dialogTitle="SSP 시나리오 분석"
-                    data={
-                      loading
-                        ? []
-                        : ScenarioData.map(item => ({
-                            id: item.id,
-                            values: [
-                              String(item.baseYear ?? ''), // 분석 기준 연도
-                              String(item.regions ?? ''), // 행정구역
-                              String(item.scenario ?? ''), // 시나리오
-                              `${item.latitude ?? ''}/${item.longitude ?? ''}`, // 위도/경도 통합
-                              String(item.climate ?? ''), // 기후 지표
-                              String(item.industry ?? ''), // 산업 분야
-                              String(item.assetType ?? ''), // 자산 유형
-                              String(item.assetValue ?? ''), // 자산 가치
-                              String(item.estimatedDamage ?? '0') // 예상 피해액 (단위 추가)
-                            ]
-                          }))
-                    }
-                    formContent={({onClose, rowId, mode}) => (
-                      <Scenario onClose={onClose} rowId={rowId} mode={mode} />
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </AccordionContent>
-          </AccordionItem>
+        {/* Accordion 섹션 */}
+        <div className="overflow-hidden bg-white border rounded-lg shadow-sm">
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-lg font-semibold">기후변화 전략 관리</h2>
+            <Badge variant="outline">TCFD 권고안 준수</Badge>
+          </div>
 
-          <AccordionItem value="item-2" className="py-2 border-b-0">
-            <AccordionTrigger className="text-base font-medium hover:no-underline py-3 px-2 data-[state=open]:text-rose-600">
-              <div className="flex items-center">
-                <Zap className="w-5 h-5 mr-2 text-rose-600" />
-                물리/전환 리스크 및 기회요인
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-2 pb-4">
-              <Card className="border-0 shadow-none">
-                <CardContent className="p-0">
-                  <CollapsibleWindow
-                    type="risk"
-                    headers={riskHeader}
-                    dialogTitle="리스크 식별 및 대응"
-                    data={
-                      loading
-                        ? []
-                        : RiskData.map(item => ({
-                            id: item.id,
-                            values: [
-                              item.riskType ?? '',
-                              item.riskCause ?? '',
-                              item.impact ?? '',
-                              item.businessModelImpact ?? '',
-                              item.time ?? '',
-                              item.financialImpact ?? '',
-                              item.plans ?? ''
-                            ]
-                          }))
-                    }
-                    formContent={({onClose, rowId, mode}) => (
-                      <Risk onClose={onClose} rowId={rowId} mode={mode} />
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+          <Accordion type="multiple" className="px-2">
+            <AccordionItem value="item-1" className="py-2 border-t border-b-0">
+              <AccordionTrigger className="text-base font-medium hover:no-underline py-3 px-2 data-[state=open]:text-blue-600">
+                <div className="flex items-center">
+                  <Cloud className="w-5 h-5 mr-2 text-blue-600" />
+                  SSP 시나리오 분석 결과
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-2 pb-4">
+                <Card className="border-0 shadow-none">
+                  <CardContent className="p-0">
+                    <CollapsibleWindow
+                      type="scenario"
+                      headers={scenarioHeader}
+                      dialogTitle="SSP 시나리오 분석"
+                      data={
+                        loading
+                          ? []
+                          : ScenarioData.map(item => ({
+                              id: item.id,
+                              values: [
+                                String(item.baseYear ?? ''), // 분석 기준 연도
+                                String(item.regions ?? ''), // 행정구역
+                                String(item.scenario ?? ''), // 시나리오
+                                `${item.latitude ?? ''}/${item.longitude ?? ''}`, // 위도/경도 통합
+                                String(item.climate ?? ''), // 기후 지표
+                                String(item.industry ?? ''), // 산업 분야
+                                String(item.assetType ?? ''), // 자산 유형
+                                String(item.assetValue ?? ''), // 자산 가치
+                                String(item.estimatedDamage ?? '0') // 예상 피해액 (단위 추가)
+                              ]
+                            }))
+                      }
+                      formContent={({onClose, rowId, mode}) => (
+                        <Scenario onClose={onClose} rowId={rowId} mode={mode} />
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="py-2 border-b-0">
+              <AccordionTrigger className="text-base font-medium hover:no-underline py-3 px-2 data-[state=open]:text-rose-600">
+                <div className="flex items-center">
+                  <Zap className="w-5 h-5 mr-2 text-rose-600" />
+                  물리/전환 리스크 및 기회요인
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-2 pb-4">
+                <Card className="border-0 shadow-none">
+                  <CardContent className="p-0">
+                    <CollapsibleWindow
+                      type="risk"
+                      headers={riskHeader}
+                      dialogTitle="리스크 식별 및 대응"
+                      data={
+                        loading
+                          ? []
+                          : RiskData.map(item => ({
+                              id: item.id,
+                              values: [
+                                item.riskType ?? '',
+                                item.riskCause ?? '',
+                                item.impact ?? '',
+                                item.businessModelImpact ?? '',
+                                item.time ?? '',
+                                item.financialImpact ?? '',
+                                item.plans ?? ''
+                              ]
+                            }))
+                      }
+                      formContent={({onClose, rowId, mode}) => (
+                        <Risk onClose={onClose} rowId={rowId} mode={mode} />
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </LoadingState>
     </div>
   )
 }

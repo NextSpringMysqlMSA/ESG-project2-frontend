@@ -1,11 +1,8 @@
 'use client'
 
 import {ReactNode} from 'react'
-import {X} from 'lucide-react'
-import {motion} from 'framer-motion'
 import {ModalContainer} from '@/components/ui/modal-container'
 import {Button} from '@/components/ui/button'
-import {cn} from '@/lib/utils'
 
 type ModuleModalProps = {
   open: boolean

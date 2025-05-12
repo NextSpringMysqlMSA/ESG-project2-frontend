@@ -15,6 +15,12 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import {motion} from 'framer-motion'
+import {BreadcrumbLink} from '@/components/ui/breadcrumb'
+import {PageHeader} from '@/components/layout/PageHeader'
+import {LoadingState} from '@/components/ui/loading-state'
+import {Badge} from '@/components/ui/badge'
+
+// GRI 테이블 컴포넌트 임포트
 import GRI2 from './(tables)/gri2'
 import GRI3 from './(tables)/gri3'
 import GRI200 from './(tables)/gri200'
@@ -222,8 +228,8 @@ function GRITableCards({
 // 메인 GRI 컴포넌트
 export default function GRI() {
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
-  const [view, setView] = useState<'cards' | 'table'>('cards')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // 테이블 선택 시 로딩 효과
   useEffect(() => {
@@ -267,23 +273,26 @@ export default function GRI() {
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span className="cursor-pointer hover:text-customG">ESG 공시</span>
+        <BreadcrumbLink href="/official" className="hover:text-customG">
+          ESG 공시
+        </BreadcrumbLink>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">GRI</span>
       </div>
 
-      {/* 제목 및 설명 */}
-      <div className="flex items-center w-full gap-3 px-4 mb-6">
-        <div className="p-2 rounded-full bg-gradient-to-r from-customG/20 to-blue-100">
-          <BookOpen className="w-6 h-6 text-customG" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">GRI 표준</h1>
-          <p className="mt-1 text-gray-500">
-            Global Reporting Initiative(GRI) 표준에 따른 ESG 공시 요구사항
-          </p>
-        </div>
-      </div>
+      {/* 제목 및 설명 - PageHeader 컴포넌트 사용 */}
+      <PageHeader
+        icon={<BookOpen className="w-6 h-6" />}
+        title="GRI 표준"
+        description="Global Reporting Initiative(GRI) 표준에 따른 ESG 공시 요구사항"
+        module="GRI">
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 border-green-200 pl-1.5">
+          <BookOpen className="w-3.5 h-3.5 mr-1" />
+          GRI 2021
+        </Badge>
+      </PageHeader>
 
       {/* 메인 컨텐츠 카드 */}
       <Card className="bg-white border rounded-lg shadow-sm">
@@ -314,15 +323,17 @@ export default function GRI() {
         </CardHeader>
 
         <CardContent className="pt-6">
-          {!selectedTable ? (
-            <GRITableCards
-              options={tableOptions}
-              selectedTable={selectedTable}
-              onChange={setSelectedTable}
-            />
-          ) : (
-            <div>{renderTableContent()}</div>
-          )}
+          <LoadingState isLoading={loading} error={error} isEmpty={false}>
+            {!selectedTable ? (
+              <GRITableCards
+                options={tableOptions}
+                selectedTable={selectedTable}
+                onChange={setSelectedTable}
+              />
+            ) : (
+              <div>{renderTableContent()}</div>
+            )}
+          </LoadingState>
         </CardContent>
       </Card>
     </div>

@@ -38,6 +38,8 @@ import {
 import {Badge} from '@/components/ui/badge'
 import {Skeleton} from '@/components/ui/skeleton'
 import {StatCard} from '@/components/ui/stat-card'
+import {PageHeader} from '@/components/layout/PageHeader'
+import {LoadingState} from '@/components/ui/loading-state'
 
 // 데이터 스토어 및 서비스
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
@@ -60,6 +62,7 @@ import {
 export default function Governance() {
   // 데이터 로딩 상태
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // 탭 상태 관리
   const [activeTab, setActiveTab] = useState('all')
@@ -112,6 +115,7 @@ export default function Governance() {
         setEducationData(parsedEducationList)
       } catch (e) {
         console.error('데이터 불러오기 실패:', e)
+        setError('데이터를 불러오는 중 오류가 발생했습니다.')
       } finally {
         setLoading(false)
       }
@@ -130,22 +134,6 @@ export default function Governance() {
   const KPIHeader = ['경영진 이름', 'KPI명', '목표율/목표값', '달성률/달성값']
   const educationHeader = ['교육 일자', '참석자 수', '교육 제목', '교육 주요 내용']
 
-  // 로딩 상태 UI
-  if (loading) {
-    return (
-      <div className="flex flex-col w-full h-full p-4 space-y-6 md:p-8">
-        <Skeleton className="w-64 h-8" />
-        <Skeleton className="w-full h-10" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="w-full h-32" />
-          ))}
-        </div>
-        <Skeleton className="h-[500px] w-full" />
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-col w-full h-full p-4 md:p-8 bg-slate-50">
       {/* 상단 네비게이션 */}
@@ -162,249 +150,251 @@ export default function Governance() {
         <span className="font-medium text-customG">거버넌스</span>
       </div>
 
-      {/* 헤더 섹션 */}
-      <motion.div
-        initial={{opacity: 0, y: -10}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.3}}
-        className="flex flex-col justify-between w-full gap-4 mb-6 md:flex-row md:items-center">
-        <div className="flex items-center">
-          <div className="p-2 mr-3 rounded-full bg-gradient-to-r from-blue-100 to-customG/20">
-            <Landmark className="w-6 h-6 text-customG" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">거버넌스</h1>
-            <p className="text-sm text-gray-500">
-              IFRS S2/TCFD 기반 기후 거버넌스 체계 관리
-            </p>
-          </div>
-        </div>
+      {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
+      <PageHeader
+        icon={<Landmark className="w-6 h-6" />}
+        title="거버넌스"
+        description="IFRS S2/TCFD 기반 기후 거버넌스 체계 관리"
+        module="IFRS"
+        submodule="governance">
+        <Badge
+          variant="outline"
+          className="bg-blue-50 text-blue-700 border-blue-200 pl-1.5">
+          <Landmark className="w-3.5 h-3.5 mr-1" />
+          IFRS S2
+        </Badge>
+        <Badge
+          variant="outline"
+          className="bg-amber-50 text-amber-700 border-amber-200 pl-1.5">
+          <Landmark className="w-3.5 h-3.5 mr-1" />
+          TCFD
+        </Badge>
+      </PageHeader>
 
-        <div className="flex flex-wrap gap-2">
-          <Badge
-            variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200 pl-1.5">
-            <Landmark className="w-3.5 h-3.5 mr-1" />
-            IFRS S2
-          </Badge>
-          <Badge
-            variant="outline"
-            className="bg-amber-50 text-amber-700 border-amber-200 pl-1.5">
-            <Landmark className="w-3.5 h-3.5 mr-1" />
-            TCFD
-          </Badge>
-        </div>
-      </motion.div>
+      {/* LoadingState 컴포넌트 활용 */}
+      <LoadingState
+        isLoading={loading}
+        error={error}
+        isEmpty={stats.total === 0}
+        emptyMessage="거버넌스 데이터가 없습니다. 첫 번째 항목을 추가해 보세요."
+        emptyAction={{
+          label: '데이터 추가하기',
+          onClick: () => {
+            /* 추가 작업 구현 */
+          }
+        }}>
+        {/* 통계 카드 */}
+        <motion.div
+          initial={{opacity: 0}}
+          animate={{opacity: 1}}
+          transition={{duration: 0.4, delay: 0.1}}
+          className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="위원회"
+            count={stats.committees}
+            icon={<Users className="w-5 h-5 text-blue-600" />}
+            color="blue"
+            description="기후 관련 위원회"
+          />{' '}
+          <StatCard
+            title="회의"
+            count={stats.meetings}
+            icon={<CalendarDays className="w-5 h-5 text-customG" />}
+            color="emerald"
+            description="거버넌스 회의"
+          />
+          <StatCard
+            title="KPI"
+            count={stats.kpis}
+            icon={<BarChart className="w-5 h-5 text-purple-600" />}
+            color="purple"
+            description="경영진 성과지표"
+          />
+          <StatCard
+            title="교육"
+            count={stats.educations}
+            icon={<GraduationCap className="w-5 h-5 text-amber-600" />}
+            color="amber"
+            description="환경 교육"
+          />
+        </motion.div>
 
-      {/* 통계 카드 */}
-      <motion.div
-        initial={{opacity: 0}}
-        animate={{opacity: 1}}
-        transition={{duration: 0.4, delay: 0.1}}
-        className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="위원회"
-          count={stats.committees}
-          icon={<Users className="w-5 h-5 text-blue-600" />}
-          color="blue"
-          description="기후 관련 위원회"
-        />{' '}
-        <StatCard
-          title="회의"
-          count={stats.meetings}
-          icon={<CalendarDays className="w-5 h-5 text-customG" />}
-          color="emerald"
-          description="거버넌스 회의"
-        />
-        <StatCard
-          title="KPI"
-          count={stats.kpis}
-          icon={<BarChart className="w-5 h-5 text-purple-600" />}
-          color="purple"
-          description="경영진 성과지표"
-        />
-        <StatCard
-          title="교육"
-          count={stats.educations}
-          icon={<GraduationCap className="w-5 h-5 text-amber-600" />}
-          color="amber"
-          description="환경 교육"
-        />
-      </motion.div>
-
-      {/* 메인 콘텐츠 */}
-      <motion.div
-        initial={{opacity: 0, y: 20}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.5, delay: 0.2}}>
-        <Card className="overflow-hidden shadow-sm">
-          <CardHeader className="p-4 bg-white border-b">
-            <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
-              <div>
-                <CardTitle className="text-xl">거버넌스 관리</CardTitle>
-                <CardDescription>
-                  지속가능성 거버넌스 구조 및 활동에 대한 정보를 관리합니다
-                </CardDescription>
+        {/* 메인 콘텐츠 */}
+        <motion.div
+          initial={{opacity: 0, y: 20}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 0.5, delay: 0.2}}>
+          <Card className="overflow-hidden shadow-sm">
+            <CardHeader className="p-4 bg-white border-b">
+              <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
+                <div>
+                  <CardTitle className="text-xl">거버넌스 관리</CardTitle>
+                  <CardDescription>
+                    지속가능성 거버넌스 구조 및 활동에 대한 정보를 관리합니다
+                  </CardDescription>
+                </div>
               </div>
-            </div>
-          </CardHeader>
+            </CardHeader>
 
-          <CardContent className="p-0">
-            <div className="bg-white rounded-b-lg">
-              <Accordion
-                type="multiple"
-                defaultValue={
-                  activeTab === 'all'
-                    ? ['item-1', 'item-2', 'item-3', 'item-4']
-                    : activeTab === 'committee'
-                    ? ['item-1']
-                    : []
-                }
-                className="p-4">
-                <AccordionItem
-                  value="item-1"
-                  className="mb-3 overflow-hidden border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-blue-50 to-white">
-                    <div className="flex items-center">
-                      <Users className="w-5 h-5 mr-2 text-blue-600" />
-                      위원회 구성
-                      <Badge
-                        variant="outline"
-                        className="ml-2 border-blue-100 bg-blue-50">
-                        {committeeData.length}
-                      </Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4">
-                    <CollapsibleWindow
-                      type="committee"
-                      headers={committeeHeader}
-                      dialogTitle="위원회 및 조직 입력"
-                      data={committeeData.map(item => ({
-                        id: item.id,
-                        values: [
-                          item.committeeName,
-                          `${item.memberName} / ${item.memberPosition} / ${item.memberAffiliation}`,
-                          item.climateResponsibility
-                        ]
-                      }))}
-                      formContent={({onClose, rowId, mode}) => (
-                        <Committee onClose={onClose} rowId={rowId} mode={mode} />
-                      )}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
+            <CardContent className="p-0">
+              <div className="bg-white rounded-b-lg">
+                <Accordion
+                  type="multiple"
+                  defaultValue={
+                    activeTab === 'all'
+                      ? ['item-1', 'item-2', 'item-3', 'item-4']
+                      : activeTab === 'committee'
+                      ? ['item-1']
+                      : []
+                  }
+                  className="p-4">
+                  <AccordionItem
+                    value="item-1"
+                    className="mb-3 overflow-hidden border rounded-md shadow-sm">
+                    <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-blue-50 to-white">
+                      <div className="flex items-center">
+                        <Users className="w-5 h-5 mr-2 text-blue-600" />
+                        위원회 구성
+                        <Badge
+                          variant="outline"
+                          className="ml-2 border-blue-100 bg-blue-50">
+                          {committeeData.length}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4">
+                      <CollapsibleWindow
+                        type="committee"
+                        headers={committeeHeader}
+                        dialogTitle="위원회 및 조직 입력"
+                        data={committeeData.map(item => ({
+                          id: item.id,
+                          values: [
+                            item.committeeName,
+                            `${item.memberName} / ${item.memberPosition} / ${item.memberAffiliation}`,
+                            item.climateResponsibility
+                          ]
+                        }))}
+                        formContent={({onClose, rowId, mode}) => (
+                          <Committee onClose={onClose} rowId={rowId} mode={mode} />
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <AccordionItem
-                  value="item-2"
-                  className="mb-3 overflow-hidden border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-customGLight to-white">
-                    <div className="flex items-center">
-                      <CalendarDays className="w-5 h-5 mr-2 text-customG" />
-                      회의 관리
-                      <Badge
-                        variant="outline"
-                        className="ml-2 bg-customGLight border-customGLight">
-                        {meetingData.length}
-                      </Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4">
-                    <CollapsibleWindow
-                      type="meeting"
-                      headers={meetingHeader}
-                      dialogTitle="회의관리"
-                      data={meetingData.map(item => ({
-                        id: item.id,
-                        values: [
-                          item.meetingDate ? format(item.meetingDate, 'yyyy-MM-dd') : '',
-                          item.meetingName ?? '',
-                          item.agenda ?? ''
-                        ]
-                      }))}
-                      formContent={({onClose, row, rowId, mode}) => (
-                        <Meeting onClose={onClose} rowId={rowId} mode={mode} />
-                      )}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
+                  <AccordionItem
+                    value="item-2"
+                    className="mb-3 overflow-hidden border rounded-md shadow-sm">
+                    <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-customGLight to-white">
+                      <div className="flex items-center">
+                        <CalendarDays className="w-5 h-5 mr-2 text-customG" />
+                        회의 관리
+                        <Badge
+                          variant="outline"
+                          className="ml-2 bg-customGLight border-customGLight">
+                          {meetingData.length}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4">
+                      <CollapsibleWindow
+                        type="meeting"
+                        headers={meetingHeader}
+                        dialogTitle="회의관리"
+                        data={meetingData.map(item => ({
+                          id: item.id,
+                          values: [
+                            item.meetingDate
+                              ? format(item.meetingDate, 'yyyy-MM-dd')
+                              : '',
+                            item.meetingName ?? '',
+                            item.agenda ?? ''
+                          ]
+                        }))}
+                        formContent={({onClose, row, rowId, mode}) => (
+                          <Meeting onClose={onClose} rowId={rowId} mode={mode} />
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <AccordionItem
-                  value="item-3"
-                  className="mb-3 overflow-hidden border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-purple-50 to-white">
-                    <div className="flex items-center">
-                      <BarChart className="w-5 h-5 mr-2 text-purple-600" />
-                      경영진 KPI
-                      <Badge
-                        variant="outline"
-                        className="ml-2 border-purple-100 bg-purple-50">
-                        {kpiData.length}
-                      </Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4">
-                    <CollapsibleWindow
-                      type="KPI"
-                      headers={KPIHeader}
-                      dialogTitle="경영진 KPI 입력"
-                      data={kpiData.map(item => ({
-                        id: item.id,
-                        values: [
-                          item.executiveName ?? '',
-                          item.kpiName ?? '',
-                          item.targetValue ?? '',
-                          item.achievedValue ?? ''
-                        ]
-                      }))}
-                      formContent={({onClose, row, rowId, mode}) => (
-                        <KPI onClose={onClose} rowId={rowId} mode={mode} />
-                      )}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
+                  <AccordionItem
+                    value="item-3"
+                    className="mb-3 overflow-hidden border rounded-md shadow-sm">
+                    <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-purple-50 to-white">
+                      <div className="flex items-center">
+                        <BarChart className="w-5 h-5 mr-2 text-purple-600" />
+                        경영진 KPI
+                        <Badge
+                          variant="outline"
+                          className="ml-2 border-purple-100 bg-purple-50">
+                          {kpiData.length}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4">
+                      <CollapsibleWindow
+                        type="KPI"
+                        headers={KPIHeader}
+                        dialogTitle="경영진 KPI 입력"
+                        data={kpiData.map(item => ({
+                          id: item.id,
+                          values: [
+                            item.executiveName ?? '',
+                            item.kpiName ?? '',
+                            item.targetValue ?? '',
+                            item.achievedValue ?? ''
+                          ]
+                        }))}
+                        formContent={({onClose, row, rowId, mode}) => (
+                          <KPI onClose={onClose} rowId={rowId} mode={mode} />
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <AccordionItem
-                  value="item-4"
-                  className="mb-1 overflow-hidden border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-amber-50 to-white">
-                    <div className="flex items-center">
-                      <GraduationCap className="w-5 h-5 mr-2 text-amber-600" />
-                      환경 교육
-                      <Badge
-                        variant="outline"
-                        className="ml-2 bg-amber-50 border-amber-100">
-                        {educationData.length}
-                      </Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4">
-                    <CollapsibleWindow
-                      type="education"
-                      headers={educationHeader}
-                      dialogTitle="환경 교육 기록"
-                      data={educationData.map(item => ({
-                        id: item.id,
-                        values: [
-                          item.educationDate
-                            ? format(item.educationDate, 'yyyy-MM-dd')
-                            : '',
-                          item.participantCount?.toString() ?? '',
-                          item.educationTitle ?? '',
-                          item.content ?? ''
-                        ]
-                      }))}
-                      formContent={({onClose, row, rowId, mode}) => (
-                        <Education onClose={onClose} rowId={rowId} mode={mode} />
-                      )}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+                  <AccordionItem
+                    value="item-4"
+                    className="mb-1 overflow-hidden border rounded-md shadow-sm">
+                    <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-amber-50 to-white">
+                      <div className="flex items-center">
+                        <GraduationCap className="w-5 h-5 mr-2 text-amber-600" />
+                        환경 교육
+                        <Badge
+                          variant="outline"
+                          className="ml-2 bg-amber-50 border-amber-100">
+                          {educationData.length}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4">
+                      <CollapsibleWindow
+                        type="education"
+                        headers={educationHeader}
+                        dialogTitle="환경 교육 기록"
+                        data={educationData.map(item => ({
+                          id: item.id,
+                          values: [
+                            item.educationDate
+                              ? format(item.educationDate, 'yyyy-MM-dd')
+                              : '',
+                            item.participantCount?.toString() ?? '',
+                            item.educationTitle ?? '',
+                            item.content ?? ''
+                          ]
+                        }))}
+                        formContent={({onClose, row, rowId, mode}) => (
+                          <Education onClose={onClose} rowId={rowId} mode={mode} />
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </LoadingState>
     </div>
   )
 }
