@@ -1,7 +1,7 @@
 'use client'
 
 import {useState} from 'react'
-import GriTable from '@/components/tools/griTable'
+import GriTable from '@/app/(dashboard)/GRI/(tables)/griTable'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Info, BookOpen, LucideClipboardList} from 'lucide-react'
 

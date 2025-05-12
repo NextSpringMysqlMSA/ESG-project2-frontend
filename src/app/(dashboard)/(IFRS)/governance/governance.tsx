@@ -10,8 +10,7 @@ import {
   BarChart,
   GraduationCap,
   ChevronRight,
-  Home,
-  Loader2
+  Home
 } from 'lucide-react'
 
 // 컴포넌트 가져오기
@@ -22,14 +21,7 @@ import Meeting from './meeting'
 import CollapsibleWindow from '@/components/tools/collapsibleWindow'
 
 // UI 컴포넌트
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb'
+import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {
   Accordion,
   AccordionContent,
@@ -43,7 +35,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {Badge} from '@/components/ui/badge'
 import {Skeleton} from '@/components/ui/skeleton'
 import {StatCard} from '@/components/ui/stat-card'
