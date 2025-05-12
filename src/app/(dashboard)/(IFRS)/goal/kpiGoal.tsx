@@ -3,11 +3,13 @@
 import {useState, useEffect} from 'react'
 import InputBox from '@/components/tools/inputBox'
 import CustomSelect from '@/components/tools/customSelect'
-import DashButton from '@/components/tools/dashButton'
 import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
 import {createKPIGoal, updateKPIGoal, deleteKPIGoal, fetchKPIGoal} from '@/services/goal'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
+import {IFRSGoalFormCard} from '@/components/forms/module-forms'
+import {IFRSGoalButton} from '@/components/buttons/module-buttons'
+import {Trash, Save, BarChart3, Loader2} from 'lucide-react'
 
 type KPIGoalProps = {
   onClose: () => void
@@ -152,74 +154,99 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
   }
 
   return (
-    <div className="flex flex-col w-full h-full mt-4 space-y-4">
-      <div className="flex flex-row w-full">
-        <div className="flex flex-col w-[50%] pr-2 space-y-4">
-          <CustomSelect
-            placeholder="지표"
-            options={indicator2}
-            value={indicator}
-            onValueChange={value => {
-              setField('indicator', value)
-              setField('detailedIndicator', '') // 선택 리스크 종류 바뀌면 유형 초기화
-            }}
-          />
-          <InputBox
-            label="단위"
-            value={unit}
-            onChange={e => setField('unit', e.target.value)}
-          />
-          <InputBox
-            label="기준 연도"
-            value={baseYear}
-            onChange={e => setField('baseYear', Number(e.target.value))}
-          />
-          <InputBox
-            label="목표 수치"
-            value={targetValue}
-            onChange={e => setField('targetValue', Number(e.target.value))}
-          />
-        </div>
-        <div className="flex flex-col w-[50%] pl-2 space-y-4">
-          {indicator && (
-            <CustomSelect
-              placeholder="세부 지표"
-              options={detailedIndicator2[indicator] ?? []}
-              value={detailedIndicator}
-              onValueChange={value => setField('detailedIndicator', value)}
-            />
+    <IFRSGoalFormCard
+      title={isEditMode ? 'KPI 목표 수정' : '새 KPI 목표 등록'}
+      icon={<BarChart3 className="w-5 h-5" />}
+      description="기후 변화 관련 지표와 목표를 관리합니다."
+      actions={
+        <div className="flex items-center justify-end space-x-3">
+          {isEditMode && (
+            <IFRSGoalButton
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={submitting}
+              icon={<Trash className="w-4 h-4" />}
+              size="sm">
+              삭제
+            </IFRSGoalButton>
           )}
-          <InputBox
-            label="목표 연도"
-            value={goalYear}
-            onChange={e => setField('goalYear', Number(e.target.value))}
-          />
-          <InputBox
-            label="기준값"
-            value={referenceValue}
-            onChange={e => setField('referenceValue', Number(e.target.value))}
-          />
-          <InputBox
-            label="현재수치"
-            value={currentValue}
-            onChange={e => setField('currentValue', Number(e.target.value))}
-          />
+          <IFRSGoalButton
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            size="sm">
+            취소
+          </IFRSGoalButton>
+          <IFRSGoalButton
+            onClick={handleSubmit}
+            disabled={submitting}
+            icon={
+              submitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )
+            }
+            size="sm">
+            {submitting ? '처리 중...' : isEditMode ? '수정' : '저장'}
+          </IFRSGoalButton>
+        </div>
+      }>
+      <div className="grid gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-4">
+            <CustomSelect
+              placeholder="지표"
+              options={indicator2}
+              value={indicator}
+              onValueChange={value => {
+                setField('indicator', value)
+                setField('detailedIndicator', '') // 선택 리스크 종류 바뀌면 유형 초기화
+              }}
+            />
+            <InputBox
+              label="단위"
+              value={unit}
+              onChange={e => setField('unit', e.target.value)}
+            />
+            <InputBox
+              label="기준 연도"
+              value={baseYear}
+              onChange={e => setField('baseYear', Number(e.target.value))}
+            />
+            <InputBox
+              label="목표 수치"
+              value={targetValue}
+              onChange={e => setField('targetValue', Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-4">
+            {indicator && (
+              <CustomSelect
+                placeholder="세부 지표"
+                options={detailedIndicator2[indicator] ?? []}
+                value={detailedIndicator}
+                onValueChange={value => setField('detailedIndicator', value)}
+              />
+            )}
+            <InputBox
+              label="목표 연도"
+              value={goalYear}
+              onChange={e => setField('goalYear', Number(e.target.value))}
+            />
+            <InputBox
+              label="기준값"
+              value={referenceValue}
+              onChange={e => setField('referenceValue', Number(e.target.value))}
+            />
+            <InputBox
+              label="현재수치"
+              value={currentValue}
+              onChange={e => setField('currentValue', Number(e.target.value))}
+            />
+          </div>
         </div>
       </div>
-      <div className="flex justify-center mt-4 space-x-4">
-        {isEditMode && (
-          <DashButton
-            width="w-24"
-            className="text-white bg-red-500 border-red-500 hover:bg-red-600"
-            onClick={handleDelete}
-            disabled={submitting}>
-            삭제
-          </DashButton>
-        )}
-        <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
-        </DashButton>
-      </div>
-    </div>
+    </IFRSGoalFormCard>
   )
 }

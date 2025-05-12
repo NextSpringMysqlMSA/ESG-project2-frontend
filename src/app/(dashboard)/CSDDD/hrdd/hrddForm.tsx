@@ -12,6 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
+import {cn} from '@/lib/utils'
 
 export default function HRDDForm() {
   const [step, setStep] = useState(1)
@@ -298,7 +299,7 @@ export default function HRDDForm() {
 
   return (
     <div className="flex flex-col w-full h-full p-8">
-      <div className="flex flex-row px-2 mb-4 text-black text-base font-medium">
+      <div className="flex flex-row px-2 mb-4 text-base font-medium text-black">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -315,6 +316,23 @@ export default function HRDDForm() {
         <h1 className="text-lg font-bold text-center">
           인권 실사 지침 요구사항 이행 자가진단
         </h1>
+        <div className="flex justify-center mb-6">
+          <div className="flex items-center gap-1">
+            {Array.from({length: 9}, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setStep(i + 1)}
+                className={cn(
+                  'w-8 h-8 text-sm border rounded-full',
+                  step === i + 1
+                    ? 'bg-customG text-white border-customG'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-customG hover:text-customG'
+                )}>
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {(() => {
           const stepItems = questions[step.toString()] || []
