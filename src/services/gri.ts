@@ -31,7 +31,6 @@ export const fetchGriDisclosures = async (): Promise<GriDisclosure[]> => {
     const response = await api.get<GriDisclosure[]>(API_URL)
     return response.data
   } catch (error) {
-    console.error('GRI 항목 조회 실패:', error)
     return []
   }
 }
@@ -46,7 +45,6 @@ export const fetchGriDisclosure = async (id: number): Promise<GriDisclosure | nu
     const response = await api.get<GriDisclosure>(`${API_URL}/${id}`)
     return response.data
   } catch (error) {
-    console.error(`GRI 항목 (ID: ${id}) 조회 실패:`, error)
     return null
   }
 }
@@ -66,7 +64,6 @@ export const fetchGriDisclosureByCode = async (
     }
     return null
   } catch (error) {
-    console.error(`GRI 항목 (코드: ${griCode}) 조회 실패:`, error)
     return null
   }
 }
@@ -83,11 +80,9 @@ export const createGriDisclosure = async (
 ): Promise<GriDisclosure> => {
   // 데이터 검증 추가
   if (!data.content || data.content.trim() === '') {
-    console.error('❌ 내용이 비어있어 API 호출을 건너뜁니다:', data)
     throw new Error('내용을 입력해주세요.')
   }
 
-  console.log('📤 API 요청 데이터:', data)
   const response = await api.post<GriDisclosure>(API_URL, data)
   return response.data
 }
@@ -98,11 +93,9 @@ export const updateGriDisclosure = async (
 ): Promise<GriDisclosure> => {
   // 데이터 검증 추가
   if (data.content !== undefined && data.content.trim() === '') {
-    console.error('❌ 내용이 비어있어 API 호출을 건너뜁니다:', data)
     throw new Error('내용을 입력해주세요.')
   }
 
-  console.log('📤 API 요청 데이터:', data)
   const response = await api.put<GriDisclosure>(`${API_URL}/${id}`, data)
   return response.data
 }
@@ -117,7 +110,6 @@ export const deleteGriDisclosure = async (id: number): Promise<boolean> => {
     await api.delete(`${API_URL}/${id}`)
     return true
   } catch (error) {
-    console.error(`GRI 항목 (ID: ${id}) 삭제 실패:`, error)
     return false
   }
 }

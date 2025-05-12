@@ -51,16 +51,11 @@ export default function TextModal({
   }
 
   const handleSave = () => {
-    console.log('🔘 저장 버튼 클릭됨')
-    console.log('📝 저장할 내용:', text)
-
     if (!text.trim() || text === value) {
-      console.log('❌ 내용이 비어있거나 변경되지 않음')
       onClose()
       return
     }
 
-    console.log('✅ 내용 변경 감지됨, 저장 처리 시작')
     setIsSaving(true)
 
     // 부모 컴포넌트에 텍스트 전달
@@ -69,9 +64,8 @@ export default function TextModal({
     // 저장 완료 표시
     setSaved(true)
 
-    // 저장 함수 호출 - 중요: 현재 text 값을 직접 전달
+    // 저장 함수 호출 - 현재 text 값을 직접 전달
     if (typeof onSave === 'function') {
-      // 현재 text 값을 직접 전달하는 함수를 호출
       onSave(text)
     }
 
@@ -81,9 +75,8 @@ export default function TextModal({
     }, 800)
   }
 
-  // 취소 핸들러 - 디버깅 코드 추가
+  // 취소 핸들러
   const handleCancel = () => {
-    console.log('❌ 취소 버튼 클릭됨')
     onClose()
   }
 
@@ -95,11 +88,9 @@ export default function TextModal({
     return 'text-gray-500'
   }
 
-  // Dialog가 닫힐 때 핸들러 - 디버깅 추가
+  // Dialog가 닫힐 때 핸들러
   const handleDialogChange = (isOpen: boolean) => {
-    console.log('Dialog 상태 변경:', isOpen ? '열림' : '닫힘')
     if (!isOpen && !isSaving) {
-      console.log('Dialog 닫힘 이벤트로 onClose 호출')
       onClose()
     }
   }

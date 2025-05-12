@@ -35,6 +35,23 @@ interface DeleteConfirmProps {
   title: string
 }
 
+// 액션 버튼 Props
+interface ActionButtonProps {
+  icon: React.ReactNode
+  onClick?: (e: React.MouseEvent) => void
+  className?: string
+  isVisible?: boolean
+}
+
+// 셀 액션 Props
+interface CellActionsProps {
+  isSaving: boolean
+  hasContent: boolean
+  isSaved: boolean
+  onDelete: (e: React.MouseEvent) => void
+  onEditClick?: () => void
+}
+
 // ==================== 유틸리티 함수 ====================
 
 // 셀 값 가져오기
@@ -42,21 +59,70 @@ const getCellValue = (cell: TableCell) => (typeof cell === 'string' ? cell : cel
 
 // ==================== 보조 컴포넌트 ====================
 
-// 툴팁 컴포넌트
-const SimpleTooltip = ({
-  children,
-  content
-}: {
-  children: React.ReactNode
-  content: string
-}) => {
+// 액션 버튼 컴포넌트
+const ActionButton = ({
+  icon,
+  onClick,
+  className,
+  isVisible = true
+}: ActionButtonProps) => {
+  if (!isVisible) return null
+
   return (
-    <div className="relative group">
-      {children}
-      <div className="absolute z-50 px-2 py-1 mb-2 text-xs text-white transition-opacity duration-200 -translate-x-1/2 rounded-md opacity-0 pointer-events-none bottom-full left-1/2 bg-customGDark group-hover:opacity-100 whitespace-nowrap">
-        {content}
-        <div className="absolute -translate-x-1/2 border-4 border-transparent top-full left-1/2 border-t-customGDark"></div>
-      </div>
+    <div className={cn('p-1 transition-opacity', className)}>
+      {onClick ? (
+        <button onClick={onClick} className="p-1 rounded hover:bg-gray-50">
+          {icon}
+        </button>
+      ) : (
+        <>{icon}</>
+      )}
+    </div>
+  )
+}
+
+// 셀 액션 컴포넌트
+const CellActions = ({
+  isSaving,
+  hasContent,
+  isSaved,
+  onDelete,
+  onEditClick
+}: CellActionsProps) => {
+  return (
+    <div className="flex items-center mr-1 space-x-3">
+      {/* 저장 중 아이콘 */}
+      {isSaving && (
+        <ActionButton icon={<Save className="w-5 h-5 text-customG animate-pulse" />} />
+      )}
+
+      {/* 저장 상태 및 삭제 버튼 */}
+      {!isSaving && hasContent && (
+        <>
+          <ActionButton
+            icon={
+              <CheckCircle2
+                className={cn('w-5 h-5', isSaved ? 'text-customG' : 'text-amber-500')}
+              />
+            }
+          />
+
+          {isSaved && (
+            <ActionButton
+              icon={<Trash2 className="w-5 h-5 text-red-500 hover:text-red-600" />}
+              onClick={onDelete}
+              className="opacity-0 group-hover:opacity-100"
+            />
+          )}
+        </>
+      )}
+
+      {/* 편집 아이콘 */}
+      <ActionButton
+        icon={<Edit2 className="w-5 h-5 text-customG hover:text-customGDark" />}
+        onClick={onEditClick}
+        className="opacity-0 group-hover:opacity-100"
+      />
     </div>
   )
 }
@@ -136,9 +202,7 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
     setLoadError(null)
 
     try {
-      console.log('🔍 GRI 항목 데이터 요청')
       const data = await fetchGriDisclosures()
-      console.log(`✅ ${data.length}개 GRI 항목 로드 완료`)
 
       // 데이터가 없는 경우 처리
       if (data.length === 0) {
@@ -160,8 +224,6 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
       setSavedItems(itemsMap)
       setModalContents(contentsMap)
     } catch (error: any) {
-      console.error('❌ GRI 데이터 로드 실패:', error)
-
       // 404 에러는 데이터가 없는 정상 케이스로 처리
       if (error.response?.status === 404) {
         setLoadError('내용을 입력하여 새로운 항목을 생성할 수 있습니다.')
@@ -201,12 +263,8 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
 
   // 모달 닫기 및 데이터 저장 함수
   const closeModal = async (saveContent = true, content = modalContent) => {
-    console.log('⭐ closeModal 호출됨, saveContent:', saveContent)
-    console.log('📝 저장할 내용:', content)
-
     // 저장하지 않는 경우
     if (!modalKey || !saveContent) {
-      console.log('❌ 저장 건너뜀 (modalKey 없음 또는 저장 요청 아님)')
       setModalOpen(false)
       resetModalState()
       return
@@ -214,7 +272,6 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
 
     // 내용이 비어있는 경우
     if (!content || content.trim() === '') {
-      console.log('❌ 저장 건너뜀 (내용이 비어있음)')
       toast.error('내용을 입력해주세요.')
       setModalOpen(false)
       resetModalState()
@@ -264,14 +321,7 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
     griCode: string,
     content: string
   ) => {
-    console.log(
-      '📤 updateGriDisclosure 호출:',
-      existingItem.id,
-      content.substring(0, 20) + '...'
-    )
-
     const result = await updateGriDisclosure(existingItem.id, {content})
-    console.log('✅ 업데이트 결과:', result)
 
     // UI 상태 업데이트
     setSavedItems(prev => ({
@@ -307,9 +357,7 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
       content
     }
 
-    console.log('📤 createGriDisclosure 호출:', requestData)
     const result = await createGriDisclosure(requestData)
-    console.log('✅ 생성 결과:', result)
 
     // UI 상태 업데이트
     setSavedItems(prev => ({
@@ -375,8 +423,6 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
 
   // API 에러 처리 함수
   const handleApiError = (error: any, action = '저장') => {
-    console.error(`❌ API 호출 오류 (${action}):`, error)
-
     toast.error(
       `항목을 ${action}하는 중 오류가 발생했습니다: ${
         error.response?.data?.message || error.message
@@ -396,8 +442,8 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
   }
 
   // 셀 내용 존재 여부 확인
-  const hasCellContent = (key: string) => {
-    return modalContents[key] && modalContents[key].trim() !== ''
+  const hasCellContent = (key: string): boolean => {
+    return !!(modalContents[key] && modalContents[key].trim() !== '')
   }
 
   // ===== 렌더링 =====
@@ -410,16 +456,10 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
         title={modalTitle}
         value={modalContent}
         onChange={newText => {
-          console.log('💬 TextModal에서 텍스트 변경:', newText.substring(0, 20) + '...')
           setModalContent(newText)
         }}
         onClose={() => closeModal(false)}
         onSave={textValue => {
-          // textValue: TextModal에서 직접 전달받은 텍스트 값
-          console.log(
-            '💾 저장 요청 - 직접 전달받은 내용:',
-            textValue.substring(0, 20) + '...'
-          )
           closeModal(true, textValue) // 여기서 modalContent 대신 직접 받은 textValue 사용
         }}
       />
@@ -524,53 +564,18 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
                             )}>
                             {isEmpty ? '내용을 입력하려면 클릭하세요' : shortContent}
                           </span>
-                          <div className="flex items-center mr-1 space-x-3">
-                            {/* 저장 중 아이콘 */}
-                            {isSaving && (
-                              <div className="p-1">
-                                <SimpleTooltip content="저장 중...">
-                                  <Save className="w-5 h-5 text-customG animate-pulse" />
-                                </SimpleTooltip>
-                              </div>
-                            )}
-
-                            {/* 저장 상태 및 삭제 버튼 */}
-                            {!isSaving && hasCellContent(modalKey) && (
-                              <>
-                                <div className="p-1">
-                                  <SimpleTooltip content={isSaved ? '저장됨' : '미저장'}>
-                                    <CheckCircle2
-                                      className={cn(
-                                        'w-5 h-5',
-                                        isSaved ? 'text-customG' : 'text-amber-500'
-                                      )}
-                                    />
-                                  </SimpleTooltip>
-                                </div>
-                                {isSaved && (
-                                  <div className="p-1 transition-opacity opacity-0 group-hover:opacity-100">
-                                    <SimpleTooltip content="항목 삭제">
-                                      <button
-                                        onClick={e => {
-                                          e.stopPropagation()
-                                          handleDelete(noValue, title)
-                                        }}
-                                        className="p-1 rounded hover:bg-red-50">
-                                        <Trash2 className="w-5 h-5 text-red-500 hover:text-red-600" />
-                                      </button>
-                                    </SimpleTooltip>
-                                  </div>
-                                )}
-                              </>
-                            )}
-
-                            {/* 편집 아이콘 */}
-                            <div className="p-1 transition-all opacity-0 group-hover:opacity-100">
-                              <SimpleTooltip content="내용 편집하기">
-                                <Edit2 className="w-5 h-5 text-customG hover:text-customGDark" />
-                              </SimpleTooltip>
-                            </div>
-                          </div>
+                          <CellActions
+                            isSaving={isSaving}
+                            hasContent={hasCellContent(modalKey)}
+                            isSaved={isSaved}
+                            onDelete={e => {
+                              e.stopPropagation()
+                              handleDelete(noValue, title)
+                            }}
+                            onEditClick={() => {
+                              openModal(modalKey, title, modalContents[modalKey] || '')
+                            }}
+                          />
                         </div>
                       ) : (
                         cellValue
