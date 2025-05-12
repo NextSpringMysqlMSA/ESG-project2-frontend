@@ -5,7 +5,7 @@ type StatCardProps = {
   title: string
   count: number
   icon: ReactNode
-  color: 'blue' | 'emerald' | 'purple' | 'amber'
+  color: 'red' | 'blue' | 'emerald' | 'purple' | 'amber'
   description: string
 }
 
@@ -16,11 +16,13 @@ type StatCardProps = {
  */
 export function StatCard({title, count, icon, color, description}: StatCardProps) {
   // 색상 클래스 매핑
+
   const colorVariants = {
-    blue: 'from-blue-50 to-white border-blue-200',
-    emerald: 'from-customGLight to-white border-customGBorder200',
-    purple: 'from-purple-50 to-white border-purple-200',
-    amber: 'from-amber-50 to-white border-amber-200'
+    red: 'from-red-50 to-white border-red-200 text-red-500',
+    blue: 'from-blue-50 to-white border-blue-200 text-blue-500',
+    emerald: 'from-customGLight to-white border-customGBorder200 text-emerald-500',
+    purple: 'from-purple-50 to-white border-purple-200 text-purple-500',
+    amber: 'from-amber-50 to-white border-amber-200 text-amber-500'
   }
 
   return (

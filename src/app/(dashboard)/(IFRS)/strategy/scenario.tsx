@@ -18,9 +18,7 @@ import {
   createScenario,
   updateScenario,
   deleteScenario,
-  fetchScenarioList,
-  CreateScenarioDto,
-  UpdateScenarioDto
+  fetchScenarioList
 } from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
@@ -53,6 +51,7 @@ import {
 import {Badge} from '@/components/ui/badge'
 import {Separator} from '@/components/ui/separator'
 import {Card, CardContent} from '@/components/ui/card'
+import {CreateScenarioDto, UpdateScenarioDto} from '@/types/IFRS/strategy'
 
 type ScenarioProps = {
   onClose: () => void

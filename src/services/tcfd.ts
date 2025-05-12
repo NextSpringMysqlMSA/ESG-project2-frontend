@@ -1,20 +1,18 @@
 import api from '@/lib/axios'
-
-// 위원회 데이터 항목 타입 (조회 및 수정 시 사용)
-export type CommitteeItem = {
-  id: number
-  committeeName: string
-  memberName: string
-  memberPosition: string
-  memberAffiliation: string
-  climateResponsibility: string
-}
-
-// 위원회 생성 요청용 타입 (id 제외)
-export type CreateCommitteeDto = Omit<CommitteeItem, 'id'>
-
-// 위원회 수정 요청용 타입 (id 포함)
-export type UpdateCommitteeDto = CommitteeItem
+import {
+  CommitteeItem,
+  CreateCommitteeDto,
+  CreateEducationDto,
+  CreateKpiDto,
+  CreateMeetingDto,
+  EducationItem,
+  KPIItem,
+  MeetingItem,
+  UpdateCommitteeDto,
+  UpdateEducationDto,
+  UpdateKpiDto,
+  UpdateMeetingDto
+} from '@/types/IFRS/governance'
 
 // 위원회 상세 조회 (ID로 데이터 가져오기)
 export const fetchCommitteeById = async (id: number): Promise<CommitteeItem> => {
@@ -47,17 +45,6 @@ export const deleteCommittee = async (id: number) => {
 }
 //-------------------------------------------------------------------------------------------
 
-// 회의 데이터 항목 타입
-export type MeetingItem = {
-  id: number
-  meetingName: string
-  meetingDate: string
-  agenda: string
-}
-
-export type CreateMeetingDto = Omit<MeetingItem, 'id'>
-export type UpdateMeetingDto = MeetingItem
-
 export const fetchMeetingList = async (): Promise<MeetingItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/meeting')
   return response.data
@@ -76,17 +63,6 @@ export const deleteMeeting = async (id: number) => {
 }
 //-------------------------------------------------------------------------------------------
 
-export type KPIItem = {
-  id: number
-  executiveName: string
-  kpiName: string
-  targetValue: string
-  achievedValue: string
-}
-
-export type CreateKpiDto = Omit<KPIItem, 'id'>
-export type UpdateKpiDto = KPIItem
-
 export const fetchKpiList = async (): Promise<KPIItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/executive-kpi')
   return response.data
@@ -104,18 +80,6 @@ export const deleteKpi = async (id: number) => {
   return await api.delete(`/api/v1/tcfd/governance/executive-kpi/${id}`)
 }
 //-------------------------------------------------------------------------------------------
-
-export type EducationItem = {
-  id: number
-  educationTitle: string
-  educationDate: string
-  participantCount: number
-  content: string
-}
-//-------------------------------------------------------------------------------------------
-
-export type CreateEducationDto = Omit<EducationItem, 'id'>
-export type UpdateEducationDto = EducationItem
 
 export const fetchEducationList = async (): Promise<EducationItem[]> => {
   const response = await api.get('/api/v1/tcfd/governance/education')

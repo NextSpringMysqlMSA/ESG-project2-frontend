@@ -9,7 +9,6 @@ const api = axios.create({
   withCredentials: true // 쿠키 사용할 경우 필요
 })
 
-// 요청을 보낼 때 Authorization 헤더와 Content-Type을 자동으로 설정
 // 요청 인터셉터
 api.interceptors.request.use(
   config => {
@@ -19,6 +18,8 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = token
     }
+
+    console.log('📦 요청 헤더:', config.headers)
 
     return config
   },

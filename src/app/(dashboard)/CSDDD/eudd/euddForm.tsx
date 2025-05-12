@@ -13,58 +13,173 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import {fetchEuddResult, submitEuddAnswers, updateEuddAnswers} from '@/services/eudd'
-import {getMyInfo} from '@/services/auth'
+import {fetchEuddResult, updateEuddAnswers} from '@/services/eudd'
+import {showError, showSuccess} from '@/util/toast'
+import {BadgeCheck, FileQuestion} from 'lucide-react' // 아이콘 추가
 
+/**
+ * EU 공급망 실사 지침 자가진단 페이지
+ */
 export default function EDDForm() {
+  // 상태 관리
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [analysisData, setAnalysisData] = useState<Record<string, any>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
 
+  // 초기 데이터 로드
   useEffect(() => {
-    fetchEuddResult()
-      .then(res => setAnalysisData(res))
-      .catch(err => console.error('❌ 분석 데이터 불러오기 실패:', err))
+    loadEuddData()
+
+    // 초기에 모든 질문을 '예'로 설정
+    const initialAnswers: Record<string, string> = {}
+    Object.values(questions).forEach(items => {
+      items.forEach(item => {
+        if (item.type === 'question' && item.id) {
+          initialAnswers[item.id] = 'yes'
+        }
+      })
+    })
+
+    setAnswers(initialAnswers)
   }, [])
 
-  useEffect(() => {
-    console.log('🧠 answers 상태:', answers)
-  }, [answers])
+  // 데이터 로드 함수
+  const loadEuddData = async () => {
+    try {
+      const result = await fetchEuddResult()
+      setAnalysisData(result)
 
-  const next = () => {
-    if (step < 7) setStep(step + 1)
+      // 서버에서 가져온 데이터를 바탕으로 답변 업데이트
+      if (Array.isArray(result) && result.length > 0) {
+        const savedAnswers: Record<string, string> = {}
+        result.forEach(item => {
+          if (item.id) {
+            // 서버에서 가져온 응답은 'no'로 설정 (문제 요구사항에 따라)
+            savedAnswers[item.id] = 'no'
+          }
+        })
+        setAnswers(prev => ({...prev, ...savedAnswers}))
+      }
+
+      setIsLoaded(true)
+    } catch (err: any) {
+      // 데이터가 없는 경우는 정상 케이스로 처리 (최초 진단 시)
+      if (err?.response?.status === 404) {
+        setIsLoaded(true)
+        return
+      }
+      showError('자가진단 데이터를 불러오는데 실패했습니다.')
+      setIsLoaded(true)
+    }
   }
+
+  // 네비게이션 함수
+  const next = () => step < 7 && setStep(step + 1)
   const prev = () => setStep(prev => Math.max(prev - 1, 1))
 
-  const renderItem = (item: {type: string; text: string}, id: string): JSX.Element => {
+  // 저장 함수
+  const handleSave = async () => {
+    try {
+      setIsSubmitting(true)
+
+      // 답변 형식 변환 (yes/no 문자열 -> boolean)
+      const formattedAnswers: Record<string, boolean> = Object.fromEntries(
+        Object.entries(answers).map(([questionId, answer]) => [
+          questionId,
+          answer === 'yes'
+        ])
+      )
+
+      // API 호출하여 답변 저장
+      await updateEuddAnswers({
+        answers: formattedAnswers
+      })
+
+      showSuccess('자가진단이 성공적으로 저장되었습니다.')
+
+      // 결과 페이지로 이동
+      window.location.href = '/CSDDD/eudd/result'
+    } catch (err) {
+      showError('자가진단 저장에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // 질문 아이템 렌더링 함수
+  const renderItem = (
+    item: {type: string; text: string; id?: string},
+    id: string
+  ): JSX.Element => {
     if (item.type === 'title') {
       return (
-        <h2 key={id} className="text-base font-semibold text-gray-600">
+        <h2 key={id} className="flex items-center text-lg font-bold text-gray-700">
+          <BadgeCheck className="w-5 h-5 mr-2 text-customG" />
           {item.text}
         </h2>
       )
     }
+
     if (item.type === 'question') {
+      const isBorderBottom = id !== questions[step.toString()]?.slice(-1)[0]?.id
+
       return (
         <div
           key={id}
-          className="flex flex-col justify-between gap-4 py-2 border-b md:flex-row md:items-center">
-          <p className="font-medium md:max-w-[80%]">
-            {id.split('-').slice(1).join('-')} | {item.text}
-          </p>
-          <RadioGroup
-            orientation="horizontal"
-            className="flex space-x-1"
-            onValueChange={value => setAnswers(prev => ({...prev, [id]: value}))}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id={`${id}-yes`} />
-              <label htmlFor={`${id}-yes`}>예</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id={`${id}-no`} />
-              <label htmlFor={`${id}-no`}>아니요</label>
-            </div>
-          </RadioGroup>
+          className={cn(
+            'flex flex-col py-4 md:flex-row md:items-start gap-6',
+            isBorderBottom ? 'border-b border-gray-100' : ''
+          )}>
+          <div className="flex md:w-[80%]">
+            <FileQuestion className="flex-shrink-0 w-5 h-5 mt-1 mr-3 text-customG" />
+            <p className="font-medium text-gray-700">
+              <span className="text-sm font-bold text-customG">
+                {id.split('-').slice(1).join('-')}
+              </span>{' '}
+              | {item.text}
+            </p>
+          </div>
+
+          <div className="ml-auto">
+            <RadioGroup
+              value={answers[id] || 'yes'} // 기본값은 '예'
+              orientation="horizontal"
+              className="flex px-4 py-2 space-x-4 rounded-lg bg-gray-50"
+              onValueChange={value => setAnswers(prev => ({...prev, [id]: value}))}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="yes"
+                  id={`${id}-yes`}
+                  className="border-customG text-customG focus:ring-customG"
+                />
+                <label
+                  htmlFor={`${id}-yes`}
+                  className={cn(
+                    'text-sm font-medium',
+                    answers[id] === 'yes' ? 'text-customG' : 'text-gray-600'
+                  )}>
+                  예
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="no"
+                  id={`${id}-no`}
+                  className="text-red-400 border-red-400 focus:ring-red-400"
+                />
+                <label
+                  htmlFor={`${id}-no`}
+                  className={cn(
+                    'text-sm font-medium',
+                    answers[id] === 'no' ? 'text-red-500' : 'text-gray-600'
+                  )}>
+                  아니요
+                </label>
+              </div>
+            </RadioGroup>
+          </div>
         </div>
       )
     }
@@ -352,9 +467,22 @@ export default function EDDForm() {
     ]
   }
 
+  // 로딩 중 표시
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full min-h-screen">
+        <div className="w-16 h-16 border-4 border-t-4 border-gray-200 rounded-full border-t-customG animate-spin"></div>
+        <p className="mt-4 text-lg text-gray-600">
+          자가진단 데이터를 불러오는 중입니다...
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col w-full h-full p-8">
-      <div className="flex flex-row px-2 mb-4 text-base font-medium text-black">
+      {/* 네비게이션 브레드크럼 */}
+      <div className="flex flex-row px-2 mb-6 text-base font-medium text-black">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -367,103 +495,112 @@ export default function EDDForm() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+
+      {/* 메인 컨텐츠 */}
       <div className="w-full mx-auto max-w-7xl">
-        <h1 className="text-lg font-bold text-center">
-          환경 실사 지침 요구사항 이행 자가진단
-        </h1>
-        {/* 페이지 인덱스 표시 */}
-        <div className="flex justify-center mb-4 space-x-2">
+        <div className="p-6 mb-8 text-center bg-white rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-customG">
+            EU 공급망 실사 지침 요구사항 이행 자가진단
+          </h1>
+          <p className="mt-2 text-gray-600">
+            기업의 공급망 실사 준비 수준을 확인하고 개선할 수 있도록 도움을 제공합니다.
+          </p>
+        </div>
+
+        {/* 단계 인디케이터 */}
+        <div className="flex justify-center mb-8 space-x-3">
           {Array.from({length: 7}, (_, i) => i + 1).map(n => (
             <button
               key={n}
               onClick={() => setStep(n)}
               className={cn(
-                'w-8 h-8 rounded-full text-sm font-medium border transition-colors',
+                'w-10 h-10 rounded-full text-sm font-medium border transition-colors flex items-center justify-center',
                 step === n
-                  ? 'bg-customG text-white border-customG'
-                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
+                  ? 'bg-customG text-white border-customG shadow-md'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
               )}>
               {n}
             </button>
           ))}
         </div>
 
-        {(() => {
-          const stepItems = questions[step.toString()] || []
-          const elements = [] as JSX.Element[]
-          let section: JSX.Element[] = []
+        {/* 현재 단계 질문 렌더링 */}
+        <div className="mb-8">
+          {(() => {
+            const stepItems = questions[step.toString()] || []
+            const elements = [] as JSX.Element[]
+            let section: JSX.Element[] = []
 
-          stepItems.forEach((item, i) => {
-            // Use item.id for question, otherwise fallback to index-based key for title
-            const key =
-              item.type === 'question' && item.id ? item.id : `q${step}-title-${i}`
-            if (item.type === 'title') {
-              if (section.length) {
-                elements.push(
-                  <div
-                    key={`section-${key}`}
-                    className="p-4 mb-6 space-y-4 bg-white border rounded-lg">
-                    {section}
-                  </div>
-                )
-                section = []
+            stepItems.forEach((item, i) => {
+              const key =
+                item.type === 'question' && item.id ? item.id : `q${step}-title-${i}`
+
+              if (item.type === 'title') {
+                if (section.length) {
+                  elements.push(
+                    <div
+                      key={`section-${key}`}
+                      className="p-6 mb-8 space-y-4 bg-white border-0 rounded-lg shadow-sm">
+                      {section}
+                    </div>
+                  )
+                  section = []
+                }
+                elements.push(renderItem(item, key))
+              } else if (item.type === 'question') {
+                section.push(renderItem(item, key))
               }
-              elements.push(renderItem(item, key))
-            } else if (item.type === 'question') {
-              section.push(renderItem(item, key))
+            })
+
+            if (section.length) {
+              elements.push(
+                <div
+                  key={`section-final`}
+                  className="p-6 mb-8 space-y-0 bg-white border-0 divide-y divide-gray-100 rounded-lg shadow-sm">
+                  {section}
+                </div>
+              )
             }
-          })
 
-          if (section.length) {
-            elements.push(
-              <div
-                key={`section-final`}
-                className="p-4 mb-6 space-y-4 bg-white border rounded-lg">
-                {section}
-              </div>
-            )
-          }
+            return elements
+          })()}
+        </div>
 
-          return elements
-        })()}
-      </div>
-      <div className="flex justify-center pt-6 pb-10 gap-x-8">
-        {step > 1 ? (
-          <DashButton onClick={prev} width="w-24">
-            이전
-          </DashButton>
-        ) : null}
-        {step < 7 ? (
-          <DashButton onClick={next} width="w-24">
-            다음
-          </DashButton>
-        ) : (
-          <DashButton
-            onClick={async () => {
-              try {
-                const user = await getMyInfo()
+        {/* 진행 상태 표시 */}
+        <div className="h-2 mb-6 overflow-hidden bg-gray-200 rounded-full">
+          <div
+            className="h-2 transition-all duration-300 bg-customG"
+            style={{width: `${(step / 7) * 100}%`}}></div>
+        </div>
 
-                const formattedAnswers: Record<string, boolean> = Object.fromEntries(
-                  Object.entries(answers).map(([questionId, answer]) => [
-                    questionId,
-                    answer === 'yes'
-                  ])
-                )
+        {/* 네비게이션 버튼 */}
+        <div className="flex justify-center pt-6 pb-10 gap-x-8">
+          {step > 1 && (
+            <DashButton
+              onClick={prev}
+              width="w-32"
+              className="text-white bg-gray-600 border-2 border-gray-600 hover:bg-gray-700 hover:border-gray-700">
+              이전 단계
+            </DashButton>
+          )}
 
-                await updateEuddAnswers({
-                  memberId: user.id,
-                  answers: formattedAnswers
-                })
-
-                window.location.href = '/CSDDD/eudd/result'
-              } catch (err) {
-                console.error('API 저장 실패:', err)
-              }
-            }}
-            width="w-24">
-            저장
-          </DashButton>
-        )}
+          {step < 7 ? (
+            <DashButton
+              onClick={next}
+              width="w-32"
+              className="bg-customG hover:bg-customGDark">
+              다음 단계
+            </DashButton>
+          ) : (
+            <DashButton
+              onClick={handleSave}
+              disabled={isSubmitting}
+              width="w-32"
+              className="bg-customG hover:bg-customGDark">
+              {isSubmitting ? '저장 중...' : '평가 완료'}
+            </DashButton>
+          )}
+        </div>
       </div>
     </div>
   )

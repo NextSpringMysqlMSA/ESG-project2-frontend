@@ -8,9 +8,7 @@ import {
   createCommittee,
   updateCommittee,
   deleteCommittee,
-  fetchCommitteeList,
-  CreateCommitteeDto,
-  UpdateCommitteeDto
+  fetchCommitteeList
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
@@ -29,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import {CreateCommitteeDto, UpdateCommitteeDto} from '@/types/IFRS/governance'
 
 type CommitteeProps = {
   onClose: () => void

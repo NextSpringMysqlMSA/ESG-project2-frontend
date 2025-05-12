@@ -472,21 +472,6 @@ export default function GriTable({headers, rows, tableId, categories = {}}: Tabl
         title={itemToDelete?.title || ''}
       />
 
-      {/* 새로고침 버튼 */}
-      <div className="flex justify-end mb-2">
-        <button
-          onClick={() => fetchGriData()}
-          disabled={loading}
-          className="flex items-center px-3 py-2 text-sm text-gray-600 transition-colors border rounded-md hover:bg-gray-50">
-          {loading ? (
-            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4 mr-2" />
-          )}
-          새로고침
-        </button>
-      </div>
-
       {/* 테이블 */}
       <div className="overflow-hidden border-0 rounded-lg shadow-sm">
         <table className="w-full border-collapse table-auto">

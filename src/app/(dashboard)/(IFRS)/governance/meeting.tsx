@@ -8,9 +8,7 @@ import {
   createMeeting,
   updateMeeting,
   deleteMeeting,
-  fetchMeetingList,
-  CreateMeetingDto,
-  UpdateMeetingDto
+  fetchMeetingList
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import {format} from 'date-fns'
@@ -34,6 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import {CreateMeetingDto, UpdateMeetingDto} from '@/types/IFRS/governance'
 
 type MeetingProps = {
   onClose: () => void

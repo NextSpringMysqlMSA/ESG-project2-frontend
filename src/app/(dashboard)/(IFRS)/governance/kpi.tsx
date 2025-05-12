@@ -12,14 +12,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
-import {
-  createKpi,
-  updateKpi,
-  deleteKpi,
-  fetchKpiList,
-  CreateKpiDto,
-  UpdateKpiDto
-} from '@/services/governance'
+import {createKpi, updateKpi, deleteKpi, fetchKpiList} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
 
@@ -38,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import {CreateKpiDto, UpdateKpiDto} from '@/types/IFRS/governance'
 
 type KPIProps = {
   onClose: () => void

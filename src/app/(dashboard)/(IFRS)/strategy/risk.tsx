@@ -4,15 +4,7 @@ import {useEffect, useState} from 'react'
 import {motion} from 'framer-motion'
 import {AlertTriangle, Save, Trash, AlertCircle, Loader2, Tag} from 'lucide-react'
 import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
-import {
-  createRisk,
-  updateRisk,
-  deleteRisk,
-  fetchRiskById,
-  fetchRiskList,
-  CreateRiskDto,
-  UpdateRiskDto
-} from '@/services/strategy'
+import {createRisk, updateRisk, deleteRisk, fetchRiskList} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
 
@@ -39,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import {CreateRiskDto, UpdateRiskDto} from '@/types/IFRS/strategy'
 
 type RiskProps = {
   onClose: () => void

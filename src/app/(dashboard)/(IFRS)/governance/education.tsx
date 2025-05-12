@@ -16,9 +16,7 @@ import {
   createEducation,
   updateEducation,
   deleteEducation,
-  fetchEducationList,
-  CreateEducationDto,
-  UpdateEducationDto
+  fetchEducationList
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import {format} from 'date-fns'
@@ -42,6 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import {CreateEducationDto, UpdateEducationDto} from '@/types/IFRS/governance'
 
 type EducationProps = {
   onClose: () => void
