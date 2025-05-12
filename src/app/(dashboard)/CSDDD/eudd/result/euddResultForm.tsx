@@ -26,12 +26,7 @@ import {
 import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
-import {StatusBadge} from '@/components/ui/status-badge'
-import {DataTable} from '@/components/ui/data-table'
 import {PageHeader} from '@/components/layout/PageHeader'
-import {SectionHeader} from '@/components/layout/SectionHeader'
-import {apiRequest} from '@/lib/apiUtils'
-import {getSeverityClass, moduleColors} from '@/lib/themeUtils'
 
 /**
  * EU 공급망 실사 지침 자가진단 결과 페이지

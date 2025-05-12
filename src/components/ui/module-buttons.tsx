@@ -14,58 +14,58 @@ type ModuleButtonProps = ButtonProps & {
 /**
  * GRI 모듈용 버튼 컴포넌트
  */
-export function GRIButton({
-  children,
-  className,
-  variant = 'default',
-  ...props
-}: Omit<ModuleButtonProps, 'module' | 'submodule'>) {
-  const getClassName = () => {
-    if (variant === 'default') {
-      return cn('bg-customG hover:bg-customGDark text-white', className)
-    } else if (variant === 'outline') {
-      return cn('border-customG text-customG hover:bg-customG/10', className)
-    } else if (variant === 'secondary') {
-      return cn('bg-customG/20 text-customG hover:bg-customG/30', className)
-    }
+// export function GRIButton({
+//   children,
+//   className,
+//   variant = 'default',
+//   ...props
+// }: Omit<ModuleButtonProps, 'module' | 'submodule'>) {
+//   const getClassName = () => {
+//     if (variant === 'default') {
+//       return cn('bg-customG hover:bg-customGDark text-white', className)
+//     } else if (variant === 'outline') {
+//       return cn('border-customG text-customG hover:bg-customG/10', className)
+//     } else if (variant === 'secondary') {
+//       return cn('bg-customG/20 text-customG hover:bg-customG/30', className)
+//     }
 
-    return className
-  }
+//     return className
+//   }
 
-  return (
-    <Button className={getClassName()} variant={variant} {...props}>
-      {children}
-    </Button>
-  )
-}
+//   return (
+//     <Button className={getClassName()} variant={variant} {...props}>
+//       {children}
+//     </Button>
+//   )
+// }
 
-/**
- * CSDD 모듈용 버튼 컴포넌트
- */
-export function CSDDButton({
-  children,
-  className,
-  variant = 'default',
-  ...props
-}: Omit<ModuleButtonProps, 'module' | 'submodule'>) {
-  const getClassName = () => {
-    if (variant === 'default') {
-      return cn('bg-customG hover:bg-customGDark text-white', className)
-    } else if (variant === 'outline') {
-      return cn('border-customG text-customG hover:bg-customG/10', className)
-    } else if (variant === 'secondary') {
-      return cn('bg-customG/20 text-customG hover:bg-customG/30', className)
-    }
+// /**
+//  * CSDD 모듈용 버튼 컴포넌트
+//  */
+// export function CSDDButton({
+//   children,
+//   className,
+//   variant = 'default',
+//   ...props
+// }: Omit<ModuleButtonProps, 'module' | 'submodule'>) {
+//   const getClassName = () => {
+//     if (variant === 'default') {
+//       return cn('bg-customG hover:bg-customGDark text-white', className)
+//     } else if (variant === 'outline') {
+//       return cn('border-customG text-customG hover:bg-customG/10', className)
+//     } else if (variant === 'secondary') {
+//       return cn('bg-customG/20 text-customG hover:bg-customG/30', className)
+//     }
 
-    return className
-  }
+//     return className
+//   }
 
-  return (
-    <Button className={getClassName()} variant={variant} {...props}>
-      {children}
-    </Button>
-  )
-}
+//   return (
+//     <Button className={getClassName()} variant={variant} {...props}>
+//       {children}
+//     </Button>
+//   )
+// }
 
 /**
  * IFRS 거버넌스 모듈용 버튼 컴포넌트
@@ -98,30 +98,30 @@ export function IFRSGovernanceButton({
 /**
  * IFRS 전략 모듈용 버튼 컴포넌트
  */
-export function IFRSStrategyButton({
-  children,
-  className,
-  variant = 'default',
-  ...props
-}: Omit<ModuleButtonProps, 'module' | 'submodule'>) {
-  const getClassName = () => {
-    if (variant === 'default') {
-      return cn('bg-purple-600 hover:bg-purple-700 text-white', className)
-    } else if (variant === 'outline') {
-      return cn('border-purple-600 text-purple-600 hover:bg-purple-600/10', className)
-    } else if (variant === 'secondary') {
-      return cn('bg-purple-600/20 text-purple-600 hover:bg-purple-600/30', className)
-    }
+// export function IFRSStrategyButton({
+//   children,
+//   className,
+//   variant = 'default',
+//   ...props
+// }: Omit<ModuleButtonProps, 'module' | 'submodule'>) {
+//   const getClassName = () => {
+//     if (variant === 'default') {
+//       return cn('bg-purple-600 hover:bg-purple-700 text-white', className)
+//     } else if (variant === 'outline') {
+//       return cn('border-purple-600 text-purple-600 hover:bg-purple-600/10', className)
+//     } else if (variant === 'secondary') {
+//       return cn('bg-purple-600/20 text-purple-600 hover:bg-purple-600/30', className)
+//     }
 
-    return className
-  }
+//     return className
+//   }
 
-  return (
-    <Button className={getClassName()} variant={variant} {...props}>
-      {children}
-    </Button>
-  )
-}
+//   return (
+//     <Button className={getClassName()} variant={variant} {...props}>
+//       {children}
+//     </Button>
+//   )
+// }
 
 /**
  * IFRS 목표/지표 모듈용 버튼 컴포넌트

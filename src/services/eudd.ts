@@ -1,18 +1,5 @@
 import api from '@/lib/axios'
-
-// 서버 DTO와 정확히 일치시키기
-export interface EuddViolationDto {
-  id: string
-  questionText: string
-  legalRelevance: string
-  legalBasis: string
-  fineRange: string
-  criminalLiability: string
-}
-
-export interface EuddAnswerRequest {
-  answers: Record<string, boolean>
-}
+import {EuddAnswerRequest, EuddViolationDto} from '@/types/IFRS/csddd'
 
 // 결과 조회
 export const fetchEuddResult = async (): Promise<EuddViolationDto[]> => {
