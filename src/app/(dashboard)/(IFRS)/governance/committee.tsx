@@ -1,23 +1,36 @@
 'use client'
 
 import {useEffect, useState} from 'react'
+import {motion} from 'framer-motion'
+import {Users, Save, Trash, AlertCircle, Loader2} from 'lucide-react'
 import {useCommitteeStore} from '@/stores/IFRS/governance/useCommitteeStore'
-import InputBox from '@/components/tools/inputBox'
-import DashButton from '@/components/tools/dashButton'
 import {
   createCommittee,
   updateCommittee,
   deleteCommittee,
-  fetchCommitteeList,
-  CreateCommitteeDto,
-  UpdateCommitteeDto
+  fetchCommitteeList
 } from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
+import {Textarea} from '@/components/ui/textarea'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import {CreateCommitteeDto, UpdateCommitteeDto} from '@/types/IFRS/governance'
+import {IFRSGovernanceFormCard} from '@/components/forms/module-forms'
+import {IFRSGovernanceButton} from '@/components/buttons/module-buttons'
 
 type CommitteeProps = {
   onClose: () => void
-  // row?: string[] // 제거: API에서 직접 데이터를 가져오기 때문에 필요 없음
   rowId?: number
   mode: 'add' | 'edit'
 }
@@ -25,6 +38,7 @@ type CommitteeProps = {
 export default function Committee({onClose, rowId, mode}: CommitteeProps) {
   const isEditMode = mode === 'edit'
   const [submitting, setSubmitting] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const {
     committeeName,
@@ -37,7 +51,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
     setData,
     persistToStorage,
     initFromStorage,
-    initFromApi // 새로 추가된 함수
+    initFromApi
   } = useCommitteeStore()
 
   useEffect(() => {
@@ -58,9 +72,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
     }
   }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage, resetFields])
 
-  const handleSubmit = async () => {
-    if (submitting) return
-
+  const validateForm = () => {
     if (
       !committeeName ||
       !memberName ||
@@ -69,8 +81,14 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
       !climateResponsibility
     ) {
       showError('모든 필드를 채워주세요.')
-      return
+      return false
     }
+    return true
+  }
+
+  const handleSubmit = async () => {
+    if (submitting) return
+    if (!validateForm()) return
 
     const committeeData: CreateCommitteeDto = {
       committeeName,
@@ -86,10 +104,10 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
       if (isEditMode && rowId !== undefined) {
         const updateData: UpdateCommitteeDto = {...committeeData, id: rowId}
         await updateCommittee(rowId, updateData)
-        showSuccess('수정되었습니다.')
+        showSuccess('위원회 정보가 성공적으로 수정되었습니다.')
       } else {
         await createCommittee(committeeData)
-        showSuccess('저장되었습니다.')
+        showSuccess('새 위원회가 성공적으로 등록되었습니다.')
 
         localStorage.removeItem('committee-storage')
         resetFields()
@@ -102,7 +120,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
       const errorMessage =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
-          : '처리 실패: 서버 오류 발생'
+          : '처리 실패: 서버 오류가 발생했습니다.'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
@@ -115,7 +133,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
     try {
       setSubmitting(true)
       await deleteCommittee(rowId)
-      showSuccess('삭제되었습니다.')
+      showSuccess('위원회가 성공적으로 삭제되었습니다.')
 
       const updatedList = await fetchCommitteeList()
       setData(updatedList)
@@ -125,54 +143,160 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
       const errorMessage =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
-          : '삭제 실패'
+          : '삭제 실패: 서버 오류가 발생했습니다.'
       showError(errorMessage)
     } finally {
       setSubmitting(false)
+      setDeleteDialogOpen(false)
     }
   }
 
   return (
-    <div className="flex flex-col h-full mt-4 space-y-4">
-      <InputBox
-        label="위원회 이름"
-        value={committeeName}
-        onChange={e => setField('committeeName', e.target.value)}
-      />
-      <InputBox
-        label="구성원 이름"
-        value={memberName}
-        onChange={e => setField('memberName', e.target.value)}
-      />
-      <InputBox
-        label="구성원 직책"
-        value={memberPosition}
-        onChange={e => setField('memberPosition', e.target.value)}
-      />
-      <InputBox
-        label="구성원 소속"
-        value={memberAffiliation}
-        onChange={e => setField('memberAffiliation', e.target.value)}
-      />
-      <InputBox
-        label="기후 관련 역할 및 책임 설명"
-        value={climateResponsibility}
-        onChange={e => setField('climateResponsibility', e.target.value)}
-      />
-      <div className="flex justify-center mt-4 space-x-4">
-        {isEditMode && (
-          <DashButton
-            width="w-24"
-            className="bg-red-500 hover:bg-red-600"
-            onClick={handleDelete}
-            disabled={submitting}>
-            삭제
-          </DashButton>
-        )}
-        <DashButton width="w-24" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? '저장 중...' : isEditMode ? '수정' : '저장'}
-        </DashButton>
-      </div>
-    </div>
+    <motion.div
+      initial={{opacity: 0, y: 5}}
+      animate={{opacity: 1, y: 0}}
+      transition={{duration: 0.3}}>
+      <IFRSGovernanceFormCard
+        title={isEditMode ? '위원회 정보 수정' : '새 위원회 등록'}
+        icon={<Users className="w-5 h-5" />}
+        description={
+          isEditMode
+            ? '기존 위원회 정보를 수정합니다.'
+            : '새로운 위원회와 구성원 정보를 입력해주세요.'
+        }
+        actions={
+          <div className="flex items-center justify-end space-x-3">
+            {isEditMode && (
+              <IFRSGovernanceButton
+                variant="destructive"
+                onClick={() => setDeleteDialogOpen(true)}
+                disabled={submitting}
+                icon={<Trash className="w-4 h-4" />}>
+                삭제
+              </IFRSGovernanceButton>
+            )}
+            <IFRSGovernanceButton
+              variant="outline"
+              onClick={onClose}
+              disabled={submitting}>
+              취소
+            </IFRSGovernanceButton>
+            <IFRSGovernanceButton
+              onClick={handleSubmit}
+              disabled={submitting}
+              icon={<Save className="w-4 h-4" />}>
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  처리 중...
+                </>
+              ) : isEditMode ? (
+                '저장하기'
+              ) : (
+                '등록하기'
+              )}
+            </IFRSGovernanceButton>
+          </div>
+        }>
+        {/* 폼 영역 */}
+        <div className="grid gap-5">
+          <div className="grid gap-2">
+            <Label htmlFor="committeeName" className="text-sm font-medium">
+              위원회 이름
+            </Label>
+            <Input
+              id="committeeName"
+              placeholder="예: ESG 위원회, 지속가능경영위원회"
+              value={committeeName}
+              onChange={e => setField('committeeName', e.target.value)}
+              className="border-blue-100 focus-visible:ring-blue-600"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid gap-2">
+              <Label htmlFor="memberName" className="text-sm font-medium">
+                구성원 이름
+              </Label>
+              <Input
+                id="memberName"
+                placeholder="이름"
+                value={memberName}
+                onChange={e => setField('memberName', e.target.value)}
+                className="border-blue-100 focus-visible:ring-blue-600"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="memberPosition" className="text-sm font-medium">
+                구성원 직책
+              </Label>
+              <Input
+                id="memberPosition"
+                placeholder="직책"
+                value={memberPosition}
+                onChange={e => setField('memberPosition', e.target.value)}
+                className="border-blue-100 focus-visible:ring-blue-600"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="memberAffiliation" className="text-sm font-medium">
+                구성원 소속
+              </Label>
+              <Input
+                id="memberAffiliation"
+                placeholder="소속"
+                value={memberAffiliation}
+                onChange={e => setField('memberAffiliation', e.target.value)}
+                className="border-blue-100 focus-visible:ring-blue-600"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="climateResponsibility" className="text-sm font-medium">
+              기후 관련 역할 및 책임 설명
+            </Label>
+            <Textarea
+              id="climateResponsibility"
+              placeholder="위원회 및 구성원의 기후 관련 역할과 책임에 대해 상세히 설명해주세요."
+              rows={4}
+              value={climateResponsibility}
+              onChange={e => setField('climateResponsibility', e.target.value)}
+              className="border-blue-100 resize-none focus-visible:ring-blue-600"
+            />
+          </div>
+        </div>
+      </IFRSGovernanceFormCard>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center text-red-600">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              위원회 삭제 확인
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              정말로 이 위원회를 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 관련
+              데이터가 영구적으로 삭제됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700">
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  삭제 중...
+                </>
+              ) : (
+                '삭제'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </motion.div>
   )
 }
