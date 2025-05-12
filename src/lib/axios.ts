@@ -20,13 +20,6 @@ api.interceptors.request.use(
       config.headers.Authorization = token
     }
 
-    // ✅ 반드시 Content-Type을 명시적으로 지정해줘야 함
-    if (!config.headers['Content-Type']) {
-      config.headers['Content-Type'] = 'application/json'
-    }
-
-    console.log('📦 요청 헤더:', config.headers)
-
     return config
   },
   error => Promise.reject(error)

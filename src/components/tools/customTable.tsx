@@ -1,4 +1,5 @@
 import {cn} from '@/lib/utils'
+import {typeThemeConfig} from './collapsibleWindow'
 
 type RowData = {
   id: number
@@ -8,15 +9,8 @@ type RowData = {
 type CustomTableProps = {
   headers: string[]
   data: RowData[]
-  type:
-    | 'committee'
-    | 'meeting'
-    | 'KPI'
-    | 'education'
-    | 'risk'
-    | 'scenario'
-    | 'kpiGoal'
-    | 'netZero'
+  type: keyof typeof typeThemeConfig
+  theme: (typeof typeThemeConfig)[keyof typeof typeThemeConfig]
   onRowClick?: (
     type: CustomTableProps['type'],
     rowValues: string[],
@@ -30,6 +24,7 @@ export default function CustomTable({
   headers,
   data,
   onRowClick,
+  theme,
   className
 }: CustomTableProps) {
   return (
@@ -37,12 +32,12 @@ export default function CustomTable({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-customGLight text-customGTextDark">
+            <tr className={`${theme.bgHeader} ${theme.textColor.replace('600', '800')}`}>
               {headers.map((header, index) => (
                 <th
                   key={index}
                   className={cn(
-                    'px-4 py-3 font-medium text-left border-b border-customGBorder',
+                    `px-4 py-3 font-medium text-left border-b ${theme.border}`,
                     index === 0 && 'rounded-tl-lg',
                     index === headers.length - 1 && 'rounded-tr-lg'
                   )}>
@@ -51,7 +46,7 @@ export default function CustomTable({
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-customGBorder">
+          <tbody className="bg-white divide-y divide-gray-100">
             {data.length === 0 ? (
               <tr>
                 <td
@@ -66,7 +61,7 @@ export default function CustomTable({
                   key={id}
                   className={cn(
                     'transition-colors border-b border-gray-100',
-                    onRowClick && 'hover:cursor-pointer hover:bg-customGLight/30'
+                    onRowClick && `cursor-pointer ${theme.hover}`
                   )}
                   onClick={() => onRowClick?.(type, values, id)}>
                   {values.map((cell, colIndex) => (
@@ -74,7 +69,8 @@ export default function CustomTable({
                       key={colIndex}
                       className={cn(
                         'px-4 py-3 text-left text-gray-700',
-                        colIndex === 0 && 'font-medium'
+                        colIndex === 0 &&
+                          `font-medium ${theme.textColor.replace('600', '700')}`
                       )}>
                       {cell || '-'}
                     </td>

@@ -21,16 +21,86 @@ type RowData = {
   values: string[]
 }
 
+// 타입별 테마 설정 정의
+export const typeThemeConfig = {
+  committee: {
+    color: 'blue',
+    bgLight: 'bg-blue-50',
+    bgHeader: 'bg-blue-100',
+    textColor: 'text-blue-600',
+    buttonBg: 'bg-blue-600 hover:bg-blue-700',
+    border: 'border-blue-200',
+    hover: 'hover:bg-blue-50/70'
+  },
+  meeting: {
+    color: 'emerald',
+    bgLight: 'bg-emerald-50',
+    bgHeader: 'bg-emerald-100',
+    textColor: 'text-emerald-600',
+    buttonBg: 'bg-emerald-600 hover:bg-emerald-700',
+    border: 'border-emerald-200',
+    hover: 'hover:bg-emerald-50/70'
+  },
+  KPI: {
+    color: 'purple',
+    bgLight: 'bg-purple-50',
+    bgHeader: 'bg-purple-100',
+    textColor: 'text-purple-600',
+    buttonBg: 'bg-purple-600 hover:bg-purple-700',
+    border: 'border-purple-200',
+    hover: 'hover:bg-purple-50/70'
+  },
+  education: {
+    color: 'amber',
+    bgLight: 'bg-amber-50',
+    bgHeader: 'bg-amber-100',
+    textColor: 'text-amber-600',
+    buttonBg: 'bg-amber-600 hover:bg-amber-700',
+    border: 'border-amber-200',
+    hover: 'hover:bg-amber-50/70'
+  },
+  risk: {
+    color: 'rose',
+    bgLight: 'bg-rose-50',
+    bgHeader: 'bg-rose-100',
+    textColor: 'text-rose-600',
+    buttonBg: 'bg-rose-600 hover:bg-rose-700',
+    border: 'border-rose-200',
+    hover: 'hover:bg-rose-50/70'
+  },
+  scenario: {
+    color: 'sky',
+    bgLight: 'bg-sky-50',
+    bgHeader: 'bg-sky-100',
+    textColor: 'text-sky-600',
+    buttonBg: 'bg-sky-600 hover:bg-sky-700',
+    border: 'border-sky-200',
+    hover: 'hover:bg-sky-50/70'
+  },
+  kpiGoal: {
+    color: 'indigo',
+    bgLight: 'bg-indigo-50',
+    bgHeader: 'bg-indigo-100',
+    textColor: 'text-indigo-600',
+    buttonBg: 'bg-indigo-600 hover:bg-indigo-700',
+    border: 'border-indigo-200',
+    hover: 'hover:bg-indigo-50/70'
+  },
+  netZero: {
+    color: 'green',
+    bgLight: 'bg-green-50',
+    bgHeader: 'bg-green-100',
+    textColor: 'text-green-600',
+    buttonBg: 'bg-green-600 hover:bg-green-700',
+    border: 'border-green-200',
+    hover: 'hover:bg-green-50/70'
+  }
+}
+
+type CollapsibleWindowType = keyof typeof typeThemeConfig
+
 type CollapsibleWindowProps = {
-  type:
-    | 'committee'
-    | 'meeting'
-    | 'KPI'
-    | 'education'
-    | 'risk'
-    | 'scenario'
-    | 'kpiGoal'
-    | 'netZero'
+  type: CollapsibleWindowType
   headers: string[]
   data: RowData[]
   formContent: (props: {
@@ -67,19 +137,15 @@ export default function CollapsibleWindow({
     rowId: number
   } | null>(null)
 
-  // 타입별 색상 및 아이콘 설정
-  const typeConfig = {
-    committee: {color: 'blue', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    meeting: {color: 'emerald', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    KPI: {color: 'purple', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    education: {color: 'amber', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    risk: {color: 'rose', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    scenario: {color: 'sky', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    kpiGoal: {color: 'indigo', icon: <PlusCircle className="w-4 h-4 mr-1" />},
-    netZero: {color: 'green', icon: <PlusCircle className="w-4 h-4 mr-1" />}
-  }
+  // 테마 색상 설정 가져오기
+  const theme = typeThemeConfig[type]
 
-  const currentConfig = typeConfig[type]
+  // 아이콘 설정
+  const icons = {
+    add: <PlusCircle className={`w-4 h-4 mr-1 ${theme.textColor}`} />,
+    edit: <Edit className={`w-5 h-5 mr-2 ${theme.textColor}`} />,
+    empty: <FileEdit className={`w-8 h-8 text-gray-300`} />
+  }
 
   // 항목 추가 핸들러
   const handleAdd = () => {
@@ -104,8 +170,9 @@ export default function CollapsibleWindow({
           <div className="flex items-center justify-between mb-4">
             {data.length > 0 && (
               <p className="text-sm text-gray-500">
-                총 <span className="font-medium text-customG">{data.length}개</span>의
-                항목이 있습니다
+                총{' '}
+                <span className={`font-medium ${theme.textColor}`}>{data.length}개</span>
+                의 항목이 있습니다
               </p>
             )}
 
@@ -113,19 +180,16 @@ export default function CollapsibleWindow({
               <DialogTrigger asChild>
                 <Button
                   onClick={handleAdd}
-                  className={cn(
-                    'bg-customG hover:bg-customG/90 text-white shadow-sm',
-                    `hover:shadow-md transition-all duration-200`
-                  )}
+                  className={`${theme.buttonBg} text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 px-3 py-1.5`}
                   size="sm">
-                  {currentConfig.icon}
-                  항목 추가
+                  <PlusCircle className="w-4 h-4" />
+                  <span>항목 추가</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
                   <DialogTitle className="flex items-center text-xl">
-                    <FileEdit className="w-5 h-5 mr-2 text-customG" />
+                    <FileEdit className={`w-5 h-5 mr-2 ${theme.textColor}`} />
                     {dialogTitle}
                   </DialogTitle>
                   {description && (
@@ -153,7 +217,7 @@ export default function CollapsibleWindow({
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle className="flex items-center text-xl">
-              <Edit className="w-5 h-5 mr-2 text-customG" />
+              {icons.edit}
               항목 수정
             </DialogTitle>
             {description && (
@@ -186,7 +250,7 @@ export default function CollapsibleWindow({
         {data.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 p-6 text-center rounded-lg bg-gray-50">
             <div className="flex items-center justify-center w-16 h-16 mb-4 bg-gray-100 rounded-full">
-              <FileEdit className="w-8 h-8 text-gray-300" />
+              {icons.empty}
             </div>
             <h3 className="mb-1 text-base font-medium text-gray-600">
               데이터가 없습니다
@@ -196,9 +260,9 @@ export default function CollapsibleWindow({
             </p>
             <Button
               onClick={handleAdd}
-              className="text-white bg-customG hover:bg-customG/90"
+              className={`text-white ${theme.buttonBg}`}
               size="sm">
-              {currentConfig.icon} 첫 항목 추가하기
+              {icons.add} 첫 항목 추가하기
             </Button>
           </div>
         ) : (
@@ -206,6 +270,7 @@ export default function CollapsibleWindow({
             headers={headers}
             data={data}
             type={type}
+            theme={theme}
             onRowClick={(_, row, rowId) => {
               console.log('[CollapsibleWindow] Row clicked:', row)
               console.log('[CollapsibleWindow] Row ID:', rowId)

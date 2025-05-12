@@ -77,20 +77,43 @@ module.exports = {
         'accordion-up': {
           from: {height: 'var(--radix-accordion-content-height)'},
           to: {height: '0'}
+        },
+        // 모달 애니메이션 - 중앙에서 시작하여 스케일만 변경
+        'modal-in': {
+          '0%': {opacity: '0', transform: 'translate(-50%, -50%) scale(0.95)'},
+          '100%': {opacity: '1', transform: 'translate(-50%, -50%) scale(1)'}
+        },
+        'modal-out': {
+          '0%': {opacity: '1', transform: 'translate(-50%, -50%) scale(1)'},
+          '100%': {opacity: '0', transform: 'translate(-50%, -50%) scale(0.95)'}
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out'
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        // 모달 애니메이션
+        'modal-in': 'modal-in 0.2s ease-out',
+        'modal-out': 'modal-out 0.2s ease-in forwards'
       }
     }
   },
   plugins: [
     require('tailwindcss-animate'),
-    plugin(function ({addComponents}) {
+    plugin(function ({addComponents, addUtilities}) {
       addComponents({
         '.input': {
           '@apply flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1':
+            {}
+        }
+      })
+
+      // 모달 유틸리티 클래스 추가
+      addUtilities({
+        '.modal-center': {
+          '@apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2': {}
+        },
+        '.modal-overlay': {
+          '@apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center':
             {}
         }
       })

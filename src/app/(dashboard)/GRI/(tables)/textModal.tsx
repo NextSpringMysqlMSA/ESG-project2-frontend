@@ -1,16 +1,6 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription
-} from '@/components/ui/dialog'
-import {Textarea} from '@/components/ui/textarea'
-import DashButton from '@/components/tools/dashButton'
 import {Save, X, AlertCircle, HelpCircle, CheckCircle} from 'lucide-react'
 import {cn} from '@/lib/utils'
 
@@ -20,6 +10,7 @@ type TextModalProps = {
   value: string
   onChange: (value: string) => void
   onClose: () => void
+  onSave: (value: string) => void // 매개변수 추가
   maxLength?: number
   placeholder?: string
   description?: string
@@ -31,6 +22,7 @@ export default function TextModal({
   value,
   onChange,
   onClose,
+  onSave,
   maxLength = 2000,
   placeholder = '내용을 입력해주세요...',
   description
@@ -38,6 +30,7 @@ export default function TextModal({
   const [text, setText] = useState(value)
   const [charCount, setCharCount] = useState(0)
   const [saved, setSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   // 초기값과 글자수 설정
   useEffect(() => {
@@ -45,6 +38,7 @@ export default function TextModal({
       setText(value)
       setCharCount(value.length)
       setSaved(false)
+      setIsSaving(false)
     }
   }, [open, value])
 
@@ -52,15 +46,38 @@ export default function TextModal({
   const handleTextChange = (newText: string) => {
     setText(newText)
     setCharCount(newText.length)
+    // 저장 표시 초기화
+    if (saved) setSaved(false)
   }
 
-  // 저장 핸들러
   const handleSave = () => {
-    onChange(text)
-    setSaved(true)
-    setTimeout(() => {
+    if (!text.trim() || text === value) {
       onClose()
+      return
+    }
+
+    setIsSaving(true)
+
+    // 부모 컴포넌트에 텍스트 전달
+    onChange(text)
+
+    // 저장 완료 표시
+    setSaved(true)
+
+    // 저장 함수 호출 - 현재 text 값을 직접 전달
+    if (typeof onSave === 'function') {
+      onSave(text)
+    }
+
+    // 잠시 후 저장 상태 해제
+    setTimeout(() => {
+      setIsSaving(false)
     }, 800)
+  }
+
+  // 취소 핸들러
+  const handleCancel = () => {
+    onClose()
   }
 
   // 글자수 표시 색상 계산
@@ -71,88 +88,146 @@ export default function TextModal({
     return 'text-gray-500'
   }
 
+  // Dialog가 닫힐 때 핸들러
+  const handleDialogChange = (isOpen: boolean) => {
+    if (!isOpen && !isSaving) {
+      onClose()
+    }
+  }
+
+  // Dialog가 열려 있지 않을 때는 아무 것도 렌더링하지 않음
+  if (!open) {
+    return null
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="border-0 rounded-lg shadow-lg sm:max-w-xl">
-        <DialogHeader className="pb-3 border-b">
-          <div className="flex items-center space-x-2">
-            <HelpCircle className="w-5 h-5 text-customG" />
-            <DialogTitle className="text-xl">{title}</DialogTitle>
-          </div>
-          {description && (
-            <DialogDescription className="mt-2 text-sm">{description}</DialogDescription>
-          )}
-        </DialogHeader>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto">
+      {/* 배경 오버레이 - 클릭 시 모달 닫기 */}
+      <div
+        className="fixed inset-0 transition-opacity bg-black bg-opacity-50"
+        onClick={handleCancel}
+      />
 
-        <div className="relative">
-          <Textarea
-            className={cn(
-              'min-h-[250px] p-4 text-base leading-relaxed border-2 focus-visible:ring-customG transition-all',
-              saved ? 'bg-customG/10 border-customG/30' : 'bg-white'
-            )}
-            value={text}
-            onChange={e => handleTextChange(e.target.value)}
-            placeholder={placeholder}
-            maxLength={maxLength}
-          />
-
-          {/* 글자 수 표시 */}
-          <div
-            className={cn(
-              'absolute bottom-3 right-3 text-xs font-mono bg-white/90 px-2 py-1 rounded-md border',
-              getCounterColor()
-            )}>
-            {charCount} / {maxLength}
-          </div>
-
-          {/* 저장 완료 표시 */}
-          {saved && (
-            <div className="absolute p-4 transform -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2 left-1/2 bg-customG/10 animate-pulse">
-              <CheckCircle className="w-12 h-12 text-customG" />
+      {/* 모달 컨테이너 - 정확한 중앙 정렬을 위한 설정 */}
+      <div
+        className="relative w-full max-w-xl p-1 mx-auto my-8"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)'
+        }}>
+        {/* 모달 콘텐츠 */}
+        <div className="overflow-hidden duration-300 bg-white rounded-lg shadow-xl animate-in fade-in zoom-in">
+          {/* 모달 헤더 */}
+          <div className="flex items-center justify-between p-4 pb-3 border-b">
+            <div className="flex items-center space-x-2">
+              <HelpCircle className="w-5 h-5 text-customG" />
+              <h2 className="text-xl font-medium">{title}</h2>
             </div>
-          )}
-        </div>
-
-        {/* 가이드라인 섹션 */}
-        <div className="flex items-start p-3 space-x-2 text-sm rounded-md bg-customG/10 text-customG">
-          <AlertCircle className="h-5 w-5 text-customG flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="mb-1 font-medium">작성 가이드</p>
-            <ul className="pl-1 space-y-1 list-disc list-inside">
-              <li>문장은 간결하고 명확하게 작성해주세요.</li>
-              <li>내용은 최대 {maxLength}자까지 입력 가능합니다.</li>
-              <li>변경사항은 '저장' 버튼을 클릭하면 반영됩니다.</li>
-            </ul>
+            <button
+              onClick={handleCancel}
+              className="p-1.5 text-gray-500 rounded-full hover:bg-gray-100 transition-colors">
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        </div>
 
-        <DialogFooter className="flex items-center justify-between pt-3 border-t">
-          <div className="flex-1">
-            {charCount > maxLength * 0.9 && (
-              <p className="text-xs text-red-500 animate-pulse">
-                글자 수 제한에 거의 도달했습니다!
-              </p>
+          {/* 모달 본문 */}
+          <div className="p-4">
+            {/* 설명 */}
+            {description && (
+              <div className="mb-3 text-sm text-gray-600">{description}</div>
             )}
+
+            {/* 텍스트 영역 */}
+            <div className="relative mb-4">
+              <textarea
+                value={text}
+                onChange={e => handleTextChange(e.target.value)}
+                className={cn(
+                  'w-full min-h-[250px] p-4 text-base leading-relaxed border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-customG transition-all',
+                  saved ? 'bg-customG/10 border-customG/30' : 'border-gray-300'
+                )}
+                placeholder={placeholder}
+                maxLength={maxLength}
+                disabled={saved || isSaving}
+                autoFocus
+              />
+
+              {/* 글자 수 표시 */}
+              <div
+                className={cn(
+                  'absolute bottom-3 right-3 text-xs font-mono bg-white/90 px-2 py-1 rounded-md border',
+                  getCounterColor()
+                )}>
+                {charCount} / {maxLength}
+              </div>
+
+              {/* 저장 완료 표시 */}
+              {saved && (
+                <div className="absolute p-4 transform -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2 left-1/2 bg-customG/10 animate-pulse">
+                  <CheckCircle className="w-12 h-12 text-customG" />
+                </div>
+              )}
+            </div>
+
+            {/* 가이드라인 섹션 */}
+            <div className="flex items-start p-3 mb-4 space-x-2 text-sm rounded-md bg-customG/10 text-customG">
+              <AlertCircle className="h-5 w-5 text-customG flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="mb-1 font-medium">작성 가이드</p>
+                <ul className="pl-1 space-y-1 list-disc list-inside">
+                  <li>문장은 간결하고 명확하게 작성해주세요.</li>
+                  <li>내용은 최대 {maxLength}자까지 입력 가능합니다.</li>
+                  <li>변경사항은 '저장' 버튼을 클릭하면 즉시 반영됩니다.</li>
+                </ul>
+              </div>
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <DashButton
-              onClick={onClose}
-              width="w-24"
-              className="text-gray-800 bg-gray-100 border-gray-300 hover:bg-gray-200">
-              <X className="w-4 h-4 mr-1" />
-              취소
-            </DashButton>
-            <DashButton
-              onClick={handleSave}
-              width="w-24"
-              className="text-white bg-customG border-customG hover:bg-white hover:text-customG hover:border-customG"
-              disabled={saved}>
-              <Save className="w-4 h-4 mr-1" />
-              저장
-            </DashButton>
+
+          {/* 푸터 */}
+          <div className="flex items-center justify-between px-4 py-3 border-t">
+            <div className="flex-1">
+              {charCount > maxLength * 0.9 && (
+                <p className="text-xs text-red-500 animate-pulse">
+                  글자 수 제한에 거의 도달했습니다!
+                </p>
+              )}
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={handleCancel}
+                className="flex items-center px-4 py-2 text-gray-700 transition-colors bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200">
+                <X className="w-4 h-4 mr-2" />
+                취소
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || saved || !text.trim() || text === value}
+                className={cn(
+                  'flex items-center px-5 py-2 rounded-md transition-colors',
+                  !text.trim() || text === value
+                    ? 'bg-gray-400 text-white cursor-not-allowed'
+                    : isSaving || saved
+                    ? 'bg-customG/70 text-white cursor-not-allowed'
+                    : 'bg-customG text-white hover:bg-white hover:text-customG hover:border-customG border border-customG'
+                )}>
+                {isSaving ? (
+                  <>
+                    <span className="w-4 h-4 mr-2 border-2 border-white rounded-full border-t-transparent animate-spin" />
+                    저장 중...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    저장
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   )
 }
