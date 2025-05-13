@@ -102,9 +102,9 @@ export default function Sidebar() {
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
     pathname.startsWith('/goal')
-  const isSupplyActive = pathname === '/CSDDD'
+  const isSupplyActive = pathname === '/csddd'
   const isPartnerActive = pathname.startsWith('/financialRisk')
-  const isSupplyChildActive = pathname === '/CSDDD'
+  const isSupplyChildActive = pathname === '/csddd'
   const isPartnerChildActive = pathname.startsWith('/financialRisk')
 
   /**
@@ -427,10 +427,10 @@ export default function Sidebar() {
 
           {/* 공급망 실사 메뉴 */}
           <MenuItem
-            href="/CSDDD" // URL 경로 수정
+            href="/csddd" // URL 경로 수정
             icon={Shield}
             text="공급망 실사"
-            isActive={pathname === '/CSDDD'} // 활성화 조건 수정
+            isActive={pathname === '/csddd'} // 활성화 조건 수정
           />
 
           {/* 협력사 관리 메뉴 */}

@@ -23,7 +23,7 @@ const dueDiligenceOptions = [
     color: 'from-blue-50 to-purple-50',
     borderColor: 'border-blue-200',
     categories: '기업 정책, 위험 평가, 시정 조치, 커뮤니케이션',
-    path: '/CSDDD/eudd/result' // ✅ 여기만 수정
+    path: '/csddd/eudd/result'
   },
   {
     key: 'hrdd',
@@ -33,7 +33,7 @@ const dueDiligenceOptions = [
     color: 'from-rose-50 to-pink-50',
     borderColor: 'border-rose-200',
     categories: '생명과 안전, 차별 금지, 근로 조건, 결사의 자유',
-    path: '/CSDDD/hrdd/result' // ✅ 수정
+    path: '/csddd/hrdd/result'
   },
   {
     key: 'edd',
@@ -43,10 +43,10 @@ const dueDiligenceOptions = [
     color: 'from-customGLight to-green-50',
     borderColor: 'border-customGLight',
     categories: '환경경영, 온실가스, 물 관리, 오염물질, 폐기물',
-    path: '/CSDDD/edd/result' // ✅ 수정
+    path: '/csddd/edd/result'
   }
 ]
-export default function CSDDD() {
+export default function csddd() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const router = useRouter()
 

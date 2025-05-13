@@ -13,9 +13,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import {fetcheddResult, updateeddAnswers} from '@/services/edd'
 import {showError, showSuccess} from '@/util/toast'
-import {BadgeCheck, FileQuestion} from 'lucide-react' // 아이콘 추가
+import {BadgeCheck, FileQuestion} from 'lucide-react'
+import {fetchEddResult, updateEddAnswers} from '@/services/csddd'
+import {useRouter} from 'next/navigation'
+import type {EddViolationDto} from '@/types/IFRS/csddd'
+import axios from 'axios'
 
 /**
  * EU 공급망 실사 지침 자가진단 페이지
@@ -24,7 +27,8 @@ export default function EDDForm() {
   // 상태 관리
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [analysisData, setAnalysisData] = useState<Record<string, any>>({})
+
+  const [analysisData, setAnalysisData] = useState<EddViolationDto[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -48,7 +52,7 @@ export default function EDDForm() {
   // 데이터 로드 함수
   const loadeddData = async () => {
     try {
-      const result = await fetcheddResult()
+      const result = await fetchEddResult()
       setAnalysisData(result)
 
       // 서버에서 가져온 데이터를 바탕으로 답변 업데이트
@@ -64,13 +68,17 @@ export default function EDDForm() {
       }
 
       setIsLoaded(true)
-    } catch (err: any) {
+    } catch (err) {
       // 데이터가 없는 경우는 정상 케이스로 처리 (최초 진단 시)
-      if (err?.response?.status === 404) {
+      if (axios.isAxiosError(err) && err?.response?.status === 404) {
         setIsLoaded(true)
         return
       }
-      showError('자가진단 데이터를 불러오는데 실패했습니다.')
+      const errorMessage =
+        axios.isAxiosError(err) && err?.response?.data?.message
+          ? err.response.data.message
+          : '자가진단 데이터를 불러오는데 실패했습니다.'
+      showError(errorMessage)
       setIsLoaded(true)
     }
   }
@@ -85,22 +93,21 @@ export default function EDDForm() {
       setIsSubmitting(true)
 
       // 답변 형식 변환 (yes/no 문자열 -> boolean)
-      const formattedAnswers: Record<string, boolean> = Object.fromEntries(
-        Object.entries(answers).map(([questionId, answer]) => [
-          questionId,
-          answer === 'yes'
-        ])
+      const noAnswersOnly = Object.fromEntries(
+        Object.entries(answers)
+          .filter(([_, answer]) => answer === 'no')
+          .map(([questionId, _]) => [questionId, false])
       )
 
       // API 호출하여 답변 저장
-      await updateeddAnswers({
-        answers: formattedAnswers
+      await updateEddAnswers({
+        answers: noAnswersOnly
       })
 
       showSuccess('자가진단이 성공적으로 저장되었습니다.')
 
-      // 결과 페이지로 이동
-      window.location.href = '/CSDDD/edd/result'
+      const router = useRouter()
+      router.push('/CSDDD/edd/result')
     } catch (err) {
       showError('자가진단 저장에 실패했습니다.')
     } finally {

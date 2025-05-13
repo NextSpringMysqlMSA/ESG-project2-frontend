@@ -13,9 +13,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import {fetchEuddResult, updateEuddAnswers} from '@/services/eudd'
 import {showError, showSuccess} from '@/util/toast'
-import {BadgeCheck, FileQuestion} from 'lucide-react' // 아이콘 추가
+import {BadgeCheck, FileQuestion} from 'lucide-react'
+import {useRouter} from 'next/navigation'
+import {fetchEuddResult, updateEuddAnswers} from '@/services/csddd'
+import type {EuddViolationDto} from '@/types/IFRS/csddd'
 
 /**
  * EU 공급망 실사 지침 자가진단 페이지
@@ -24,7 +26,7 @@ export default function EDDForm() {
   // 상태 관리
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [analysisData, setAnalysisData] = useState<Record<string, any>>({})
+  const [analysisData, setAnalysisData] = useState<Record<string, EuddViolationDto>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -45,20 +47,34 @@ export default function EDDForm() {
     setAnswers(initialAnswers)
   }, [])
 
-  // 데이터 로드 함수
+  /**
+   * 데이터 로드 함수
+   * - 기존 저장된 결과가 있으면 가져와서 표시
+   * - 서버 응답에서 'no' 응답(위반 항목)만 가져옴
+   * - 데이터를 ID 기준 객체로 변환하여 효율적인 참조 가능
+   */
   const loadEuddData = async () => {
     try {
       const result = await fetchEuddResult()
-      setAnalysisData(result)
 
-      // 서버에서 가져온 데이터를 바탕으로 답변 업데이트
+      // 결과 데이터를 ID 기반 객체로 변환
+      const mappedData: Record<string, EuddViolationDto> = {}
       if (Array.isArray(result) && result.length > 0) {
-        const savedAnswers: Record<string, string> = {}
         result.forEach(item => {
           if (item.id) {
-            // 서버에서 가져온 응답은 'no'로 설정 (문제 요구사항에 따라)
-            savedAnswers[item.id] = 'no'
+            mappedData[item.id] = item
           }
+        })
+      }
+
+      setAnalysisData(mappedData)
+
+      // 서버에서 가져온 데이터를 바탕으로 답변 업데이트
+      if (Object.keys(mappedData).length > 0) {
+        const savedAnswers: Record<string, string> = {}
+        Object.keys(mappedData).forEach(id => {
+          // 서버에서 가져온 응답은 'no'로 설정 (위반 항목만 저장됨)
+          savedAnswers[id] = 'no'
         })
         setAnswers(prev => ({...prev, ...savedAnswers}))
       }
@@ -75,32 +91,38 @@ export default function EDDForm() {
     }
   }
 
+  const router = useRouter()
+
   // 네비게이션 함수
   const next = () => step < 7 && setStep(step + 1)
-  const prev = () => setStep(prev => Math.max(prev - 1, 1))
+  const prev = () => setStep(prevStep => Math.max(prevStep - 1, 1))
 
-  // 저장 함수
-  const handleSave = async () => {
+  /**
+   * 자가진단 저장 함수
+   * - '아니요'로 응답한 항목만 필터링하여 서버에 전송
+   * - 응답은 저장 후 결과 페이지로 이동
+   * - EU 공급망 실사 지침에서는 부정적 응답(위반 항목)만 저장하므로 'no' 응답만 서버에 전송
+   */
+  const handleSave = async (): Promise<void> => {
     try {
       setIsSubmitting(true)
 
-      // 답변 형식 변환 (yes/no 문자열 -> boolean)
-      const formattedAnswers: Record<string, boolean> = Object.fromEntries(
-        Object.entries(answers).map(([questionId, answer]) => [
-          questionId,
-          answer === 'yes'
-        ])
+      // '아니요' 응답만 필터링하여 서버에 전송
+      const noAnswersOnly: Record<string, boolean> = Object.fromEntries(
+        Object.entries(answers)
+          .filter(([_, answer]) => answer === 'no')
+          .map(([questionId, _]) => [questionId, false])
       )
 
-      // API 호출하여 답변 저장
+      // API 호출하여 '아니요' 답변만 저장 (위반 항목)
       await updateEuddAnswers({
-        answers: formattedAnswers
+        answers: noAnswersOnly
       })
 
       showSuccess('자가진단이 성공적으로 저장되었습니다.')
 
       // 결과 페이지로 이동
-      window.location.href = '/CSDDD/eudd/result'
+      router.push('/csddd/eudd/result')
     } catch (err) {
       showError('자가진단 저장에 실패했습니다.')
     } finally {
@@ -108,7 +130,15 @@ export default function EDDForm() {
     }
   }
 
-  // 질문 아이템 렌더링 함수
+  /**
+   * 질문 아이템 렌더링 함수
+   * - 아이템 타입에 따라 제목 또는 질문 형태로 렌더링
+   * - 질문 항목에는 라디오 버튼 그룹 제공 (예/아니오 선택)
+   *
+   * @param item - 렌더링할 항목 객체 (제목 또는 질문)
+   * @param id - 항목 식별자
+   * @returns JSX.Element - 렌더링된 항목 컴포넌트
+   */
   const renderItem = (
     item: {type: string; text: string; id?: string},
     id: string

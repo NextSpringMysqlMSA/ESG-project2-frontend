@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState, useCallback} from 'react'
-import {fetchEuddResult} from '@/services/eudd'
+import type {EuddViolationDto} from '@/types/IFRS/csddd'
 import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {showError} from '@/util/toast'
 import {
@@ -27,6 +27,7 @@ import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
+import {fetchEuddResult} from '@/services/csddd'
 
 /**
  * EU 공급망 실사 지침 자가진단 결과 페이지
@@ -36,10 +37,17 @@ import {PageHeader} from '@/components/layout/PageHeader'
  */
 export default function EUDDResultPage() {
   // ======== 상태 관리 ========
-  const [results, setResults] = useState<string[]>([]) // 결과 ID 목록
-  const [analysisData, setAnalysisData] = useState<Record<string, any>>({}) // 상세 결과 데이터
-  const [isLoading, setIsLoading] = useState(true) // 로딩 상태
-  const [error, setError] = useState<string | null>(null) // 오류 메시지
+  /** 위반 항목 ID 목록 */
+  const [results, setResults] = useState<string[]>([])
+
+  /** 위반 항목 상세 데이터 맵 (ID를 키로 사용) */
+  const [analysisData, setAnalysisData] = useState<Record<string, EuddViolationDto>>({})
+
+  /** 데이터 로딩 상태 */
+  const [isLoading, setIsLoading] = useState(true)
+
+  /** 오류 메시지 */
+  const [error, setError] = useState<string | null>(null)
 
   /**
    * 결과 데이터 로드 함수
@@ -99,12 +107,14 @@ export default function EUDDResultPage() {
 
   /**
    * 심각도에 따른 스타일 클래스 계산
+     /**
+   * 심각도에 따른 스타일 클래스 계산
    * - 텍스트 내용에 따라 적절한 색상 클래스를 반환
    * - 위험도가 높은 항목은 빨간색, 중간은 노란색, 낮은 항목은 녹색으로 표시
    * @param text 분석 결과 텍스트
    * @returns 적절한 Tailwind CSS 클래스 문자열
    */
-  const getSeverityClass = (text: string) => {
+  const getSeverityClass = (text: string): string => {
     // null이나 undefined 체크
     const lowerText = text?.toLowerCase() || ''
 
@@ -179,7 +189,7 @@ export default function EUDDResultPage() {
         iconColor="text-customG" // 아이콘 색상
       >
         <Link
-          href="/CSDDD/eudd"
+          href="/csddd/eudd"
           className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
           {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
         </Link>
@@ -195,7 +205,7 @@ export default function EUDDResultPage() {
         emptyAction={{
           // 데이터 없을 때 액션 버튼
           label: '자가진단 시작하기',
-          href: '/CSDDD/eudd'
+          href: '/csddd/eudd'
         }}
         retryAction={loadResults} // 다시 시도 액션
       >

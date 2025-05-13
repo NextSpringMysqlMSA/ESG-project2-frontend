@@ -1,7 +1,6 @@
 'use client'
 
 import {useEffect, useState, useCallback} from 'react'
-import {fetchHrddResult} from '@/services/hrdd'
 import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {showError} from '@/util/toast'
 import {
@@ -27,6 +26,7 @@ import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
+import {fetchHrddResult} from '@/services/csddd'
 
 export default function HRDDResultPage() {
   const [results, setResults] = useState<string[]>([])
@@ -127,7 +127,7 @@ export default function HRDDResultPage() {
         gradient="from-green-100 to-green-50"
         iconColor="text-customG">
         <Link
-          href="/CSDDD/hrdd"
+          href="/csddd/hrdd"
           className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
           {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
         </Link>
@@ -141,7 +141,7 @@ export default function HRDDResultPage() {
         emptyIcon={<CheckCircle2 className="w-16 h-16" />}
         emptyAction={{
           label: '자가진단 시작하기',
-          href: '/CSDDD/hrdd'
+          href: '/csddd/hrdd'
         }}
         retryAction={loadResults}>
         <>

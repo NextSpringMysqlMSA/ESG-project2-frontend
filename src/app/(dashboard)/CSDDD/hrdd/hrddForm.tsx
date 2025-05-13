@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/breadcrumb'
 import {showError, showSuccess} from '@/util/toast'
 import {BadgeCheck, FileQuestion} from 'lucide-react'
-import {fetchHrddResult, updateHrddAnswers} from '@/services/hrdd'
+import {fetchHrddResult, updateHrddAnswers} from '@/services/csddd'
+import {useRouter} from 'next/router'
 
 // HRDD-specific questions
 const questions: Record<
@@ -435,15 +436,19 @@ export default function HRDDForm() {
   const handleSave = async () => {
     try {
       setIsSubmitting(true)
-      const formattedAnswers: Record<string, boolean> = Object.fromEntries(
-        Object.entries(answers).map(([questionId, answer]) => [
-          questionId,
-          answer === 'yes'
-        ])
+      // '아니요' 응답만 필터링하여 서버에 전송 ('yes'는 제외, 'no'만 포함)
+      const noAnswersOnly = Object.fromEntries(
+        Object.entries(answers)
+          .filter(([_, answer]) => answer === 'no')
+          .map(([questionId, _]) => [questionId, false])
       )
-      await updateHrddAnswers({answers: formattedAnswers})
+
+      await updateHrddAnswers({answers: noAnswersOnly})
+
       showSuccess('자가진단이 성공적으로 저장되었습니다.')
-      window.location.href = '/CSDDD/hrdd/result'
+
+      const router = useRouter()
+      router.push('/csddd/hrdd/result')
     } catch (err) {
       showError('자가진단 저장에 실패했습니다.')
     } finally {

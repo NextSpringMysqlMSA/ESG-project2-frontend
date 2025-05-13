@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState, useCallback} from 'react'
-import {fetcheddResult} from '@/services/edd'
+import type {EddViolationDto} from '@/types/IFRS/csddd'
 import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {showError} from '@/util/toast'
 import {
@@ -27,19 +27,27 @@ import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
+import {fetchEddResult} from '@/services/csddd'
 
 /**
- * EU 공급망 실사 지침 자가진단 결과 페이지
+ * 환경 실사 지침 자가진단 결과 페이지
  * - 사용자의 자가진단 결과를 시각화하여 보여주는 컴포넌트
  * - 비동기 데이터 로딩 및 오류 처리 기능 포함
  * - 상태 표시를 위한 배지와 테이블을 활용하여 결과 표시
  */
-export default function eddResultPage() {
+export default function EddResultPage() {
   // ======== 상태 관리 ========
-  const [results, setResults] = useState<string[]>([]) // 결과 ID 목록
-  const [analysisData, setAnalysisData] = useState<Record<string, any>>({}) // 상세 결과 데이터
-  const [isLoading, setIsLoading] = useState(true) // 로딩 상태
-  const [error, setError] = useState<string | null>(null) // 오류 메시지
+  /** 위반 항목 ID 목록 */
+  const [results, setResults] = useState<string[]>([])
+
+  /** 위반 항목 상세 데이터 맵 (ID를 키로 사용) */
+  const [analysisData, setAnalysisData] = useState<Record<string, EddViolationDto>>({})
+
+  /** 데이터 로딩 상태 */
+  const [isLoading, setIsLoading] = useState(true)
+
+  /** 오류 메시지 */
+  const [error, setError] = useState<string | null>(null)
 
   /**
    * 결과 데이터 로드 함수
@@ -54,7 +62,7 @@ export default function eddResultPage() {
       setError(null)
 
       // API 호출
-      const res = await fetcheddResult()
+      const res = await fetchEddResult()
 
       // 결과가 배열이 아니거나 비어있는 경우 처리
       if (!Array.isArray(res) || res.length === 0) {
@@ -104,7 +112,7 @@ export default function eddResultPage() {
    * @param text 분석 결과 텍스트
    * @returns 적절한 Tailwind CSS 클래스 문자열
    */
-  const getSeverityClass = (text: string) => {
+  const getSeverityClass = (text: string): string => {
     // null이나 undefined 체크
     const lowerText = text?.toLowerCase() || ''
 
@@ -179,7 +187,7 @@ export default function eddResultPage() {
         iconColor="text-customG" // 아이콘 색상
       >
         <Link
-          href="/CSDDD/edd"
+          href="/csddd/edd"
           className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
           {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
         </Link>
@@ -195,7 +203,7 @@ export default function eddResultPage() {
         emptyAction={{
           // 데이터 없을 때 액션 버튼
           label: '자가진단 시작하기',
-          href: '/CSDDD/edd'
+          href: '/csddd/edd'
         }}
         retryAction={loadResults} // 다시 시도 액션
       >
@@ -362,4 +370,7 @@ export default function eddResultPage() {
       </LoadingState>
     </div>
   )
+}
+function fetcheddResult() {
+  throw new Error('Function not implemented.')
 }
