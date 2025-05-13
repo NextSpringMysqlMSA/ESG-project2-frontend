@@ -23,7 +23,7 @@ const dueDiligenceOptions = [
     color: 'from-blue-50 to-purple-50',
     borderColor: 'border-blue-200',
     categories: '기업 정책, 위험 평가, 시정 조치, 커뮤니케이션',
-    path: '/csddd/eudd/result'
+    path: '/CSDDD/eudd/result'
   },
   {
     key: 'hrdd',
@@ -33,7 +33,7 @@ const dueDiligenceOptions = [
     color: 'from-rose-50 to-pink-50',
     borderColor: 'border-rose-200',
     categories: '생명과 안전, 차별 금지, 근로 조건, 결사의 자유',
-    path: '/csddd/hrdd/result'
+    path: '/CSDDD/hrdd/result'
   },
   {
     key: 'edd',
@@ -43,10 +43,10 @@ const dueDiligenceOptions = [
     color: 'from-customGLight to-green-50',
     borderColor: 'border-customGLight',
     categories: '환경경영, 온실가스, 물 관리, 오염물질, 폐기물',
-    path: '/csddd/edd/result'
+    path: '/CSDDD/edd/result'
   }
 ]
-export default function Csddd() {
+export default function CSDDD() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const router = useRouter()
 
@@ -131,7 +131,7 @@ export default function Csddd() {
                             ? 'flex-1 bg-customG hover:bg-customG/90'
                             : 'flex-1'
                         }
-                        onClick={() => router.push(`/csddd/${option.key}`)}>
+                        onClick={() => router.push(`/CSDDD/${option.key}`)}>
                         {' '}
                         {/* 경로 소문자로 수정 */}
                         <Check className="w-4 h-4 mr-1" />
@@ -141,7 +141,7 @@ export default function Csddd() {
                         variant="outline"
                         size="sm"
                         className="flex-1 text-gray-600 hover:text-customG"
-                        onClick={() => router.push(`/csddd/${option.key}/result`)}>
+                        onClick={() => router.push(`/CSDDD/${option.key}/result`)}>
                         {' '}
                         {/* 경로 소문자로 수정 */}
                         결과 보기

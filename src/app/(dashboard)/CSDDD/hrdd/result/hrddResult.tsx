@@ -158,7 +158,7 @@ export default function Hrdddesult() {
         transition={{duration: 0.3}}
         className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/csddd" className="hover:text-customG">
+        <BreadcrumbLink href="/CSDDD" className="hover:text-customG">
           공급망 실사
         </BreadcrumbLink>
         <ChevronRight className="w-4 h-4 mx-2" />
@@ -173,7 +173,7 @@ export default function Hrdddesult() {
         gradient="from-green-100 to-green-50"
         iconColor="text-customG">
         <Link
-          href="/csddd/hrdd"
+          href="/CSDDD/hrdd"
           className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
           {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
         </Link>
@@ -188,7 +188,7 @@ export default function Hrdddesult() {
         emptyIcon={<CheckCircle2 className="w-16 h-16" />}
         emptyAction={{
           label: '자가진단 시작하기',
-          href: '/csddd/hrdd'
+          href: '/CSDDD/hrdd'
         }}
         retryAction={loadResults}>
         <>

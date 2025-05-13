@@ -14,11 +14,12 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import {showError, showSuccess} from '@/util/toast'
-import {BadgeCheck, FileQuestion} from 'lucide-react'
+import {BadgeCheck, FileQuestion, Home} from 'lucide-react'
 import {useRouter} from 'next/navigation'
 import {fetchEuddResult, updateEuddAnswers} from '@/services/csddd'
 import type {EuddViolationDto} from '@/types/IFRS/csddd'
 import {AxiosError} from 'axios'
+import {AnimatePresence, motion} from 'framer-motion'
 
 const questions: Record<
   string,
@@ -313,8 +314,6 @@ export default function EuddForm() {
 
   // 초기 데이터 로드
   useEffect(() => {
-    loadEuddData()
-
     // 초기에 모든 질문을 '예'로 설정
     const initialAnswers: Record<string, string> = {}
     Object.values(questions).forEach(items => {
@@ -326,6 +325,7 @@ export default function EuddForm() {
     })
 
     setAnswers(initialAnswers)
+    loadEuddData()
   }, [])
 
   /**
@@ -409,7 +409,7 @@ export default function EuddForm() {
       if (result) {
         showSuccess('자가진단이 성공적으로 저장되었습니다.')
         // 결과 페이지로 이동
-        router.push('/csddd/eudd/result')
+        router.push('/CSDDD/eudd/result')
       }
     } catch (err) {
       console.error('저장 오류:', err)
@@ -428,84 +428,141 @@ export default function EuddForm() {
    * @param id - 항목 식별자
    * @returns JSX.Element - 렌더링된 항목 컴포넌트
    */
+  // renderItem 함수 개선
   const renderItem = (
     item: {type: string; text: string; id?: string},
     id: string
   ): JSX.Element => {
     if (item.type === 'title') {
       return (
-        <h2 key={id} className="flex items-center text-lg font-bold text-gray-700">
-          <BadgeCheck className="w-5 h-5 mr-2 text-customG" />
+        <motion.h2
+          key={id}
+          initial={{opacity: 0, y: -5}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 0.4}}
+          className="flex items-center mb-3 text-lg font-bold text-gray-700">
+          <div className="flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-customG/10">
+            <BadgeCheck className="w-5 h-5 text-customG" />
+          </div>
           {item.text}
-        </h2>
+        </motion.h2>
       )
     }
 
     if (item.type === 'question') {
+      // 마지막 항목인지 확인하여 구분선 적용 여부 결정
       const isBorderBottom = id !== questions[step.toString()]?.slice(-1)[0]?.id
 
       return (
-        <div
+        <motion.div
           key={id}
+          initial={{opacity: 0}}
+          animate={{opacity: 1}}
+          transition={{duration: 0.3}}
           className={cn(
-            'flex flex-col py-4 md:flex-row md:items-start gap-6',
+            'flex flex-col py-4 md:flex-row md:items-start gap-4',
             isBorderBottom ? 'border-b border-gray-100' : ''
           )}>
-          <div className="flex md:w-[80%]">
-            <FileQuestion className="flex-shrink-0 w-5 h-5 mt-1 mr-3 text-customG" />
+          {/* 질문 내용 */}
+          <div className="flex md:w-[80%] group">
+            <div className="flex-shrink-0 mt-0.5 mr-3">
+              <div className="flex items-center justify-center w-6 h-6 transition-colors rounded-full bg-customG/5 group-hover:bg-customG/10">
+                <FileQuestion className="w-3.5 h-3.5 text-customG" />
+              </div>
+            </div>
+
             <p className="font-medium text-gray-700">
-              <span className="text-sm font-bold text-customG">
+              <span className="mr-1 text-sm font-bold text-customG">
                 {id.split('-').slice(1).join('-')}
-              </span>{' '}
-              | {item.text}
+              </span>
+              <span className="mx-1 text-gray-500">|</span>
+              {item.text}
             </p>
           </div>
 
+          {/* 응답 선택 - EddForm과 동일한 스타일 적용 */}
           <div className="ml-auto">
-            <RadioGroup
-              value={answers[id] || 'yes'} // 기본값은 '예'
-              orientation="horizontal"
-              className="flex px-4 py-2 space-x-4 rounded-lg bg-gray-50"
-              onValueChange={value => setAnswers(prev => ({...prev, [id]: value}))}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="yes"
-                  id={`${id}-yes`}
-                  className="border-customG text-customG focus:ring-customG"
-                />
-                <label
-                  htmlFor={`${id}-yes`}
-                  className={cn(
-                    'text-sm font-medium',
-                    answers[id] === 'yes' ? 'text-customG' : 'text-gray-600'
-                  )}>
+            <div className="flex bg-gray-100 rounded-full shadow-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  setAnswers(prev => ({...prev, [id]: 'yes'}))
+                  // 클릭 효과 추가
+                  const elem = document.getElementById(`btn-yes-${id}`)
+                  if (elem) {
+                    elem.classList.add('scale-105')
+                    setTimeout(() => elem.classList.remove('scale-105'), 200)
+                  }
+                }}
+                id={`btn-yes-${id}`}
+                className={cn(
+                  'w-[70px] h-[40px] rounded-full text-sm font-medium transition-all duration-200',
+                  answers[id] === 'yes'
+                    ? 'bg-customG text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600'
+                )}>
+                <span className="flex items-center justify-center">
+                  {answers[id] === 'yes' && (
+                    <motion.svg
+                      initial={{scale: 0, opacity: 0}}
+                      animate={{scale: 1, opacity: 1}}
+                      transition={{duration: 0.2}}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-4 h-4 mr-1">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                        clipRule="evenodd"
+                      />
+                    </motion.svg>
+                  )}
                   예
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="no"
-                  id={`${id}-no`}
-                  className="text-red-400 border-red-400 focus:ring-red-400"
-                />
-                <label
-                  htmlFor={`${id}-no`}
-                  className={cn(
-                    'text-sm font-medium',
-                    answers[id] === 'no' ? 'text-red-500' : 'text-gray-600'
-                  )}>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAnswers(prev => ({...prev, [id]: 'no'}))
+                  // 클릭 효과 추가
+                  const elem = document.getElementById(`btn-no-${id}`)
+                  if (elem) {
+                    elem.classList.add('scale-105')
+                    setTimeout(() => elem.classList.remove('scale-105'), 200)
+                  }
+                }}
+                id={`btn-no-${id}`}
+                className={cn(
+                  'w-[70px] h-[40px] rounded-full text-sm font-medium transition-all duration-200',
+                  answers[id] === 'no'
+                    ? 'bg-red-500 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600'
+                )}>
+                <span className="flex items-center justify-center">
+                  {answers[id] === 'no' && (
+                    <motion.svg
+                      initial={{scale: 0, opacity: 0}}
+                      animate={{scale: 1, opacity: 1}}
+                      transition={{duration: 0.2}}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-4 h-4 mr-1">
+                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                    </motion.svg>
+                  )}
                   아니요
-                </label>
-              </div>
-            </RadioGroup>
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )
     }
 
     return <></>
   }
-
   // 로딩 중 표시
   if (!isLoaded) {
     return (
@@ -518,92 +575,153 @@ export default function EuddForm() {
     )
   }
 
+  // filepath: /Users/donghwan/Documents/code/ESGProject_2/frontend/src/app/(dashboard)/CSDDD/eudd/euddForm.tsx
+  // main return 부분 개선
   return (
-    <div className="flex flex-col w-full h-full p-8">
+    <div className="flex flex-col w-full h-full p-8 bg-gray-50">
       {/* 네비게이션 브레드크럼 */}
-      <div className="flex flex-row px-2 mb-6 text-base font-medium text-black">
+      <motion.div
+        initial={{opacity: 0, y: -10}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.3}}
+        className="flex flex-row px-2 mb-6 text-base font-medium text-black">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/csddd">공급망 실사</BreadcrumbLink>
+              <Home className="w-4 h-4 mr-1" />
+              <BreadcrumbLink href="/CSDDD">공급망 실사</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>EU 공급망 실사</BreadcrumbPage>
+              <BreadcrumbPage className="text-customG">
+                EU 공급망 실사 진단
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      </div>
+      </motion.div>
 
-      {/* 메인 컨텐츠 */}
       <div className="w-full mx-auto max-w-7xl">
-        <div className="p-6 mb-8 text-center bg-white rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold text-customG">
-            EU 공급망 실사 지침 요구사항 이행 자가진단
-          </h1>
-          <p className="mt-2 text-gray-600">
-            기업의 EU 공급망 실사 준비 수준을 확인하고 개선할 수 있도록 도움을 제공합니다.
-          </p>
-        </div>
+        {/* 헤더 섹션 - 컴팩트 버전으로 개선 */}
+        <motion.div
+          initial={{opacity: 0, scale: 0.98}}
+          animate={{opacity: 1, scale: 1}}
+          transition={{duration: 0.4}}
+          className="p-5 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
+          <div className="flex items-center">
+            <div className="p-2 mr-4 rounded-full bg-customG/10">
+              <BadgeCheck className="w-6 h-6 text-customG" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-customG">
+                EU 공급망 실사 지침 요구사항 이행 자가진단
+              </h1>
+              <p className="text-sm text-gray-600">
+                기업의 EU 공급망 실사 준비 수준을 확인하고 개선할 수 있도록 도움을
+                제공합니다.
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* 단계 인디케이터 */}
-        <div className="flex justify-center mb-8 space-x-3">
-          {Array.from({length: 7}, (_, i) => i + 1).map(n => (
-            <button
-              key={n}
-              onClick={() => setStep(n)}
-              className={cn(
-                'w-10 h-10 rounded-full text-sm font-medium border transition-colors flex items-center justify-center',
-                step === n
-                  ? 'bg-customG text-white border-customG shadow-md'
-                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-              )}>
-              {n}
-            </button>
-          ))}
-        </div>
+        <motion.div
+          initial={{opacity: 0}}
+          animate={{opacity: 1}}
+          transition={{duration: 0.5, delay: 0.2}}
+          className="p-4 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between">
+              {Array.from({length: 7}, (_, i) => i + 1).map(n => (
+                <button
+                  key={n}
+                  onClick={() => setStep(n)}
+                  className={cn('relative flex flex-col items-center justify-center')}>
+                  <div
+                    className={cn(
+                      'w-10 h-10 rounded-full flex items-center justify-center',
+                      step === n
+                        ? 'bg-customG text-white' // 현재 단계는 테두리 없이 배경색만
+                        : n < step
+                        ? 'bg-white text-customG' // 완료 단계의 테두리 제거 (border-2 border-customG 제거)
+                        : 'bg-gray-100 text-gray-400'
+                    )}>
+                    {n < step ? <BadgeCheck className="w-5 h-5" /> : n}
+                  </div>
+                  <span
+                    className={cn(
+                      'mt-1 text-xs',
+                      step === n ? 'font-medium text-customG' : 'text-gray-500'
+                    )}>
+                    {n === 1 && '기업 정책'}
+                    {n === 2 && '영향 식별'}
+                    {n === 3 && '영향 완화'}
+                    {n === 4 && '모니터링'}
+                    {n === 5 && '이해관계자'}
+                    {n === 6 && '구제 조치'}
+                    {n === 7 && '기후 전환'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
 
         {/* 현재 단계 질문 렌더링 */}
-        <div className="mb-8">
-          {(() => {
-            const stepItems = questions[step.toString()] || []
-            const elements = [] as JSX.Element[]
-            let section: JSX.Element[] = []
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{opacity: 0, x: 20}}
+            animate={{opacity: 1, x: 0}}
+            exit={{opacity: 0, x: -20}}
+            transition={{duration: 0.3}}
+            className="mb-8">
+            {(() => {
+              const stepItems = questions[step.toString()] || []
+              const elements = [] as JSX.Element[]
+              let section: JSX.Element[] = []
 
-            stepItems.forEach((item, i) => {
-              const key =
-                item.type === 'question' && item.id ? item.id : `q${step}-title-${i}`
+              stepItems.forEach((item, i) => {
+                const key =
+                  item.type === 'question' && item.id ? item.id : `q${step}-title-${i}`
 
-              if (item.type === 'title') {
-                if (section.length) {
-                  elements.push(
-                    <div
-                      key={`section-${key}`}
-                      className="p-6 mb-8 space-y-4 bg-white border-0 rounded-lg shadow-sm">
-                      {section}
-                    </div>
-                  )
-                  section = []
+                if (item.type === 'title') {
+                  if (section.length) {
+                    elements.push(
+                      <motion.div
+                        key={`section-${key}`}
+                        initial={{opacity: 0, y: 10}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{duration: 0.3, delay: 0.1}}
+                        className="p-6 mb-6 space-y-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        {section}
+                      </motion.div>
+                    )
+                    section = []
+                  }
+                  elements.push(renderItem(item, key))
+                } else if (item.type === 'question') {
+                  section.push(renderItem(item, key))
                 }
-                elements.push(renderItem(item, key))
-              } else if (item.type === 'question') {
-                section.push(renderItem(item, key))
+              })
+
+              if (section.length) {
+                elements.push(
+                  <motion.div
+                    key={`section-final`}
+                    initial={{opacity: 0, y: 10}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.3, delay: 0.2}}
+                    className="p-6 mb-6 space-y-0 transition-shadow duration-300 bg-white border border-gray-100 divide-y divide-gray-100 rounded-lg shadow-sm">
+                    {section}
+                  </motion.div>
+                )
               }
-            })
 
-            if (section.length) {
-              elements.push(
-                <div
-                  key={`section-final`}
-                  className="p-6 mb-8 space-y-0 bg-white border-0 divide-y divide-gray-100 rounded-lg shadow-sm">
-                  {section}
-                </div>
-              )
-            }
-
-            return elements
-          })()}
-        </div>
+              return elements
+            })()}
+          </motion.div>
+        </AnimatePresence>
 
         {/* 진행 상태 표시 */}
         <div className="h-2 mb-6 overflow-hidden bg-gray-200 rounded-full">
@@ -613,12 +731,23 @@ export default function EuddForm() {
         </div>
 
         {/* 네비게이션 버튼 */}
-        <div className="flex justify-center pt-6 pb-10 gap-x-8">
+        <div className="flex justify-center pt-4 pb-8 gap-x-6">
           {step > 1 && (
             <DashButton
               onClick={prev}
               width="w-32"
               className="text-white bg-gray-600 border-2 border-gray-600 hover:bg-gray-700 hover:border-gray-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4 mr-2"
+                viewBox="0 0 20 20"
+                fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
               이전 단계
             </DashButton>
           )}
@@ -627,16 +756,53 @@ export default function EuddForm() {
             <DashButton
               onClick={next}
               width="w-32"
-              className="bg-customG hover:bg-customGDark">
+              className="text-white shadow-sm bg-customG hover:bg-customGDark">
               다음 단계
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4 ml-2"
+                viewBox="0 0 20 20"
+                fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
             </DashButton>
           ) : (
             <DashButton
               onClick={handleSave}
               disabled={isSubmitting}
               width="w-32"
-              className="bg-customG hover:bg-customGDark">
-              {isSubmitting ? '저장 중...' : '평가 완료'}
+              className="text-white shadow-sm bg-customG hover:bg-customGDark">
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="w-4 h-4 mr-2 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  저장 중...
+                </>
+              ) : (
+                <>
+                  <BadgeCheck className="w-4 h-4 mr-2" />
+                  평가 완료
+                </>
+              )}
             </DashButton>
           )}
         </div>

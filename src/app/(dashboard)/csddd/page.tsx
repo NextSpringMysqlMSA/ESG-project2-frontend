@@ -1,9 +1,9 @@
-import Csddd from './csddd'
+import CSDDD from './csddd'
 
 export default function CSDDDPage() {
   return (
     <div>
-      <Csddd />
+      <CSDDD />
     </div>
   )
 }

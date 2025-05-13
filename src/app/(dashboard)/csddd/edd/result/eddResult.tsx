@@ -28,6 +28,7 @@ import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {fetchEddResult} from '@/services/csddd'
+import {getSeverityClass} from '@/lib/themeUtils'
 
 /**
  * 환경 실사 지침 자가진단 결과 페이지
@@ -112,34 +113,6 @@ export default function EddResult() {
    * @param text 분석 결과 텍스트
    * @returns 적절한 Tailwind CSS 클래스 문자열
    */
-  const getSeverityClass = (text: string): string => {
-    // null이나 undefined 체크
-    const lowerText = text?.toLowerCase() || ''
-
-    // 심각도 높음 조건
-    if (
-      lowerText.includes('심각') ||
-      lowerText.includes('높음') ||
-      lowerText.includes('예')
-    ) {
-      return 'bg-red-50 text-red-600 border-red-100'
-    }
-    // 심각도 중간 조건
-    else if (lowerText.includes('중간') || lowerText.includes('부분')) {
-      return 'bg-amber-50 text-amber-600 border-amber-100'
-    }
-    // 심각도 낮음 조건
-    else if (
-      lowerText.includes('낮음') ||
-      lowerText.includes('없음') ||
-      lowerText.includes('아니요')
-    ) {
-      return 'bg-green-50 text-green-600 border-green-100'
-    }
-
-    // 기본 스타일
-    return 'bg-gray-50 text-gray-600 border-gray-200'
-  }
 
   // ======== 통계 데이터 계산 ========
   /**
@@ -171,7 +144,7 @@ export default function EddResult() {
         transition={{duration: 0.3}} // 애니메이션 시간
         className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/csddd" className="hover:text-customG">
+        <BreadcrumbLink href="/CSDDD" className="hover:text-customG">
           공급망 실사
         </BreadcrumbLink>
         <ChevronRight className="w-4 h-4 mx-2" />
@@ -187,7 +160,7 @@ export default function EddResult() {
         iconColor="text-customG" // 아이콘 색상
       >
         <Link
-          href="/csddd/edd"
+          href="/CSDDD/edd"
           className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
           {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
         </Link>
@@ -203,7 +176,7 @@ export default function EddResult() {
         emptyAction={{
           // 데이터 없을 때 액션 버튼
           label: '자가진단 시작하기',
-          href: '/csddd/edd'
+          href: '/CSDDD/edd'
         }}
         retryAction={loadResults} // 다시 시도 액션
       >
