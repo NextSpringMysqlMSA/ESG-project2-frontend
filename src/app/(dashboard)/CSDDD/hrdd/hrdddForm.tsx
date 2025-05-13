@@ -1,4 +1,3 @@
-// ESG HRDD (인권 실사) Form - EDDForm 스타일 적용
 'use client'
 
 import {useState, useEffect} from 'react'
@@ -17,7 +16,9 @@ import {
 import {showError, showSuccess} from '@/util/toast'
 import {BadgeCheck, FileQuestion} from 'lucide-react'
 import {fetchHrddResult, updateHrddAnswers} from '@/services/csddd'
-import {useRouter} from 'next/router'
+import {useRouter} from 'next/navigation'
+import type {HrddViolationDto} from '@/types/IFRS/csddd'
+import type {AxiosError} from 'axios'
 
 // HRDD-specific questions
 const questions: Record<
@@ -320,14 +321,29 @@ const questions: Record<
   ]
 }
 
-export default function HRDDForm() {
+/**
+ * 인권 실사 지침 요구사항 이행 자가진단 컴포넌트
+ *
+ * 인권 실사(HRDD) 요구사항에 대한 자가진단을 제공합니다.
+ * 9개 섹션으로 구분된 질문에 대해 예/아니오 응답을 수집하고
+ * '아니요' 응답만 서버에 저장하여 결과 페이지에서 위반 항목으로 표시합니다.
+ */
+export default function HrdddForm() {
+  // 상태 관리
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Initialize answers to 'yes', update with 'no' for loaded data
+  const router = useRouter()
+
+  /**
+   * 초기 데이터 로드 및 답변 초기화
+   * - 모든 질문을 기본값 '예'로 설정
+   * - 서버에서 가져온 위반 항목은 '아니요'로 설정
+   */
   useEffect(() => {
+    // 모든 질문을 '예'로 초기화
     const initial: Record<string, string> = {}
     Object.values(questions).forEach(section =>
       section.forEach(q =>
@@ -335,29 +351,79 @@ export default function HRDDForm() {
       )
     )
     setAnswers(initial)
-    fetchHrddResult()
-      .then((result: any) => {
-        if (Array.isArray(result) && result.length > 0) {
-          const saved: Record<string, string> = {}
-          result.forEach((item: any) => {
-            if (item.id) saved[item.id] = 'no'
-          })
-          setAnswers(prev => ({...prev, ...saved}))
-        }
-        setIsLoaded(true)
-      })
-      .catch((err: any) => {
-        if (err?.response?.status === 404) {
-          setIsLoaded(true)
-          return
-        }
-        showError('자가진단 데이터를 불러오는데 실패했습니다.')
-        setIsLoaded(true)
-      })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // 서버에서 기존 저장된 데이터 로드
+    loadHrddData()
   }, [])
 
-  // Render a single question or title
+  /**
+   * 서버에서 저장된 HRDD 결과 데이터 로드
+   * - 서버에 저장된 위반 항목(아니요 응답)을 가져와 상태 업데이트
+   */
+  const loadHrddData = async (): Promise<void> => {
+    try {
+      const result = await fetchHrddResult()
+
+      if (Array.isArray(result) && result.length > 0) {
+        const saved: Record<string, string> = {}
+        result.forEach((item: HrddViolationDto) => {
+          if (item.id) saved[item.id] = 'no'
+        })
+        setAnswers(prev => ({...prev, ...saved}))
+      }
+
+      setIsLoaded(true)
+    } catch (err) {
+      const error = err as AxiosError
+      // 데이터가 없는 경우는 정상 케이스로 처리 (최초 진단 시)
+      if (error.response?.status === 404) {
+        setIsLoaded(true)
+        return
+      }
+      showError('자가진단 데이터를 불러오는데 실패했습니다.')
+      setIsLoaded(true)
+    }
+  }
+
+  // 네비게이션 함수
+  const next = (): void => setStep(prev => Math.min(prev + 1, 9))
+  const prev = (): void => setStep(prev => Math.max(prev - 1, 1))
+
+  /**
+   * 자가진단 저장 함수
+   * - '아니요'로 응답한 항목만 필터링하여 서버에 전송
+   * - 응답은 저장 후 결과 페이지로 이동
+   */
+  const handleSave = async (): Promise<void> => {
+    try {
+      setIsSubmitting(true)
+
+      // '아니요' 응답만 필터링하여 서버에 전송
+      const noAnswersOnly: Record<string, boolean> = Object.fromEntries(
+        Object.entries(answers)
+          .filter(([_, answer]) => answer === 'no')
+          .map(([questionId, _]) => [questionId, false])
+      )
+
+      await updateHrddAnswers({answers: noAnswersOnly})
+      showSuccess('자가진단이 성공적으로 저장되었습니다.')
+
+      // 결과 페이지로 이동
+      router.push('/csddd/hrdd/result')
+    } catch (error) {
+      showError('자가진단 저장에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  /**
+   * 질문 또는 제목 렌더링 함수
+   * - 항목 타입에 따라 제목 또는 질문+라디오 버튼 렌더링
+   * @param item 질문 또는 제목 항목
+   * @param id 항목 식별자
+   * @returns 렌더링된 JSX 요소
+   */
   const renderItem = (
     item: {type: string; text: string; id?: string},
     id: string
@@ -370,6 +436,7 @@ export default function HRDDForm() {
         </h2>
       )
     }
+
     if (item.type === 'question') {
       const isBorderBottom = id !== questions[step.toString()]?.slice(-1)[0]?.id
       return (
@@ -429,39 +496,11 @@ export default function HRDDForm() {
         </div>
       )
     }
+
     return <></>
   }
 
-  // Save handler for last step
-  const handleSave = async () => {
-    try {
-      setIsSubmitting(true)
-      // '아니요' 응답만 필터링하여 서버에 전송 ('yes'는 제외, 'no'만 포함)
-      const noAnswersOnly = Object.fromEntries(
-        Object.entries(answers)
-          .filter(([_, answer]) => answer === 'no')
-          .map(([questionId, _]) => [questionId, false])
-      )
-
-      await updateHrddAnswers({answers: noAnswersOnly})
-
-      showSuccess('자가진단이 성공적으로 저장되었습니다.')
-
-      const router = useRouter()
-      router.push('/csddd/hrdd/result')
-    } catch (err) {
-      showError('자가진단 저장에 실패했습니다.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const next = () => setStep(prev => Math.min(prev + 1, 9))
-  const prev = () => setStep(prev => Math.max(prev - 1, 1))
-
-  // Progress bar
-  const progressPercent = (step / 9) * 100
-
+  // 로딩 중 표시
   if (!isLoaded) {
     return (
       <div className="flex flex-col items-center justify-center w-full min-h-screen">
@@ -475,6 +514,7 @@ export default function HRDDForm() {
 
   return (
     <div className="flex flex-col w-full h-full p-8">
+      {/* 네비게이션 경로 */}
       <div className="flex flex-row px-2 mb-4 text-base font-medium text-black">
         <Breadcrumb>
           <BreadcrumbList>
@@ -488,93 +528,109 @@ export default function HRDDForm() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+
       <div className="w-full mx-auto max-w-7xl">
-        <h1 className="mb-2 text-lg font-bold text-center">
-          인권 실사 지침 요구사항 이행 자가진단
-        </h1>
-        {/* Progress Bar */}
-        <div className="w-full h-2 mb-6 bg-gray-200 rounded">
-          <div
-            className="h-2 transition-all rounded bg-customG"
-            style={{width: `${progressPercent}%`}}></div>
+        <div className="p-6 mb-8 text-center bg-white rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-customG">
+            인권 실사 지침 요구사항 이행 자가진단
+          </h1>
+          <p className="mt-2 text-gray-600">
+            기업의 인권 실사 준비 수준을 확인하고 개선할 수 있도록 도움을 제공합니다.
+          </p>
         </div>
-        {/* Step Buttons */}
-        <div className="flex justify-center mb-6">
-          <div className="flex items-center gap-1">
-            {Array.from({length: 9}, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setStep(i + 1)}
-                className={cn(
-                  'w-8 h-8 text-sm border rounded-full',
-                  step === i + 1
-                    ? 'bg-customG text-white border-customG'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-customG hover:text-customG'
-                )}>
-                {i + 1}
-              </button>
-            ))}
-          </div>
+
+        {/* 단계 인디케이터 */}
+        <div className="flex justify-center mb-8 space-x-3">
+          {Array.from({length: 9}, (_, i) => i + 1).map(n => (
+            <button
+              key={n}
+              onClick={() => setStep(n)}
+              className={cn(
+                'w-10 h-10 rounded-full text-sm font-medium border transition-colors flex items-center justify-center',
+                step === n
+                  ? 'bg-customG text-white border-customG shadow-md'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              )}>
+              {n}
+            </button>
+          ))}
         </div>
-        {/* Card Section */}
-        {(() => {
-          const stepItems = questions[step.toString()] || []
-          const elements = [] as JSX.Element[]
-          let section: JSX.Element[] = []
-          stepItems.forEach((item, i) => {
-            const key = item.id ? item.id : `q${step}-${i}`
-            if (item.type === 'title') {
-              // Flush any open section before a new title
-              if (section.length) {
-                elements.push(
-                  <div
-                    key={`section-${key}`}
-                    className="p-6 mb-6 space-y-4 bg-white rounded-lg shadow-sm">
-                    {section}
-                  </div>
-                )
-                section = []
+
+        {/* 현재 단계 질문 렌더링 */}
+        <div className="mb-8">
+          {(() => {
+            const stepItems = questions[step.toString()] || []
+            const elements = [] as JSX.Element[]
+            let section: JSX.Element[] = []
+
+            stepItems.forEach((item, i) => {
+              const key =
+                item.type === 'question' && item.id ? item.id : `q${step}-title-${i}`
+
+              if (item.type === 'title') {
+                if (section.length) {
+                  elements.push(
+                    <div
+                      key={`section-${key}`}
+                      className="p-6 mb-8 space-y-4 bg-white border-0 rounded-lg shadow-sm">
+                      {section}
+                    </div>
+                  )
+                  section = []
+                }
+                elements.push(renderItem(item, key))
+              } else if (item.type === 'question') {
+                section.push(renderItem(item, key))
               }
-              elements.push(renderItem(item, key))
-            } else if (item.type === 'question') {
-              section.push(renderItem(item, item.id ?? key))
+            })
+
+            // 마지막 섹션 렌더링
+            if (section.length) {
+              elements.push(
+                <div
+                  key={`section-final`}
+                  className="p-6 mb-8 space-y-0 bg-white border-0 divide-y divide-gray-100 rounded-lg shadow-sm">
+                  {section}
+                </div>
+              )
             }
-          })
-          // Flush section at the end
-          if (section.length) {
-            elements.push(
-              <div
-                key={`section-last`}
-                className="p-6 mb-6 space-y-4 bg-white rounded-lg shadow-sm">
-                {section}
-              </div>
-            )
-          }
-          return elements
-        })()}
-      </div>
-      <div className="flex justify-center pt-6 pb-10 gap-x-8">
-        {step > 1 ? (
-          <DashButton onClick={prev} width="w-24">
-            이전
-          </DashButton>
-        ) : null}
-        {step < 9 ? (
+
+            return elements
+          })()}
+        </div>
+        {/* 진행 상태 표시 */}
+        <div className="h-2 mb-6 overflow-hidden bg-gray-200 rounded-full">
+          <div
+            className="h-2 transition-all duration-300 bg-customG"
+            style={{width: `${(step / 9) * 100}%`}}></div>
+        </div>
+
+        {/* 네비게이션 버튼 */}
+        <div className="flex justify-center pt-6 pb-10 gap-x-8">
           <DashButton
-            onClick={next}
+            onClick={prev}
             width="w-32"
-            className="bg-customG hover:bg-customGDark">
-            다음 단계
+            className="text-white bg-gray-600 border-2 border-gray-600 hover:bg-gray-700 hover:border-gray-700">
+            이전 단계
           </DashButton>
-        ) : (
-          <DashButton
-            onClick={handleSave}
-            disabled={isSubmitting}
-            width="w-32"
-            className="bg-customG hover:bg-customGDark">
-            {isSubmitting ? '저장 중...' : '평가 완료'}
-          </DashButton>
-        )}
+
+          {step < 9 ? (
+            <DashButton
+              onClick={next}
+              width="w-32"
+              className="bg-customG hover:bg-customGDark">
+              다음 단계
+            </DashButton>
+          ) : (
+            <DashButton
+              onClick={handleSave}
+              disabled={isSubmitting}
+              width="w-32"
+              className="bg-customG hover:bg-customGDark">
+              {isSubmitting ? '저장 중...' : '평가 완료'}
+            </DashButton>
+          )}
+        </div>
       </div>
     </div>
   )

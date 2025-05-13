@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState, useCallback} from 'react'
-import type {EddViolationDto} from '@/types/IFRS/csddd'
+import type {EuddViolationDto} from '@/types/IFRS/csddd'
 import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {showError} from '@/util/toast'
 import {
@@ -27,21 +27,21 @@ import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
-import {fetchEddResult} from '@/services/csddd'
+import {fetchEuddResult} from '@/services/csddd'
 
 /**
- * 환경 실사 지침 자가진단 결과 페이지
+ * EU 공급망 실사 지침 자가진단 결과 페이지
  * - 사용자의 자가진단 결과를 시각화하여 보여주는 컴포넌트
  * - 비동기 데이터 로딩 및 오류 처리 기능 포함
  * - 상태 표시를 위한 배지와 테이블을 활용하여 결과 표시
  */
-export default function EddResultPage() {
+export default function EuddResult() {
   // ======== 상태 관리 ========
   /** 위반 항목 ID 목록 */
   const [results, setResults] = useState<string[]>([])
 
   /** 위반 항목 상세 데이터 맵 (ID를 키로 사용) */
-  const [analysisData, setAnalysisData] = useState<Record<string, EddViolationDto>>({})
+  const [analysisData, setAnalysisData] = useState<Record<string, EuddViolationDto>>({})
 
   /** 데이터 로딩 상태 */
   const [isLoading, setIsLoading] = useState(true)
@@ -62,7 +62,7 @@ export default function EddResultPage() {
       setError(null)
 
       // API 호출
-      const res = await fetchEddResult()
+      const res = await fetchEuddResult()
 
       // 결과가 배열이 아니거나 비어있는 경우 처리
       if (!Array.isArray(res) || res.length === 0) {
@@ -106,6 +106,8 @@ export default function EddResultPage() {
   }, [loadResults]) // loadResults 함수가 변경될 때 다시 실행
 
   /**
+   * 심각도에 따른 스타일 클래스 계산
+     /**
    * 심각도에 따른 스타일 클래스 계산
    * - 텍스트 내용에 따라 적절한 색상 클래스를 반환
    * - 위험도가 높은 항목은 빨간색, 중간은 노란색, 낮은 항목은 녹색으로 표시
@@ -175,19 +177,19 @@ export default function EddResultPage() {
           공급망 실사
         </BreadcrumbLink>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-customG">EU 공급망실사</span>
+        <span className="font-medium text-customG">환경 실사</span>
       </motion.div>
 
       {/* ======== 헤더 섹션 ======== */}
       <PageHeader
         icon={<FileCheck className="w-6 h-6" />}
-        title="EU 공급망 실사 자가진단 결과"
-        description="EU 공급망 실사 지침 요구사항 이행 자가진단 결과 확인"
+        title="환경 실사 자가진단 결과"
+        description="환경 실사 지침 요구사항 이행 자가진단 결과 확인"
         gradient="from-green-100 to-green-50" // 그라데이션 배경
         iconColor="text-customG" // 아이콘 색상
       >
         <Link
-          href="/csddd/edd"
+          href="/csddd/eudd"
           className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
           {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
         </Link>
@@ -203,7 +205,7 @@ export default function EddResultPage() {
         emptyAction={{
           // 데이터 없을 때 액션 버튼
           label: '자가진단 시작하기',
-          href: '/csddd/edd'
+          href: '/csddd/eudd'
         }}
         retryAction={loadResults} // 다시 시도 액션
       >
@@ -370,7 +372,4 @@ export default function EddResultPage() {
       </LoadingState>
     </div>
   )
-}
-function fetcheddResult() {
-  throw new Error('Function not implemented.')
 }

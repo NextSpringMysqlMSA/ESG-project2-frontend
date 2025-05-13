@@ -1,5 +1,5 @@
-import EDDForm from './eddForm'
+import EddForm from './eddForm'
 
-export default function EDDPage() {
-  return <EDDForm />
+export default function Edd() {
+  return <EddForm />
 }

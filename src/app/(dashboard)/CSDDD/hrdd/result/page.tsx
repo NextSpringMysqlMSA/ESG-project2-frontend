@@ -1,5 +1,5 @@
-import HRDDForm from './hrddResultForm'
+import Hrdddesult from './hrddResult'
 
-export default function HRDDResultForm() {
-  return <HRDDForm />
+export default function HrddResultForm() {
+  return <Hrdddesult />
 }

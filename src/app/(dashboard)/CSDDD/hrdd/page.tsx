@@ -1,5 +1,5 @@
-import HRDDForm from './hrddForm'
+import HrdddForm from './hrdddForm'
 
-export default function HRDDPage() {
-  return <HRDDForm />
+export default function Hrddd() {
+  return <HrdddForm />
 }
