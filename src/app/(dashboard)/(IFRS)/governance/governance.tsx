@@ -149,7 +149,6 @@ export default function Governance() {
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">거버넌스</span>
       </div>
-
       {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
       <PageHeader
         icon={<Landmark className="w-6 h-6" />}
@@ -170,12 +169,12 @@ export default function Governance() {
           TCFD
         </Badge>
       </PageHeader>
-
-      {/* LoadingState 컴포넌트 활용 */}
+      {/* LoadingState 컴포넌트 활용 - 빈 상태일 때도 폼을 표시하도록 수정 */}
       <LoadingState
         isLoading={loading}
         error={error}
         isEmpty={stats.total === 0}
+        showFormWhenEmpty={true}
         emptyMessage="거버넌스 데이터가 없습니다. 첫 번째 항목을 추가해 보세요."
         emptyAction={{
           label: '데이터 추가하기',
@@ -195,7 +194,7 @@ export default function Governance() {
             icon={<Users className="w-5 h-5 text-blue-600" />}
             color="blue"
             description="기후 관련 위원회"
-          />{' '}
+          />
           <StatCard
             title="회의"
             count={stats.meetings}
@@ -238,16 +237,7 @@ export default function Governance() {
 
             <CardContent className="p-0">
               <div className="bg-white rounded-b-lg">
-                <Accordion
-                  type="multiple"
-                  defaultValue={
-                    activeTab === 'all'
-                      ? ['item-1', 'item-2', 'item-3', 'item-4']
-                      : activeTab === 'committee'
-                      ? ['item-1']
-                      : []
-                  }
-                  className="p-4">
+                <Accordion type="multiple" defaultValue={[]} className="p-4">
                   <AccordionItem
                     value="item-1"
                     className="mb-3 overflow-hidden border rounded-md shadow-sm">

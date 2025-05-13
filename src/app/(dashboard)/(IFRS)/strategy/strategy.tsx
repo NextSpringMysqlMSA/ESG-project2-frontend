@@ -99,15 +99,6 @@ export default function Strategy() {
     '기회 요인': RiskData?.filter(item => item.riskType === '기회 요인').length || 0
   }
 
-  // 시나리오에 따른 배지 색상 가져오기
-  const getScenarioColorClass = (scenario: string) => {
-    if (scenario.includes('1-')) return 'bg-green-100 text-green-700 border-green-200'
-    if (scenario.includes('2-')) return 'bg-blue-100 text-blue-700 border-blue-200'
-    if (scenario.includes('3-')) return 'bg-orange-100 text-orange-700 border-orange-200'
-    if (scenario.includes('5-')) return 'bg-rose-100 text-rose-700 border-rose-200'
-    return 'bg-gray-100 text-gray-700 border-gray-200'
-  }
-
   return (
     <div className="flex flex-col w-full h-full bg-[#F9FBFF] p-4 md:p-8 space-y-6">
       {/* 상단 네비게이션 */}
@@ -148,7 +139,11 @@ export default function Strategy() {
       <LoadingState
         isLoading={loading}
         error={error}
-        isEmpty={RiskData?.length === 0 && ScenarioData?.length === 0}>
+        isEmpty={RiskData?.length === 0 && ScenarioData?.length === 0}
+        showFormWhenEmpty={true} // 데이터가 없어도 폼 표시
+        emptyMessage="기후변화 전략 데이터가 없습니다."
+        emptyIcon={<LineChart className="w-16 h-16" />}
+        retryAction={loadData}>
         {/* 요약 통계 */}
         <motion.div
           initial={{opacity: 0}}
@@ -292,92 +287,117 @@ export default function Strategy() {
 
         {/* Accordion 섹션 */}
         <div className="overflow-hidden bg-white border rounded-lg shadow-sm">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-semibold">기후변화 전략 관리</h2>
-            <Badge variant="outline">TCFD 권고안 준수</Badge>
-          </div>
+          <CardHeader className="p-4 bg-white border-b">
+            <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
+              <div>
+                <CardTitle className="text-xl">기후변화 전략 관리</CardTitle>
+                <CardDescription>
+                  기후변화 관련 시나리오 및 리스크를 관리합니다
+                </CardDescription>
+              </div>
+              <Badge variant="outline">TCFD 권고안 준수</Badge>
+            </div>
+          </CardHeader>
 
-          <Accordion type="multiple" className="px-2">
-            <AccordionItem value="item-1" className="py-2 border-t border-b-0">
-              <AccordionTrigger className="text-base font-medium hover:no-underline py-3 px-2 data-[state=open]:text-blue-600">
-                <div className="flex items-center">
-                  <Cloud className="w-5 h-5 mr-2 text-blue-600" />
-                  SSP 시나리오 분석 결과
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-2 pb-4">
-                <Card className="border-0 shadow-none">
-                  <CardContent className="p-0">
-                    <CollapsibleWindow
-                      type="scenario"
-                      headers={scenarioHeader}
-                      dialogTitle="SSP 시나리오 분석"
-                      data={
-                        loading
-                          ? []
-                          : ScenarioData.map(item => ({
-                              id: item.id,
-                              values: [
-                                String(item.baseYear ?? ''), // 분석 기준 연도
-                                String(item.regions ?? ''), // 행정구역
-                                String(item.scenario ?? ''), // 시나리오
-                                `${item.latitude ?? ''}/${item.longitude ?? ''}`, // 위도/경도 통합
-                                String(item.climate ?? ''), // 기후 지표
-                                String(item.industry ?? ''), // 산업 분야
-                                String(item.assetType ?? ''), // 자산 유형
-                                String(item.assetValue ?? ''), // 자산 가치
-                                String(item.estimatedDamage ?? '0') // 예상 피해액 (단위 추가)
-                              ]
-                            }))
-                      }
-                      formContent={({onClose, rowId, mode}) => (
-                        <Scenario onClose={onClose} rowId={rowId} mode={mode} />
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              </AccordionContent>
-            </AccordionItem>
+          <CardContent className="p-0">
+            <div className="bg-white rounded-b-lg">
+              <Accordion type="multiple" className="p-4">
+                <AccordionItem
+                  value="item-1"
+                  className="mb-3 overflow-hidden border rounded-md shadow-sm">
+                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-blue-50 to-white">
+                    <div className="flex items-center">
+                      <Cloud className="w-5 h-5 mr-2 text-blue-600" />
+                      SSP 시나리오 분석 결과
+                      <Badge
+                        variant="outline"
+                        className="ml-2 border-blue-100 bg-blue-50">
+                        {ScenarioData?.length || 0}
+                      </Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-4">
+                    <Card className="border-0 shadow-none">
+                      <CardContent className="p-0">
+                        <CollapsibleWindow
+                          type="scenario"
+                          headers={scenarioHeader}
+                          dialogTitle="SSP 시나리오 분석"
+                          data={
+                            loading
+                              ? []
+                              : ScenarioData.map(item => ({
+                                  id: item.id,
+                                  values: [
+                                    String(item.baseYear ?? ''), // 분석 기준 연도
+                                    String(item.regions ?? ''), // 행정구역
+                                    String(item.scenario ?? ''), // 시나리오
+                                    `${item.latitude ?? ''}/${item.longitude ?? ''}`, // 위도/경도 통합
+                                    String(item.climate ?? ''), // 기후 지표
+                                    String(item.industry ?? ''), // 산업 분야
+                                    String(item.assetType ?? ''), // 자산 유형
+                                    String(item.assetValue ?? ''), // 자산 가치
+                                    String(item.estimatedDamage ?? '0') // 예상 피해액
+                                  ]
+                                }))
+                          }
+                          formContent={({onClose, rowId, mode}) => (
+                            <Scenario onClose={onClose} rowId={rowId} mode={mode} />
+                          )}
+                        />
+                      </CardContent>
+                    </Card>
+                  </AccordionContent>
+                </AccordionItem>
 
-            <AccordionItem value="item-2" className="py-2 border-b-0">
-              <AccordionTrigger className="text-base font-medium hover:no-underline py-3 px-2 data-[state=open]:text-rose-600">
-                <div className="flex items-center">
-                  <Zap className="w-5 h-5 mr-2 text-rose-600" />
-                  물리/전환 리스크 및 기회요인
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-2 pb-4">
-                <Card className="border-0 shadow-none">
-                  <CardContent className="p-0">
-                    <CollapsibleWindow
-                      type="risk"
-                      headers={riskHeader}
-                      dialogTitle="리스크 식별 및 대응"
-                      data={
-                        loading
-                          ? []
-                          : RiskData.map(item => ({
-                              id: item.id,
-                              values: [
-                                item.riskType ?? '',
-                                item.riskCause ?? '',
-                                item.impact ?? '',
-                                item.businessModelImpact ?? '',
-                                item.time ?? '',
-                                item.financialImpact ?? '',
-                                item.plans ?? ''
-                              ]
-                            }))
-                      }
-                      formContent={({onClose, rowId, mode}) => (
-                        <Risk onClose={onClose} rowId={rowId} mode={mode} />
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                <AccordionItem
+                  value="item-2"
+                  className="mb-1 overflow-hidden border rounded-md shadow-sm">
+                  <AccordionTrigger className="px-4 py-3 text-base font-medium bg-gradient-to-r from-rose-50 to-white">
+                    <div className="flex items-center">
+                      <Zap className="w-5 h-5 mr-2 text-rose-600" />
+                      물리/전환 리스크 및 기회요인
+                      <Badge
+                        variant="outline"
+                        className="ml-2 border-rose-100 bg-rose-50">
+                        {RiskData?.length || 0}
+                      </Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-4">
+                    <Card className="border-0 shadow-none">
+                      <CardContent className="p-0">
+                        <CollapsibleWindow
+                          type="risk"
+                          headers={riskHeader}
+                          dialogTitle="리스크 식별 및 대응"
+                          data={
+                            loading
+                              ? []
+                              : RiskData.map(item => ({
+                                  id: item.id,
+                                  values: [
+                                    item.riskType ?? '',
+                                    item.riskCause ?? '',
+                                    item.impact ?? '',
+                                    item.businessModelImpact ?? '',
+                                    item.time ?? '',
+                                    item.financialImpact ?? '',
+                                    item.plans ?? ''
+                                  ]
+                                }))
+                          }
+                          formContent={({onClose, rowId, mode}) => (
+                            <Risk onClose={onClose} rowId={rowId} mode={mode} />
+                          )}
+                        />
+                      </CardContent>
+                    </Card>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </CardContent>
         </div>
       </LoadingState>
     </div>
