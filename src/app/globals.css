@@ -74,27 +74,19 @@
   }
 }
 
-.bg-grid-pattern {
-  background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px),
-    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
-  background-size: 24px 24px;
+/* globals.css 또는 tailwind.css */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-.preserve-3d {
-  transform-style: preserve-3d;
-  perspective: 2000px;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.flip-card {
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flip-card.flipped {
-  transform: rotateY(180deg);
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
 }
