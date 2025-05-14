@@ -1,5 +1,5 @@
-import EUDDForm from './euddResultForm'
+import EuddResult from './euddResult'
 
-export default function EUDDResultForm() {
-  return <EUDDForm />
+export default function EuddResultForm() {
+  return <EuddResult />
 }

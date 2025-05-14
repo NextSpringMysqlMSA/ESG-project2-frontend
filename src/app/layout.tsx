@@ -11,7 +11,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
   return (
     <html lang="ko">
       <body
-        className={`flex flex-col w-full h-full overflow-y-scroll font-custom ${
+        className={`flex flex-col w-full h-full overflow-y-scroll font-custom -z-50 ${
           isMainPage ? '' : 'bg-[#F9FBFF]'
         }`}>
         {children}

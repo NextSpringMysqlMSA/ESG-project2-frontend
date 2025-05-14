@@ -104,8 +104,6 @@ export default function Sidebar() {
     pathname.startsWith('/goal')
   const isSupplyActive = pathname === '/CSDDD'
   const isPartnerActive = pathname.startsWith('/financialRisk')
-  const isSupplyChildActive = pathname === '/CSDDD'
-  const isPartnerChildActive = pathname.startsWith('/financialRisk')
 
   /**
    * 사이드바에 마우스가 들어왔을 때 실행되는 이벤트 핸들러

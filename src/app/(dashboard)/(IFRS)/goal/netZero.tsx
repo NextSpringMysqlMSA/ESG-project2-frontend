@@ -6,6 +6,7 @@ import {useNetZeroStore} from '@/stores/IFRS/goal/useNetZeroStore'
 import {createNetZero} from '@/services/goal'
 import {showError, showSuccess} from '@/util/toast'
 import DashButton from '@/components/tools/dashButton'
+import axios from 'axios'
 
 type NetZeroProps = {
   onClose: () => void
@@ -64,15 +65,12 @@ export default function NetZero({onClose}: NetZeroProps) {
       showSuccess('넷제로 목표가 성공적으로 저장되었습니다.')
       resetFields()
       onClose()
-    } catch (err: unknown) {
-      const message =
-        typeof err === 'object' &&
-        err !== null &&
-        'response' in err &&
-        typeof (err as any).response?.data?.message === 'string'
-          ? (err as any).response.data.message
+    } catch (err) {
+      const errorMessage =
+        axios.isAxiosError(err) && err?.response?.data?.message
+          ? err.response.data.message
           : '저장 실패: 서버 오류가 발생했습니다.'
-      showError(message)
+      showError(errorMessage)
     }
   }
 
