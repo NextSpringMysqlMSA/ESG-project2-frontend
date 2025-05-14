@@ -23,7 +23,6 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card'
-import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
