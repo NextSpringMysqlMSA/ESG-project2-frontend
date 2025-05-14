@@ -22,7 +22,6 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card'
-import {Badge} from '@/components/ui/badge'
 import {StatCard} from '@/components/ui/stat-card'
 import {LoadingState} from '@/components/ui/loading-state'
 import {PageHeader} from '@/components/layout/PageHeader'
@@ -104,38 +103,6 @@ export default function Hrdddesult() {
     loadResults()
   }, [loadResults])
 
-  /**
-   * 위반 심각도에 따른 스타일 클래스 반환
-   * - 텍스트 내용에 따라 색상 클래스 반환
-   * - 심각, 높음, 예 → 빨간색
-   * - 중간, 부분 → 노란색
-   * - 낮음, 없음, 아니요 → 녹색
-   *
-   * @param text 위반 심각도 텍스트
-   * @returns 스타일 클래스명
-   */
-  const getSeverityClass = (text: string): string => {
-    const lowerText = text?.toLowerCase() || ''
-
-    if (
-      lowerText.includes('심각') ||
-      lowerText.includes('높음') ||
-      lowerText.includes('예')
-    ) {
-      return 'bg-red-50 text-red-600 border-red-100'
-    } else if (lowerText.includes('중간') || lowerText.includes('부분')) {
-      return 'bg-amber-50 text-amber-600 border-amber-100'
-    } else if (
-      lowerText.includes('낮음') ||
-      lowerText.includes('없음') ||
-      lowerText.includes('아니요')
-    ) {
-      return 'bg-green-50 text-green-600 border-green-100'
-    }
-
-    return 'bg-gray-50 text-gray-600 border-gray-200'
-  }
-
   // 통계 데이터 계산
   const stats = {
     violations: results.length,
@@ -171,13 +138,7 @@ export default function Hrdddesult() {
         title="인권 실사 자가진단 결과"
         description="인권 실사 지침 요구사항 이행 자가진단 결과 확인"
         gradient="from-green-100 to-green-50"
-        iconColor="text-customG">
-        <Link
-          href="/CSDDD/hrdd"
-          className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
-          {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
-        </Link>
-      </PageHeader>
+        iconColor="text-customG"></PageHeader>
 
       {/* 로딩/오류/빈 상태 처리 */}
       <LoadingState
@@ -226,11 +187,11 @@ export default function Hrdddesult() {
             initial={{opacity: 0, y: 20}}
             animate={{opacity: 1, y: 0}}
             transition={{duration: 0.5, delay: 0.2}}>
-            <Card className="shadow-sm">
+            <Card className="overflow-hidden border border-gray-100 shadow-sm">
               <CardHeader className="p-4 bg-white border-b">
                 <div className="flex flex-col justify-between md:flex-row md:items-center">
                   <div>
-                    <CardTitle className="text-lg font-semibold">
+                    <CardTitle className="text-lg font-semibold text-customG">
                       위반 항목 상세 분석
                     </CardTitle>
                     <CardDescription>
@@ -238,92 +199,211 @@ export default function Hrdddesult() {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2 mt-2 md:mt-0">
-                    <Badge
-                      variant="outline"
-                      className="bg-blue-50 text-blue-600 border-blue-100 pl-1.5">
-                      <FileCheck className="w-3.5 h-3.5 mr-1" />
-                      HRDD
-                    </Badge>
+                    <Link
+                      href="/CSDDD/hrdd"
+                      className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
+                      {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
+                    </Link>
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className="p-0 overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                  <table className="w-full text-left table-fixed">
+                    <colgroup>
+                      <col className="w-[30%]" />
+                      {/* 위반 항목 */}
+                      <col className="w-[15%]" />
+                      {/* 법적 해당 여부 */}
+                      <col className="w-[20%]" />
+                      {/* 관련 조항 */}
+                      <col className="w-[20%]" />
+                      {/* 벌금 범위 */}
+                      <col className="w-[15%]" />
+                      {/* 형사처벌 여부 */}
+                    </colgroup>
+                    <thead className="text-sm font-semibold border-b border-customGBorder bg-gradient-to-r from-green-100 to-white">
                       <tr>
-                        <th className="px-6 py-3 font-medium">위반 항목</th>
-                        <th className="px-6 py-3 font-medium">법적 해당 여부</th>
-                        <th className="px-6 py-3 font-medium">관련 조항</th>
-                        <th className="px-6 py-3 font-medium">벌금 범위</th>
-                        <th className="px-6 py-3 font-medium">형사처벌 여부</th>
+                        <th className="px-6 py-4 text-customG whitespace-nowrap">
+                          위반 항목
+                        </th>
+                        <th className="px-6 py-4 text-customG whitespace-nowrap">
+                          법적 해당 여부
+                        </th>
+                        <th className="px-6 py-4 text-customG whitespace-nowrap">
+                          관련 조항
+                        </th>
+                        <th className="px-6 py-4 text-customG whitespace-nowrap">
+                          벌금 범위
+                        </th>
+                        <th className="px-6 py-4 text-customG whitespace-nowrap">
+                          형사처벌 여부
+                        </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-customGBorder">
                       {results
                         .filter(id => analysisData[id])
                         .map((id, index) => (
                           <tr
                             key={id}
                             className={cn(
-                              'hover:bg-gray-50 transition-colors',
-                              index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                              'transition-colors hover:bg-customGLight/50 group',
+                              index % 2 === 0 ? 'bg-white' : 'bg-customGLight/20'
                             )}>
-                            <td className="px-6 py-4">
-                              <div className="font-medium text-gray-800">
-                                {analysisData[id].questionText}
-                              </div>
-                              <div className="mt-1 text-xs text-gray-500">ID: {id}</div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={cn(
-                                  'inline-block px-2 py-1 text-xs font-medium rounded-full border',
-                                  getSeverityClass(analysisData[id].legalRelevance)
-                                )}>
-                                {analysisData[id].legalRelevance}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="max-w-xs text-sm text-gray-600">
-                                {analysisData[id].legalBasis}
+                            {/* 위반 항목명 - 왼쪽 하이라이트 바와 인권 아이콘 추가 */}
+                            <td className="px-6 py-5 border-l-4 border-transparent group-hover:border-customG">
+                              <div className="flex items-start">
+                                <span className="flex items-center justify-center p-1 mr-3 bg-red-100 rounded-full">
+                                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                                </span>
+                                <div>
+                                  <div className="text-base font-medium text-gray-900">
+                                    {analysisData[id].questionText}
+                                  </div>
+                                  <div className="mt-2">
+                                    <span className="px-2.5 py-1 bg-customGLight rounded-full text-customG text-sm font-medium">
+                                      ID: {id}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={cn(
-                                  'inline-block px-2 py-1 text-xs font-medium rounded-full border',
-                                  getSeverityClass(analysisData[id].fineRange)
-                                )}>
-                                {analysisData[id].fineRange}
-                              </span>
+
+                            {/* 법적 해당 여부 - 아이콘과 배지 디자인 개선 */}
+                            <td className="px-6 py-5">
+                              <div className="flex justify-center">
+                                <div
+                                  className={cn(
+                                    'flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm border',
+                                    analysisData[id].legalRelevance === '예'
+                                      ? 'bg-red-50 text-red-600 border-red-100'
+                                      : 'bg-green-50 text-green-600 border-green-100'
+                                  )}>
+                                  {analysisData[id].legalRelevance === '예' ? (
+                                    <AlertCircle className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  )}
+                                  {analysisData[id].legalRelevance}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={cn(
-                                  'inline-block px-2 py-1 text-xs font-medium rounded-full border',
-                                  getSeverityClass(analysisData[id].criminalLiability)
-                                )}>
-                                {analysisData[id].criminalLiability}
-                              </span>
+
+                            {/* 관련 조항 - 카드 스타일 적용 */}
+                            <td className="px-6 py-5">
+                              <div className="p-3 text-sm font-medium text-gray-800 bg-white border rounded-lg shadow-sm border-customGBorder group-hover:bg-customGLight/30">
+                                {analysisData[id].legalBasis || (
+                                  <span className="text-gray-500">해당 없음</span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* 벌금 범위 - 통화 아이콘 추가 */}
+                            <td className="px-6 py-5">
+                              <div className="flex justify-center">
+                                <div
+                                  className={cn(
+                                    'flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm border',
+                                    analysisData[id].fineRange.includes('최대') ||
+                                      analysisData[id].fineRange.includes('100000')
+                                      ? 'bg-amber-50 text-amber-600 border-amber-100'
+                                      : analysisData[id].fineRange.includes('없음')
+                                      ? 'bg-green-50 text-green-600 border-green-100'
+                                      : 'bg-blue-50 text-blue-600 border-blue-100'
+                                  )}>
+                                  {analysisData[id].fineRange.includes('최대') ||
+                                  analysisData[id].fineRange.includes('100000') ? (
+                                    <span className="mr-2 text-lg">€</span>
+                                  ) : analysisData[id].fineRange.includes('없음') ? (
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <Info className="w-4 h-4 mr-2" />
+                                  )}
+                                  {analysisData[id].fineRange}
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 형사처벌 여부 - 강조 표시 개선 */}
+                            <td className="px-6 py-5">
+                              <div className="flex justify-center">
+                                <div
+                                  className={cn(
+                                    'flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm border',
+                                    analysisData[id].criminalLiability === '예'
+                                      ? 'bg-red-50 text-red-600 border-red-100'
+                                      : 'bg-green-50 text-green-600 border-green-100'
+                                  )}>
+                                  {analysisData[id].criminalLiability === '예' ? (
+                                    <AlertTriangle className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  )}
+                                  {analysisData[id].criminalLiability}
+                                </div>
+                              </div>
                             </td>
                           </tr>
                         ))}
                     </tbody>
                   </table>
                 </div>
+
+                {/* 결과가 없을 때 표시할 메시지 */}
+                {results.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="p-4 mb-4 bg-green-100 rounded-full">
+                      <CheckCircle2 className="w-12 h-12 text-customG" />
+                    </div>
+                    <h3 className="text-xl font-medium text-gray-700">
+                      위반 항목이 없습니다
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-500">
+                      현재 인권 실사 요구사항을 모두 준수하고 있습니다
+                    </p>
+                  </div>
+                )}
               </CardContent>
+
+              {/* 요약 정보 섹션 추가 */}
+              {results.length > 0 && (
+                <div className="p-4 border-t bg-gray-50 border-customGBorder">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center">
+                      <Info className="w-5 h-5 mr-2 text-customG" />
+                      <span className="text-sm text-gray-600">
+                        총{' '}
+                        <span className="font-semibold text-customG">
+                          {results.length}개
+                        </span>
+                        의 위반 가능성 항목이 식별되었습니다
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </Card>
 
-            {/* 면책 정보 */}
-            <div className="p-4 mt-6 border-l-2 border-blue-300 rounded-sm bg-blue-50">
+            {/* 개선된 면책 정보 */}
+            <div className="p-5 mt-6 border-l-4 border-customG bg-blue-50/80 rounded-r-md">
               <div className="flex">
-                <Info className="w-5 h-5 mr-2 text-blue-500" />
-                <p className="text-sm text-blue-600">
-                  위 결과는 자가진단에 기반한 참고용 정보입니다. 정확한 법적 조언은
-                  전문가와 상담하세요.
-                </p>
+                <div className="flex-shrink-0">
+                  <Info className="w-5 h-5 text-customG" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-customG">
+                    법적 책임 면책 안내
+                  </h3>
+                  <div className="mt-2 text-sm text-customG">
+                    <p>
+                      본 자가진단 결과는 참고용 정보로 제공되며, 법적 책임에 대한 최종
+                      판단이 아닙니다. 중요한 결정을 내리기 전에는 반드시 법률 전문가의
+                      상담을 받으시기 바랍니다.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
