@@ -155,20 +155,7 @@ export default function Governance() {
         title="거버넌스"
         description="IFRS S2/TCFD 기반 기후 거버넌스 체계 관리"
         module="IFRS"
-        submodule="governance">
-        <Badge
-          variant="outline"
-          className="bg-blue-50 text-blue-700 border-blue-200 pl-1.5">
-          <Landmark className="w-3.5 h-3.5 mr-1" />
-          IFRS S2
-        </Badge>
-        <Badge
-          variant="outline"
-          className="bg-amber-50 text-amber-700 border-amber-200 pl-1.5">
-          <Landmark className="w-3.5 h-3.5 mr-1" />
-          TCFD
-        </Badge>
-      </PageHeader>
+        submodule="governance"></PageHeader>
       {/* LoadingState 컴포넌트 활용 - 빈 상태일 때도 폼을 표시하도록 수정 */}
       <LoadingState
         isLoading={loading}
@@ -188,36 +175,66 @@ export default function Governance() {
           animate={{opacity: 1}}
           transition={{duration: 0.4, delay: 0.1}}
           className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="위원회"
-            count={stats.committees}
-            icon={<Users className="w-5 h-5 text-blue-600" />}
-            color="blue"
-            description="기후 관련 위원회"
-          />
-          <StatCard
-            title="회의"
-            count={stats.meetings}
-            icon={<CalendarDays className="w-5 h-5 text-customG" />}
-            color="emerald"
-            description="거버넌스 회의"
-          />
-          <StatCard
-            title="KPI"
-            count={stats.kpis}
-            icon={<BarChart className="w-5 h-5 text-purple-600" />}
-            color="purple"
-            description="경영진 성과지표"
-          />
-          <StatCard
-            title="교육"
-            count={stats.educations}
-            icon={<GraduationCap className="w-5 h-5 text-amber-600" />}
-            color="amber"
-            description="환경 교육"
-          />
-        </motion.div>
+          <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-blue-100 rounded-full">
+                <Users className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">위원회</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.committees}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card className="border-emerald-100 bg-gradient-to-br from-emerald-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 rounded-full bg-emerald-100">
+                <CalendarDays className="w-5 h-5 text-customG" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">회의</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.meetings}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-purple-100 rounded-full">
+                <BarChart className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">KPI</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.kpis}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-amber-100 bg-gradient-to-br from-amber-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 rounded-full bg-amber-100">
+                <GraduationCap className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">교육</p>
+                <h3 className="text-2xl font-bold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.educations}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         {/* 메인 콘텐츠 */}
         <motion.div
           initial={{opacity: 0, y: 20}}
