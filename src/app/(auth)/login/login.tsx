@@ -78,10 +78,6 @@ export default function Login() {
     }
   }
 
-  // 커스텀 입력 필드 스타일 클래스
-  const inputStyle =
-    'w-full py-3 pl-10 pr-4 text-gray-700 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customGRing focus:border-transparent'
-
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-customGEnd to-gray-50">
       <motion.div
@@ -125,14 +121,12 @@ export default function Login() {
               className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2"
             />
             {/* className prop 대신 스타일이 적용된 부모 div로 감싸기 */}
-            <div className={inputStyle}>
-              <AuthInputBox
-                type="email"
-                placeholder="이메일"
-                value={email}
-                onChange={setEmail}
-              />
-            </div>
+            <AuthInputBox
+              type="email"
+              placeholder="이메일"
+              value={email}
+              onChange={setEmail}
+            />
           </div>
 
           <div className="relative">
@@ -141,14 +135,12 @@ export default function Login() {
               className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2"
             />
             {/* className prop 대신 스타일이 적용된 부모 div로 감싸기 */}
-            <div className={inputStyle}>
-              <AuthInputBox
-                type="password"
-                placeholder="비밀번호"
-                value={password}
-                onChange={setPassword}
-              />
-            </div>
+            <AuthInputBox
+              type="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={setPassword}
+            />
           </div>
         </motion.div>
 

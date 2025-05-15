@@ -138,19 +138,14 @@ export default function SignUp() {
             {icon}
           </div>
         )}{' '}
-        <div
-          className={`w-full ${
-            icon ? 'pl-10' : 'pl-4'
-          } pr-4 py-2.5 text-gray-700 transition-colors border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-customGRing focus-within:border-transparent`}>
-          <AuthInputBox
-            type={type}
-            placeholder={placeholder || label}
-            value={form[key]}
-            onChange={(val: string | ((prevVal: string) => string)) =>
-              handleChange(key, val)
-            }
-          />
-        </div>
+        <AuthInputBox
+          type={type}
+          placeholder={placeholder || label}
+          value={form[key]}
+          onChange={(val: string | ((prevVal: string) => string)) =>
+            handleChange(key, val)
+          }
+        />
       </div>
       {formErrors[key] && <p className="mt-1 text-sm text-red-600">{formErrors[key]}</p>}
     </motion.div>
