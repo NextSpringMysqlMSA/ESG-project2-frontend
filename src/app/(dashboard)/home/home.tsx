@@ -444,7 +444,7 @@ export default function Home() {
   )
 
   return (
-    <div className="flex flex-col w-full h-full p-4 md:p-8 bg-gray-50">
+    <div className="flex flex-col w-full h-full p-4 md:p-8 ">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}

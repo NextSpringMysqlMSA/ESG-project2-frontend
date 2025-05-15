@@ -121,7 +121,7 @@ export default function Account() {
   ]
 
   return (
-    <div className="flex flex-col w-full min-h-screen px-4 py-8 bg-gradient-to-br from-customGLight to-gray-50">
+    <div className="flex flex-col w-full min-h-screen px-4 py-8">
       <div className="w-full max-w-5xl mx-auto">
         <motion.div
           initial={{opacity: 0, y: 10}}

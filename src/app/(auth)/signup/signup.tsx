@@ -152,7 +152,7 @@ export default function SignUp() {
   )
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-customGLight to-gray-50">
+    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
