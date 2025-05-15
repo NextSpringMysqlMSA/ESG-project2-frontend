@@ -135,7 +135,7 @@ export default function Governance() {
   const educationHeader = ['교육 일자', '참석자 수', '교육 제목', '교육 주요 내용']
 
   return (
-    <div className="flex flex-col w-full h-full p-4 md:p-8 bg-slate-50">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />

@@ -126,7 +126,7 @@ export default function FinancialRiskForm() {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null)
 
   return (
-    <div className="flex flex-col w-full h-full px-8 py-6 space-y-2 bg-[#F9FBFF]">
+    <div className="flex flex-col w-full h-full px-8 py-6 space-y-2">
       <div className="flex flex-row px-2 mb-4 text-sm text-gray-700">
         <Breadcrumb>
           <BreadcrumbList>

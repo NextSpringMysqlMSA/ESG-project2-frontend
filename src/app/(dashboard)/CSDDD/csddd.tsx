@@ -41,7 +41,7 @@ const dueDiligenceOptions = [
     description: '환경 실사 지침 요구사항 이행 자가진단',
     icon: '🌱',
     color: 'from-customGLight to-green-50',
-    borderColor: 'border-customGLight',
+    borderColor: 'border-customGBorder200',
     categories: '환경경영, 온실가스, 물 관리, 오염물질, 폐기물',
     path: '/CSDDD/edd/result'
   }
@@ -51,7 +51,7 @@ export default function CSDDD() {
   const router = useRouter()
 
   return (
-    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8 bg-[#F9FBFF]">
+    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
@@ -66,7 +66,7 @@ export default function CSDDD() {
 
       {/* 제목 및 설명 */}
       <div className="flex items-center w-full gap-3 px-4 mb-6">
-        <div className="p-2 rounded-full bg-gradient-to-r from-customG/20 to-blue-100">
+        <div className="p-2 rounded-full bg-gradient-to-r from-green-100 to-green-50">
           <BookOpen className="w-6 h-6 text-customG" />
         </div>
         <div>

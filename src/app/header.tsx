@@ -59,7 +59,7 @@ export default function Header({onArrowClick}: HeaderProps) {
         <div className="flex flex-col items-center justify-center w-full mt-8 space-y-32 md:flex-row md:space-x-36">
           {/* ✅ 아이콘 바퀴 ------------------------------------------------------------*/}
           <div
-            className="relative w-[30%] h-[128px] md:h-[96px] py-6 overflow-hidden"
+            className="relative w-[30%] h-[128px] md:h-[96px] md:mt-12 py-6 overflow-hidden"
             style={{
               WebkitMaskImage:
                 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)',
