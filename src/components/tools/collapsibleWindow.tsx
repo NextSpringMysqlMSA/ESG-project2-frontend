@@ -13,7 +13,6 @@ import {
 } from '../ui/dialog'
 import {PlusCircle, Edit, FileEdit} from 'lucide-react'
 import {Button} from '@/components/ui/button'
-import {cn} from '@/lib/utils'
 import React from 'react'
 
 type RowData = {
@@ -188,7 +187,7 @@ export default function CollapsibleWindow({
               </DialogTrigger>
               <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
-                  <DialogTitle className="flex items-center text-xl">
+                  <DialogTitle className="flex items-center text-xl sr-only" hidden>
                     <FileEdit className={`w-5 h-5 mr-2 ${theme.textColor}`} />
                     {dialogTitle}
                   </DialogTitle>
@@ -198,7 +197,7 @@ export default function CollapsibleWindow({
                     </DialogDescription>
                   )}
                 </DialogHeader>
-                <div className="mt-4">
+                <div>
                   {formContent({
                     onClose: () => setIsAddOpen(false),
                     mode: 'add',
@@ -216,7 +215,7 @@ export default function CollapsibleWindow({
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-xl">
+            <DialogTitle className="flex items-center text-xl sr-only" hidden>
               {icons.edit}
               항목 수정
             </DialogTitle>
@@ -226,7 +225,7 @@ export default function CollapsibleWindow({
               </DialogDescription>
             )}
           </DialogHeader>
-          <div className="mt-4">
+          <div>
             {selectedRowData &&
               formContent({
                 onClose: () => {

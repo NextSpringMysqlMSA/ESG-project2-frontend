@@ -279,7 +279,7 @@ export default function Education({onClose, rowId, mode}: EducationProps) {
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-2 mt-2 space-x-3 border-t">
+      <div className="flex items-center justify-end pt-2 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
