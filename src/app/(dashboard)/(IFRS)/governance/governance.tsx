@@ -37,7 +37,6 @@ import {
 } from '@/components/ui/card'
 import {Badge} from '@/components/ui/badge'
 import {Skeleton} from '@/components/ui/skeleton'
-import {StatCard} from '@/components/ui/stat-card'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {LoadingState} from '@/components/ui/loading-state'
 
@@ -318,7 +317,7 @@ export default function Governance() {
                             item.agenda ?? ''
                           ]
                         }))}
-                        formContent={({onClose, row, rowId, mode}) => (
+                        formContent={({onClose, rowId, mode}) => (
                           <Meeting onClose={onClose} rowId={rowId} mode={mode} />
                         )}
                       />
@@ -353,7 +352,7 @@ export default function Governance() {
                             item.achievedValue ?? ''
                           ]
                         }))}
-                        formContent={({onClose, row, rowId, mode}) => (
+                        formContent={({onClose, rowId, mode}) => (
                           <KPI onClose={onClose} rowId={rowId} mode={mode} />
                         )}
                       />
@@ -390,7 +389,7 @@ export default function Governance() {
                             item.content ?? ''
                           ]
                         }))}
-                        formContent={({onClose, row, rowId, mode}) => (
+                        formContent={({onClose, rowId, mode}) => (
                           <Education onClose={onClose} rowId={rowId} mode={mode} />
                         )}
                       />

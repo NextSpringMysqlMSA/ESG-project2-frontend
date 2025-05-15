@@ -77,13 +77,13 @@ export const typeThemeConfig = {
     hover: 'hover:bg-sky-50/70'
   },
   kpiGoal: {
-    color: 'indigo',
-    bgLight: 'bg-indigo-50',
-    bgHeader: 'bg-indigo-100',
-    textColor: 'text-indigo-600',
-    buttonBg: 'bg-indigo-600 hover:bg-indigo-700',
-    border: 'border-indigo-200',
-    hover: 'hover:bg-indigo-50/70'
+    color: 'purple',
+    bgLight: 'bg-purple-50',
+    bgHeader: 'bg-purple-100',
+    textColor: 'text-purple-600',
+    buttonBg: 'bg-purple-600 hover:bg-purple-700',
+    border: 'border-purple-200',
+    hover: 'hover:bg-purple-50/70'
   },
   netZero: {
     color: 'green',

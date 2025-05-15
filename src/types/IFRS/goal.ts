@@ -1,5 +1,3 @@
-// 기존 타입 정의...
-
 // NetZero 관련 타입 정의
 export interface NetZeroAsset {
   id?: number // 자산 ID (조회 시에만 사용)
@@ -16,12 +14,13 @@ export interface NetZeroEmission {
   year: number // 연도
   emission: number // 배출량
 }
-
-export interface NetZeroPayload {
-  industrialSector: string // 산업군
-  baseYear: number // 기준 년도
-  targetYear: number // 목표 년도
-  assets: NetZeroAsset[] // 자산 목록
+// types/IFRS/goal.ts 파일에서
+interface NetZeroPayload {
+  industrialSector: string
+  baseYear: number
+  targetYear: number
+  industrialGroup: string // 추가된 필드
+  assets: NetZeroAsset[]
 }
 
 export interface NetZeroResponse extends NetZeroPayload {
@@ -34,16 +33,27 @@ export interface NetZeroResponse extends NetZeroPayload {
   updatedAt: string // 수정 일시
 }
 
-export interface KPIGoalState {
-  id: number
+//------------------------------------------------------------------
+
+// KPI 목표 관련 DTO 정의
+// 기본 필드 구조 정의 (모든 DTO에서 공통으로 사용할 필드)
+export interface KPIGoalFields {
+  id: number // KPI 목표 ID
   indicator: string
   detailedIndicator: string
   unit: string
-  baseYear?: number // undefined 허용
-  goalYear?: number // undefined 허용
-  referenceValue?: number // undefined 허용
-  currentValue?: number // undefined 허용
-  targetValue?: number // undefined 허용
+  baseYear: number
+  goalYear: number
+  referenceValue: number
+  currentValue: number
+  targetValue: number
 }
 
-export type KPIGoalPayload = Omit<KPIGoalState, 'id'>
+// 생성 요청 시 사용될 DTO
+export interface KPIGoalCreateDTO extends Omit<KPIGoalFields, 'id'> {}
+
+// 업데이트 요청 시 사용될 DTO
+export interface KPIGoalUpdateDTO extends KPIGoalFields {}
+
+// API 응답으로 받는 DTO (서버에서 추가된 필드 포함)
+export type KPIGoalState = KPIGoalFields
