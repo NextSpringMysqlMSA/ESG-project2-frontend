@@ -450,7 +450,7 @@ export default function Sidebar() {
               exit="hidden"
               variants={menuVariants}
               className="overflow-hidden">
-              <div className="pl-4 mt-1 space-y-1">
+              <div className="mt-1 space-y-1 ">
                 <SubMenuItem
                   href="/financialRisk"
                   text="재무제표 리스크 관리"
