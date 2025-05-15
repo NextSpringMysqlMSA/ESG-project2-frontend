@@ -1,9 +1,11 @@
 import api from '@/lib/axios'
 import {
+  KPIGoalCreateDTO,
   KPIGoalState,
-  KPIGoalPayload,
+  NetZeroCreateDTO,
   NetZeroPayload,
-  NetZeroResponse
+  NetZeroResponse,
+  NetZeroUpdateDTO
 } from '@/types/IFRS/goal'
 
 // NetZero 관련 함수
@@ -11,7 +13,7 @@ import {
  * 넷제로 목표 생성
  * @param data 넷제로 목표 데이터
  */
-export const createNetZero = async (data: NetZeroPayload): Promise<NetZeroResponse> => {
+export const createNetZero = async (data: NetZeroCreateDTO): Promise<NetZeroResponse> => {
   const response = await api.post('/api/v1/tcfd/netzero', data)
   return response.data
 }
@@ -39,14 +41,14 @@ export const fetchNetZeroById = async (id: number): Promise<NetZeroResponse> => 
  * @param id 수정할 넷제로 목표 ID
  * @param data 수정할 데이터
  */
+// updateNetZero 함수에서 NetZeroUpdateDTO 타입을 명시적으로 사용
 export const updateNetZero = async (
   id: number,
-  data: NetZeroPayload
+  data: NetZeroUpdateDTO // NetZeroPayload 대신 NetZeroUpdateDTO 사용
 ): Promise<NetZeroResponse> => {
   const response = await api.put(`/api/v1/tcfd/netzero/${id}`, data)
   return response.data
 }
-
 /**
  * 넷제로 목표 삭제
  * @param id 삭제할 넷제로 목표 ID
@@ -72,7 +74,7 @@ export const fetchKPIGoal = async (): Promise<KPIGoalState[]> => {
 }
 
 // KPI 목표 생성
-export const createKPIGoal = async (data: KPIGoalPayload): Promise<KPIGoalState> => {
+export const createKPIGoal = async (data: KPIGoalCreateDTO): Promise<KPIGoalState> => {
   const response = await api.post('/api/v1/tcfd/goal/kpi', data)
   return response.data
 }
@@ -80,7 +82,7 @@ export const createKPIGoal = async (data: KPIGoalPayload): Promise<KPIGoalState>
 // KPI 목표 수정
 export const updateKPIGoal = async (
   id: number,
-  data: KPIGoalPayload
+  data: KPIGoalCreateDTO
 ): Promise<KPIGoalState> => {
   const response = await api.put(`/api/v1/tcfd/goal/kpi/${id}`, data)
   return response.data
