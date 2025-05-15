@@ -125,8 +125,8 @@ export function IFRSGovernanceFormCard({
       initial={{opacity: 0, y: 10}}
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.3}}>
-      <Card className={cn('shadow-sm border-blue-500/10', className)}>
-        <CardHeader className="p-4 bg-white border-b border-blue-500/10">
+      <Card className={cn(className)}>
+        <CardHeader className="p-4 bg-white border-b">
           <div className="flex items-center gap-2">
             {icon && <div className="text-blue-600">{icon}</div>}
             <div>
@@ -141,9 +141,7 @@ export function IFRSGovernanceFormCard({
         <CardContent className={cn('p-5', contentClassName)}>{children}</CardContent>
 
         {actions && (
-          <CardFooter className="flex justify-end p-4 pt-2 border-t">
-            {actions}
-          </CardFooter>
+          <CardFooter className="flex justify-end p-4 pt-2">{actions}</CardFooter>
         )}
       </Card>
     </motion.div>

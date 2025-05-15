@@ -298,7 +298,7 @@ export default function Governance() {
                         회의 관리
                         <Badge
                           variant="outline"
-                          className="ml-2 bg-customGLight border-customGLight">
+                          className="ml-2 bg-customGLight border-customGBorder">
                           {meetingData.length}
                         </Badge>
                       </div>
