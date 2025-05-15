@@ -1,6 +1,6 @@
 'use client'
 
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {
   PlusCircle,
   Trash2,
@@ -19,13 +19,15 @@ import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Separator} from '@/components/ui/separator'
 import {Badge} from '@/components/ui/badge'
-import {createNetZero} from '@/services/goal'
+import {createNetZero, fetchNetZeroById, updateNetZero} from '@/services/goal'
 import {IFRSGoalFormCard} from '@/components/forms/module-forms'
 import {IFRSGoalButton} from '@/components/buttons/module-buttons'
 import DashButton from '@/components/tools/dashButton'
 
 type NetZeroProps = {
   onClose: () => void
+  rowId?: number
+  mode?: 'add' | 'edit'
 }
 
 // 자산 항목 타입 정의
@@ -38,7 +40,8 @@ interface AssetItem {
 }
 
 // 기존 스토어 대신 로컬 상태 사용
-export default function NetZero({onClose}: NetZeroProps) {
+export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
+  const isEditMode = mode === 'edit'
   // 산업군 및 자산 유형 옵션
   const industrialSectorOptions = ['금융업']
   const assetTypeOptions = ['상장 주식/채권', '기업 대출', 'PF', '부동산 담보대출']
@@ -67,6 +70,54 @@ export default function NetZero({onClose}: NetZeroProps) {
     }
   ])
   const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(isEditMode)
+
+  // 편집 모드에서 데이터 로드
+  useEffect(() => {
+    const loadNetZeroData = async () => {
+      if (isEditMode && rowId) {
+        try {
+          setLoading(true)
+          const data = await fetchNetZeroById(rowId)
+
+          // 상태 업데이트
+          setIndustrialSector(data.industrialSector || '금융업')
+          setBaseYear(data.baseYear || '')
+          setTargetYear(data.targetYear || '')
+
+          // 자산 목록 설정
+          if (data.industries && data.industries.length > 0) {
+            setAssets(
+              data.industries.map(asset => ({
+                id: asset.id?.toString() || Date.now().toString(),
+                industry: asset.industry || '',
+                assetType: asset.assetType || '',
+                amount: asset.amount || '',
+                totalAssetValue: asset.totalAssetValue || ''
+              }))
+            )
+          } else if (data.assets && data.assets.length > 0) {
+            setAssets(
+              data.assets.map(asset => ({
+                id: asset.id?.toString() || Date.now().toString(),
+                industry: asset.industry || '',
+                assetType: asset.assetType || '',
+                amount: asset.amount || '',
+                totalAssetValue: asset.totalAssetValue || ''
+              }))
+            )
+          }
+        } catch (error) {
+          console.error('NetZero 데이터 로드 실패:', error)
+          showError('넷제로 목표 데이터를 불러오는데 실패했습니다.')
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadNetZeroData()
+  }, [isEditMode, rowId])
 
   // 숫자 입력 처리 함수
   const handleNumberChange = (
@@ -168,8 +219,16 @@ export default function NetZero({onClose}: NetZeroProps) {
 
     try {
       setSubmitting(true)
-      await createNetZero(payload)
-      showSuccess('넷제로 목표가 성공적으로 저장되었습니다')
+
+      if (isEditMode && rowId) {
+        // 수정 모드
+        await updateNetZero(rowId, payload)
+        showSuccess('넷제로 목표가 성공적으로 수정되었습니다')
+      } else {
+        // 추가 모드
+        await createNetZero(payload)
+        showSuccess('넷제로 목표가 성공적으로 저장되었습니다')
+      }
       onClose()
     } catch (err) {
       showError(
@@ -201,208 +260,216 @@ export default function NetZero({onClose}: NetZeroProps) {
       initial={{opacity: 0}}
       animate={{opacity: 1}}
       className="flex flex-col w-full h-full">
-      <IFRSGoalFormCard
-        title="넷제로 목표 설정"
-        icon={<Building2 className="w-5 h-5" />}
-        description="금융 포트폴리오의 탄소배출 감축 목표를 설정하고 관리합니다"
-        actions={
-          <div className="flex items-center justify-end space-x-3">
-            <IFRSGoalButton
-              variant="outline"
-              onClick={onClose}
-              disabled={submitting}
-              size="sm">
-              취소
-            </IFRSGoalButton>
-            <IFRSGoalButton
-              onClick={handleSubmit}
-              disabled={submitting}
-              icon={
-                submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )
-              }
-              size="sm">
-              {submitting ? '저장 중...' : '저장하기'}
-            </IFRSGoalButton>
-          </div>
-        }>
-        <div className="space-y-4">
-          {/* 기본 정보 섹션 */}
-          <Card className="shadow-sm border-customGBorder">
-            <CardHeader className="pb-2 bg-gradient-to-r from-customGLight to-white">
-              <CardTitle className="flex items-center text-lg text-customGText">
-                <Calendar className="w-5 h-5 mr-2 text-customG" />
-                기본 정보
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <CustomSelect
-                  placeholder="산업군 선택"
-                  options={industrialSectorOptions}
-                  value={industrialSector}
-                  onValueChange={setIndustrialSector}
-                />
-
-                <InputBox
-                  label="기준 년도"
-                  value={baseYear}
-                  onChange={e => handleNumberChange(e.target.value, setBaseYear)}
-                  className="border-customGBorder200 focus-within:ring-customGRing"
-                />
-
-                <InputBox
-                  label="목표 년도"
-                  value={targetYear}
-                  onChange={e => handleNumberChange(e.target.value, setTargetYear)}
-                  className="border-customGBorder200 focus-within:ring-customGRing"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 자산 항목 섹션 헤더 */}
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center space-x-2">
-              <Landmark className="w-5 h-5 text-customG" />
-              <h3 className="text-lg font-medium text-customGText">
-                투자/대출 포트폴리오
-              </h3>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={addAssetItem}
-              className="flex items-center gap-1 text-customG border-customGBorder200 hover:bg-customGLight">
-              <PlusCircle className="w-4 h-4" /> 자산 추가
-            </Button>
-          </div>
-
-          {/* 자산 항목 목록 */}
-          <div className="space-y-4">
-            <AnimatePresence>
-              {assets.map((asset, index) => (
-                <motion.div
-                  key={asset.id}
-                  initial={{opacity: 0, y: 10}}
-                  animate={{opacity: 1, y: 0}}
-                  exit={{opacity: 0, height: 0, overflow: 'hidden'}}
-                  transition={{duration: 0.2}}>
-                  <Card className="overflow-hidden transition-shadow duration-200 border-l-4 shadow-sm border-l-customG hover:shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <Badge className="bg-customGLight text-customGTextDark hover:bg-customGBorder">
-                            #{index + 1}
-                          </Badge>
-                          <h4 className="text-sm font-medium text-customGTextLight">
-                            자산 항목
-                          </h4>
-                          {asset.assetType && (
-                            <div className="flex items-center">
-                              {getAssetTypeIcon(asset.assetType)}
-                              <span className="ml-1 text-xs text-customG">
-                                {asset.assetType}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeAssetItem(asset.id)}
-                          className="p-1 text-gray-500 hover:text-red-500 hover:bg-red-50">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <CustomSelect
-                          placeholder="산업 분야 선택"
-                          options={industryOptions}
-                          value={asset.industry}
-                          onValueChange={value =>
-                            updateAssetItem(asset.id, 'industry', value)
-                          }
-                        />
-
-                        <CustomSelect
-                          placeholder="자산 유형 선택"
-                          options={assetTypeOptions}
-                          value={asset.assetType}
-                          onValueChange={value =>
-                            updateAssetItem(asset.id, 'assetType', value)
-                          }
-                        />
-
-                        <InputBox
-                          label="투자액/대출액 (원)"
-                          value={asset.amount}
-                          onChange={e =>
-                            handleAssetNumberChange(asset.id, 'amount', e.target.value)
-                          }
-                          className="border-customGBorder200 focus-within:ring-customGRing"
-                        />
-
-                        <InputBox
-                          label="총 자산/총 사업비/기업가치 (원)"
-                          value={asset.totalAssetValue}
-                          onChange={e =>
-                            handleAssetNumberChange(
-                              asset.id,
-                              'totalAssetValue',
-                              e.target.value
-                            )
-                          }
-                          className="border-customGBorder200 focus-within:ring-customGRing"
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* 저장 버튼 */}
-          <div className="flex justify-center w-full pt-4">
-            <DashButton
-              width="w-32"
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="text-white transition-all shadow-md bg-gradient-to-r from-customG to-customGRing hover:from-customGDark hover:to-customG hover:shadow-lg">
-              {submitting ? (
-                <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-2 animate-spin" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  저장 중...
-                </span>
-              ) : (
-                <span className="flex items-center">
-                  <Save className="w-4 h-4 mr-2" /> 저장하기
-                </span>
-              )}
-            </DashButton>
-          </div>
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-64">
+          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+          <span className="ml-2 text-emerald-600">데이터를 불러오는 중...</span>
         </div>
-      </IFRSGoalFormCard>
+      ) : (
+        <IFRSGoalFormCard
+          title={isEditMode ? '넷제로 목표 수정' : '넷제로 목표 설정'}
+          icon={<Building2 className="w-5 h-5" />}
+          description="금융 포트폴리오의 탄소배출 감축 목표를 설정하고 관리합니다"
+          actions={
+            <div className="flex items-center justify-end space-x-3">
+              <IFRSGoalButton
+                variant="outline"
+                onClick={onClose}
+                disabled={submitting}
+                size="sm">
+                취소
+              </IFRSGoalButton>
+              <IFRSGoalButton
+                onClick={handleSubmit}
+                disabled={submitting}
+                icon={
+                  submitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )
+                }
+                size="sm">
+                {submitting ? '저장 중...' : isEditMode ? '수정하기' : '저장하기'}
+              </IFRSGoalButton>
+            </div>
+          }>
+          <div className="space-y-4">
+            {/* 기본 정보 섹션 */}
+            <Card className="shadow-sm border-customGBorder">
+              <CardHeader className="pb-2 bg-gradient-to-r from-customGLight to-white">
+                <CardTitle className="flex items-center text-lg text-customGText">
+                  <Calendar className="w-5 h-5 mr-2 text-customG" />
+                  기본 정보
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <CustomSelect
+                    placeholder="산업군 선택"
+                    options={industrialSectorOptions}
+                    value={industrialSector}
+                    onValueChange={setIndustrialSector}
+                  />
+
+                  <InputBox
+                    label="기준 년도"
+                    value={baseYear}
+                    onChange={e => handleNumberChange(e.target.value, setBaseYear)}
+                    className="border-customGBorder200 focus-within:ring-customGRing"
+                  />
+
+                  <InputBox
+                    label="목표 년도"
+                    value={targetYear}
+                    onChange={e => handleNumberChange(e.target.value, setTargetYear)}
+                    className="border-customGBorder200 focus-within:ring-customGRing"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 자산 항목 섹션 헤더 */}
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center space-x-2">
+                <Landmark className="w-5 h-5 text-customG" />
+                <h3 className="text-lg font-medium text-customGText">
+                  투자/대출 포트폴리오
+                </h3>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addAssetItem}
+                className="flex items-center gap-1 text-customG border-customGBorder200 hover:bg-customGLight">
+                <PlusCircle className="w-4 h-4" /> 자산 추가
+              </Button>
+            </div>
+
+            {/* 자산 항목 목록 */}
+            <div className="space-y-4">
+              <AnimatePresence>
+                {assets.map((asset, index) => (
+                  <motion.div
+                    key={asset.id}
+                    initial={{opacity: 0, y: 10}}
+                    animate={{opacity: 1, y: 0}}
+                    exit={{opacity: 0, height: 0, overflow: 'hidden'}}
+                    transition={{duration: 0.2}}>
+                    <Card className="overflow-hidden transition-shadow duration-200 border-l-4 shadow-sm border-l-customG hover:shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <Badge className="bg-customGLight text-customGTextDark hover:bg-customGBorder">
+                              #{index + 1}
+                            </Badge>
+                            <h4 className="text-sm font-medium text-customGTextLight">
+                              자산 항목
+                            </h4>
+                            {asset.assetType && (
+                              <div className="flex items-center">
+                                {getAssetTypeIcon(asset.assetType)}
+                                <span className="ml-1 text-xs text-customG">
+                                  {asset.assetType}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeAssetItem(asset.id)}
+                            className="p-1 text-gray-500 hover:text-red-500 hover:bg-red-50">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          <CustomSelect
+                            placeholder="산업 분야 선택"
+                            options={industryOptions}
+                            value={asset.industry}
+                            onValueChange={value =>
+                              updateAssetItem(asset.id, 'industry', value)
+                            }
+                          />
+
+                          <CustomSelect
+                            placeholder="자산 유형 선택"
+                            options={assetTypeOptions}
+                            value={asset.assetType}
+                            onValueChange={value =>
+                              updateAssetItem(asset.id, 'assetType', value)
+                            }
+                          />
+
+                          <InputBox
+                            label="투자액/대출액 (원)"
+                            value={asset.amount}
+                            onChange={e =>
+                              handleAssetNumberChange(asset.id, 'amount', e.target.value)
+                            }
+                            className="border-customGBorder200 focus-within:ring-customGRing"
+                          />
+
+                          <InputBox
+                            label="총 자산/총 사업비/기업가치 (원)"
+                            value={asset.totalAssetValue}
+                            onChange={e =>
+                              handleAssetNumberChange(
+                                asset.id,
+                                'totalAssetValue',
+                                e.target.value
+                              )
+                            }
+                            className="border-customGBorder200 focus-within:ring-customGRing"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* 저장 버튼 */}
+            <div className="flex justify-center w-full pt-4">
+              <DashButton
+                width="w-32"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="text-white transition-all shadow-md bg-gradient-to-r from-customG to-customGRing hover:from-customGDark hover:to-customG hover:shadow-lg">
+                {submitting ? (
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-2 animate-spin" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    처리 중...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <Save className="w-4 h-4 mr-2" />
+                    {isEditMode ? '수정하기' : '저장하기'}
+                  </span>
+                )}
+              </DashButton>
+            </div>
+          </div>
+        </IFRSGoalFormCard>
+      )}
     </motion.div>
   )
 }
