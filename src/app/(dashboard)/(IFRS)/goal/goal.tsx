@@ -31,8 +31,8 @@ import {
 } from '@/components/ui/dialog'
 import {useEffect, useState} from 'react'
 import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
-import {KPIGoalState} from '@/types/IFRS/goal'
-import {fetchKPIGoal} from '@/services/goal'
+import {KPIGoalState, NetZeroResponse} from '@/types/IFRS/goal'
+import {fetchKPIGoal, fetchNetZeroList, fetchNetZeroById} from '@/services/goal'
 import {
   Card,
   CardContent,
@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/card'
 import {IFRSGoalButton} from '@/components/buttons/module-buttons'
 import {motion} from 'framer-motion'
-import {Home, ChevronRight, BarChart3, Target} from 'lucide-react'
+import {Home, ChevronRight, BarChart3, Target, Edit, Edit2} from 'lucide-react'
 import {Badge} from '@/components/ui/badge'
 import {PageHeader} from '@/components/layout/PageHeader'
 
@@ -59,23 +59,112 @@ ChartJS.register(
 
 export default function Goal() {
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [netZeroLoading, setNetZeroLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [netZeroError, setNetZeroError] = useState<string | null>(null)
+  const [selectedNetZeroId, setSelectedNetZeroId] = useState<number | null>(null)
+  const [netZeroData, setNetZeroData] = useState<NetZeroResponse[]>([])
 
   // KPI 목표 데이터 관련 상태 관리
   const {data: kpiGoalData, setData: setKpiGoalData} = useKPIGoalStore()
 
-  const chartData = {
-    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월'],
-    datasets: [
-      {
-        label: '넷제로 분석 결과',
-        data: [65, 59, 80, 81, 56, 55, 40],
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0
+  // 넷제로 데이터를 차트 형식으로 변환 - 로직 개선
+  const getNetZeroChartData = () => {
+    if (netZeroData.length === 0 || !netZeroData[0].emissions) {
+      return {
+        labels: ['준비 중...'],
+        datasets: [
+          {
+            label: '넷제로 배출량',
+            data: [0],
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+          }
+        ]
       }
-    ]
+    }
+
+    try {
+      // 첫 번째 넷제로 데이터 사용
+      const firstData = netZeroData[0]
+
+      // emissions 데이터를 연도 순으로 정렬
+      const sortedEmissions = [...firstData.emissions].sort((a, b) => a.year - b.year)
+
+      // 정렬된 데이터에서 연도와 배출량 추출
+      const years = sortedEmissions.map(item => item.year.toString())
+      const emissionValues = sortedEmissions.map(item => item.emission)
+
+      console.log('차트 데이터:', {years, emissionValues}) // 디버깅용 로그
+
+      return {
+        labels: years,
+        datasets: [
+          {
+            label: '넷제로 배출량 (tCO2e)',
+            data: emissionValues,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            tension: 0.1
+          }
+        ]
+      }
+    } catch (error) {
+      console.error('차트 데이터 생성 중 오류:', error)
+
+      // 오류 발생 시 빈 차트 데이터 반환
+      return {
+        labels: ['데이터 오류'],
+        datasets: [
+          {
+            label: '넷제로 배출량',
+            data: [0],
+            fill: false,
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            tension: 0.1
+          }
+        ]
+      }
+    }
+  }
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || ''
+            if (label) {
+              label += ': '
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + ' tCO2e'
+            }
+            return label
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function (value: any) {
+            return new Intl.NumberFormat('ko-KR').format(value)
+          }
+        }
+      }
+    }
   }
 
   const kpiGoalHeader = [
@@ -104,9 +193,46 @@ export default function Goal() {
     }
   }
 
+  // NetZero 데이터 로드 함수 개선
+  const loadNetZeroData = async () => {
+    setNetZeroLoading(true)
+    setNetZeroError(null)
+    try {
+      console.log('넷제로 데이터 로드 시작')
+      const data = await fetchNetZeroList()
+
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('넷제로 응답 데이터:', data)
+
+        // emissions 배열 확인
+        if (data[0].emissions && Array.isArray(data[0].emissions)) {
+          console.log('emissions 데이터:', data[0].emissions)
+        } else {
+          console.warn('emissions 데이터가 없거나 배열이 아닙니다')
+        }
+
+        setNetZeroData(data)
+
+        // 첫 번째 항목 선택
+        if (data.length > 0) {
+          setSelectedNetZeroId(data[0].id)
+        }
+      } else {
+        console.log('넷제로 데이터 없음')
+        setNetZeroData([])
+      }
+    } catch (err) {
+      console.error('NetZero 데이터 로드 실패:', err)
+      setNetZeroError('NetZero 데이터를 불러오는데 실패했습니다.')
+    } finally {
+      setNetZeroLoading(false)
+    }
+  }
+
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     loadKPIGoalData()
+    loadNetZeroData()
   }, [])
 
   // KPI 목표 테이블에 표시할 데이터 형식으로 변환
@@ -188,24 +314,110 @@ export default function Goal() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="p-4">
-                    <div className="flex flex-row justify-end mb-4">
+                    <div className="flex flex-row justify-end mb-4 space-x-2">
+                      {netZeroData.length > 0 && (
+                        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                          <DialogTrigger asChild>
+                            <IFRSGoalButton
+                              size="sm"
+                              className="flex items-center gap-1 bg-amber-500 hover:bg-amber-600">
+                              <Edit2 className="w-4 h-4 mr-1" /> 넷제로 목표 수정
+                            </IFRSGoalButton>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl">
+                            <DialogHeader>
+                              <DialogTitle>넷제로 목표 수정</DialogTitle>
+                            </DialogHeader>
+                            {selectedNetZeroId && (
+                              <NetZero
+                                onClose={() => {
+                                  setIsEditOpen(false)
+                                  loadNetZeroData() // 데이터 다시 로드
+                                }}
+                                rowId={selectedNetZeroId}
+                                mode="edit"
+                              />
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                      )}
                       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                         <DialogTrigger asChild>
                           <IFRSGoalButton size="sm" className="flex items-center gap-1">
                             + 넷제로 목표 설정
                           </IFRSGoalButton>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="max-w-4xl">
                           <DialogHeader>
                             <DialogTitle>넷제로 목표 설정</DialogTitle>
                           </DialogHeader>
-                          <NetZero onClose={handleNetZeroClose} />
+                          <NetZero
+                            onClose={() => {
+                              handleNetZeroClose()
+                              loadNetZeroData() // 데이터 다시 로드
+                            }}
+                            mode="add"
+                          />
                         </DialogContent>
                       </Dialog>
                     </div>
-                    <div className="p-2 bg-white border rounded-md border-emerald-100">
-                      <Line data={chartData} />
-                    </div>
+                    {netZeroLoading ? (
+                      <div className="flex justify-center p-8">
+                        <div className="w-8 h-8 border-t-2 border-b-2 rounded-full animate-spin border-emerald-600"></div>
+                      </div>
+                    ) : netZeroError ? (
+                      <div className="p-4 text-center text-red-500">{netZeroError}</div>
+                    ) : netZeroData.length === 0 ? (
+                      <div className="p-8 text-center text-gray-500">
+                        <p>설정된 넷제로 목표가 없습니다.</p>
+                        <p className="mt-2 text-sm">
+                          위의 '넷제로 목표 설정' 버튼을 클릭하여 목표를 추가해주세요.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 space-y-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                          <div className="p-4 border rounded-md border-emerald-100 bg-emerald-50">
+                            <p className="text-xs text-emerald-600">산업 분야</p>
+                            <p className="text-lg font-semibold">
+                              {netZeroData[0].industrialSector}
+                            </p>
+                          </div>
+                          <div className="p-4 border rounded-md border-emerald-100 bg-emerald-50">
+                            <p className="text-xs text-emerald-600">기준 연도</p>
+                            <p className="text-lg font-semibold">
+                              {netZeroData[0].baseYear}년
+                            </p>
+                          </div>
+                          <div className="p-4 border rounded-md border-emerald-100 bg-emerald-50">
+                            <p className="text-xs text-emerald-600">목표 연도</p>
+                            <p className="text-lg font-semibold">
+                              {netZeroData[0].targetYear}년
+                            </p>
+                          </div>
+                          <div className="p-4 border rounded-md border-emerald-100 bg-emerald-50">
+                            <p className="text-xs text-emerald-600">배출량 감소율</p>
+                            {netZeroData[0].emissions &&
+                              netZeroData[0].emissions.length >= 2 && (
+                                <p className="text-lg font-semibold">
+                                  {Math.round(
+                                    ((netZeroData[0].emissions[0].emission -
+                                      netZeroData[0].emissions[
+                                        netZeroData[0].emissions.length - 1
+                                      ].emission) /
+                                      netZeroData[0].emissions[0].emission) *
+                                      100
+                                  )}
+                                  %
+                                </p>
+                              )}
+                          </div>
+                        </div>
+                        <div className="p-4 bg-white border rounded-md border-emerald-100">
+                          <Line data={getNetZeroChartData()} options={chartOptions} />
+                        </div>
+                      </div>
+                    )}
                   </AccordionContent>
                 </AccordionItem>
 

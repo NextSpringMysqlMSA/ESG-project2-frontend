@@ -7,6 +7,14 @@ export interface NetZeroAsset {
   assetType: string // 자산 유형
   amount: number // 투자액/대출액
   totalAssetValue: number // 총 자산/사업비/기업가치
+  emissionFactor?: number // 배출계수
+  attributionFactor?: number // 기여도 계수
+  baseEmission?: number // 기준 배출량
+}
+
+export interface NetZeroEmission {
+  year: number // 연도
+  emission: number // 배출량
 }
 
 export interface NetZeroPayload {
@@ -19,6 +27,9 @@ export interface NetZeroPayload {
 export interface NetZeroResponse extends NetZeroPayload {
   id: number // 넷제로 목표 ID
   memberId: number // 사용자 ID
+  industries?: NetZeroAsset[] // 산업별 데이터
+  emissions: NetZeroEmission[] // 연도별 배출량
+  scenario?: string | null // 시나리오
   createdAt: string // 생성 일시
   updatedAt: string // 수정 일시
 }
