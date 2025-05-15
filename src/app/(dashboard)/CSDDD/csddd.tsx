@@ -41,7 +41,7 @@ const dueDiligenceOptions = [
     description: '환경 실사 지침 요구사항 이행 자가진단',
     icon: '🌱',
     color: 'from-customGLight to-green-50',
-    borderColor: 'border-customGLight',
+    borderColor: 'border-customGBorder200',
     categories: '환경경영, 온실가스, 물 관리, 오염물질, 폐기물',
     path: '/CSDDD/edd/result'
   }
