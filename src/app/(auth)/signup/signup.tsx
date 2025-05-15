@@ -138,26 +138,21 @@ export default function SignUp() {
             {icon}
           </div>
         )}{' '}
-        <div
-          className={`w-full ${
-            icon ? 'pl-10' : 'pl-4'
-          } pr-4 py-2.5 text-gray-700 transition-colors border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-customGRing focus-within:border-transparent`}>
-          <AuthInputBox
-            type={type}
-            placeholder={placeholder || label}
-            value={form[key]}
-            onChange={(val: string | ((prevVal: string) => string)) =>
-              handleChange(key, val)
-            }
-          />
-        </div>
+        <AuthInputBox
+          type={type}
+          placeholder={placeholder || label}
+          value={form[key]}
+          onChange={(val: string | ((prevVal: string) => string)) =>
+            handleChange(key, val)
+          }
+        />
       </div>
       {formErrors[key] && <p className="mt-1 text-sm text-red-600">{formErrors[key]}</p>}
     </motion.div>
   )
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-customGLight to-gray-50">
+    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}

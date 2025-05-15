@@ -126,7 +126,7 @@ export default function EddResult() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full p-4 md:p-8 bg-slate-50">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* ======== 상단 네비게이션 ======== */}
       <motion.div
         initial={{opacity: 0, y: -10}} // 초기 상태 (투명하고 약간 위로 이동)

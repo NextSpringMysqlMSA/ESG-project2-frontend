@@ -1,21 +1,10 @@
 import {create} from 'zustand'
-import {KPIGoalPayload, KPIGoalState} from '@/types/IFRS/goal'
-import {fetchKpiGoalById} from '@/services/goal' // API 함수 import 추가
+import {KPIGoalFields, KPIGoalState} from '@/types/IFRS/goal'
+import {fetchKpiGoalById} from '@/services/goal'
 
-interface KPIGoalStore extends KPIGoalPayload {
-  id: number // id 필드 추가
-  setField: (key: keyof KPIGoalPayload, value: string | number) => void
-  resetFields: () => void
-  data: KPIGoalState[]
-  addItem: (item: KPIGoalState) => void
-  clearList: () => void
-  setData: (items: KPIGoalState[]) => void
-  persistToStorage: () => void // 로컬 스토리지에 저장 함수 추가
-  initFromStorage: () => void // 로컬 스토리지에서 초기화 함수 추가
-  initFromApi: (id: number) => Promise<void> // API에서 초기화 함수 추가
-}
-
-const initialState: KPIGoalPayload = {
+// 기본 필드 정의 - CommitteeStore 패턴과 일치
+const DEFAULT_FIELDS: KPIGoalFields = {
+  id: -1,
   indicator: '',
   detailedIndicator: '',
   unit: '',
@@ -26,22 +15,33 @@ const initialState: KPIGoalPayload = {
   targetValue: 0
 }
 
-export const useKPIGoalStore = create<KPIGoalStore>((set, get) => ({
-  ...initialState,
-  id: -1, // id 초기값 추가
+// CommitteeStore 패턴과 동일하게 인터페이스 정의
+interface KPIGoalStore extends KPIGoalFields {
+  data: KPIGoalState[]
+  setField: (key: keyof KPIGoalFields, value: string | number | undefined) => void
+  resetFields: () => void
+  persistToStorage: () => void
+  initFromStorage: () => void
+  initFromApi: (id: number) => Promise<void>
+  addItem: (item: KPIGoalState) => void
+  clearList: () => void
+  setData: (items: KPIGoalState[]) => void
+}
 
+export const useKPIGoalStore = create<KPIGoalStore>((set, get) => ({
+  ...DEFAULT_FIELDS,
   data: [],
 
   setField: (key, value) => set(state => ({...state, [key]: value})),
 
   resetFields: () => {
-    set({...initialState, id: -1})
+    set({...DEFAULT_FIELDS}) // CommitteeStore 패턴과 동일
   },
 
   persistToStorage: () => {
     if (typeof window !== 'undefined') {
       const state = get()
-      const dataToStore: KPIGoalPayload & {id: number} = {
+      const dataToStore: KPIGoalFields = {
         id: -1,
         indicator: state.indicator,
         detailedIndicator: state.detailedIndicator,
@@ -62,14 +62,13 @@ export const useKPIGoalStore = create<KPIGoalStore>((set, get) => ({
       if (!raw) return
       try {
         const parsed = JSON.parse(raw)
-        set({...parsed})
+        set({...parsed}) // CommitteeStore 패턴과 동일
       } catch (e) {
         console.error('kpigoal-storage 복원 실패:', e)
       }
     }
   },
 
-  // API에서 KPI 목표 데이터를 가져와 상태를 초기화하는 함수
   initFromApi: async (id: number) => {
     try {
       const kpiGoalData = await fetchKpiGoalById(id)
@@ -80,8 +79,6 @@ export const useKPIGoalStore = create<KPIGoalStore>((set, get) => ({
   },
 
   addItem: item => set(state => ({data: [...state.data, item]})),
-
   clearList: () => set({data: []}),
-
   setData: items => set({data: items})
 }))

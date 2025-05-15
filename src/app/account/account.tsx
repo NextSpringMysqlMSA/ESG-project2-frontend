@@ -121,7 +121,7 @@ export default function Account() {
   ]
 
   return (
-    <div className="flex flex-col w-full min-h-screen px-4 py-8 bg-gradient-to-br from-customGLight to-gray-50">
+    <div className="flex flex-col w-full min-h-screen px-4 py-8">
       <div className="w-full max-w-5xl mx-auto">
         <motion.div
           initial={{opacity: 0, y: 10}}
@@ -130,7 +130,7 @@ export default function Account() {
           className="mb-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center transition-colors bg-customG hover:text-customGDark">
+            className="py-2.5 bg-customG text-white rounded-lg hover:bg-customGDark transition-colors focus:outline-none focus:ring-2 focus:ring-customGRing focus:ring-offset-2 disabled:opacity-70 w-32 flex items-center justify-center font-medium">
             <ChevronLeft size={20} />
             <span className="ml-1 font-medium">돌아가기</span>
           </button>
@@ -146,7 +146,7 @@ export default function Account() {
             <div className="flex flex-col md:flex-row md:items-start">
               <div className="flex-1">
                 <h2 className="flex items-center mb-4 text-xl font-bold text-gray-800">
-                  <User size={20} className="mr-2 bg-customG" />
+                  <User size={20} className="mr-2" />
                   계정 정보
                 </h2>
 
@@ -208,7 +208,7 @@ export default function Account() {
             transition={{duration: 0.5, delay: 0.4}}
             className="p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
             <h2 className="flex items-center mb-6 text-xl font-bold text-gray-800">
-              <ShieldCheck size={20} className="mr-2 bg-customG" />
+              <ShieldCheck size={20} className="mr-2" />
               비밀번호 변경
             </h2>
 
