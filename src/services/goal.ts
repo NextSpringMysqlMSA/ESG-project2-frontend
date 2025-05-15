@@ -1,9 +1,59 @@
 import api from '@/lib/axios'
-import {KPIGoalState, KPIGoalPayload, NetZeroPayload} from '@/types/IFRS/goal'
+import {
+  KPIGoalState,
+  KPIGoalPayload,
+  NetZeroPayload,
+  NetZeroResponse
+} from '@/types/IFRS/goal'
 
 // NetZero 관련 함수
-export const createNetZero = async (data: NetZeroPayload) => {
-  return await api.post('/api/v1/tcfd/strategy/netZero', data)
+/**
+ * 넷제로 목표 생성
+ * @param data 넷제로 목표 데이터
+ */
+export const createNetZero = async (data: NetZeroPayload): Promise<NetZeroResponse> => {
+  const response = await api.post('/api/v1/tcfd/netzero', data)
+  return response.data
+}
+
+/**
+ * 넷제로 목표 전체 조회
+ * 사용자별 목표 정보를 반환합니다 (JWT 토큰 기반 인증 필요)
+ */
+export const fetchNetZeroList = async (): Promise<NetZeroResponse[]> => {
+  const response = await api.get('/api/v1/tcfd/netzero')
+  return response.data
+}
+
+/**
+ * 넷제로 목표 단건 조회
+ * @param id 조회할 넷제로 목표 ID
+ */
+export const fetchNetZeroById = async (id: number): Promise<NetZeroResponse> => {
+  const response = await api.get(`/api/v1/tcfd/netzero/${id}`)
+  return response.data
+}
+
+/**
+ * 넷제로 목표 수정
+ * @param id 수정할 넷제로 목표 ID
+ * @param data 수정할 데이터
+ */
+export const updateNetZero = async (
+  id: number,
+  data: NetZeroPayload
+): Promise<NetZeroResponse> => {
+  const response = await api.put(`/api/v1/tcfd/netzero/${id}`, data)
+  return response.data
+}
+
+/**
+ * 넷제로 목표 삭제
+ * @param id 삭제할 넷제로 목표 ID
+ */
+export const deleteNetZero = async (id: number): Promise<string> => {
+  const response = await api.delete(`/api/v1/tcfd/netzero/${id}`)
+  return response.data
 }
 
 //-------------------------------------------------------------------------------------------
@@ -22,13 +72,18 @@ export const fetchKPIGoal = async (): Promise<KPIGoalState[]> => {
 }
 
 // KPI 목표 생성
-export const createKPIGoal = async (data: KPIGoalPayload) => {
-  return await api.post('/api/v1/tcfd/goal/kpi', data)
+export const createKPIGoal = async (data: KPIGoalPayload): Promise<KPIGoalState> => {
+  const response = await api.post('/api/v1/tcfd/goal/kpi', data)
+  return response.data
 }
 
 // KPI 목표 수정
-export const updateKPIGoal = async (id: number, data: KPIGoalPayload) => {
-  return await api.put(`/api/v1/tcfd/goal/kpi/${id}`, data)
+export const updateKPIGoal = async (
+  id: number,
+  data: KPIGoalPayload
+): Promise<KPIGoalState> => {
+  const response = await api.put(`/api/v1/tcfd/goal/kpi/${id}`, data)
+  return response.data
 }
 
 // KPI 목표 삭제

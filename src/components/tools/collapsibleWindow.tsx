@@ -262,7 +262,7 @@ export default function CollapsibleWindow({
               onClick={handleAdd}
               className={`text-white ${theme.buttonBg}`}
               size="sm">
-              {icons.add} 첫 항목 추가하기
+              <PlusCircle className="w-4 h-4 mr-1.5 text-white" /> 첫 항목 추가하기
             </Button>
           </div>
         ) : (

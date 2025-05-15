@@ -199,11 +199,12 @@ export function IFRSGoalFormCard({
   title,
   description,
   icon,
+  badge,
   children,
   className,
   contentClassName,
   actions
-}: Omit<ModuleFormCardProps, 'module' | 'submodule'>) {
+}: Omit<ModuleFormCardProps, 'module' | 'submodule'> & {badge?: ReactNode}) {
   return (
     <motion.div
       initial={{opacity: 0, y: 10}}
@@ -211,14 +212,19 @@ export function IFRSGoalFormCard({
       transition={{duration: 0.3}}>
       <Card className={cn('shadow-sm border-emerald-500/10', className)}>
         <CardHeader className="p-4 bg-white border-b border-emerald-500/10">
-          <div className="flex items-center gap-2">
-            {icon && <div className="text-emerald-600">{icon}</div>}
-            <div>
-              <CardTitle className="text-gray-800">{title}</CardTitle>
-              {description && (
-                <CardDescription className="text-gray-500">{description}</CardDescription>
-              )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {icon && <div className="text-emerald-600">{icon}</div>}
+              <div>
+                <CardTitle className="text-gray-800">{title}</CardTitle>
+                {description && (
+                  <CardDescription className="text-gray-500">
+                    {description}
+                  </CardDescription>
+                )}
+              </div>
             </div>
+            {badge && <div>{badge}</div>}
           </div>
         </CardHeader>
 
