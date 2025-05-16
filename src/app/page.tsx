@@ -5,7 +5,6 @@ import Header from './header'
 import LandingNavBar from '@/components/layout/landingNavbar'
 import Footer from './footer'
 import Main from './main'
-import ToastRotator from '@/components/tools/toastRotator'
 
 export default function Page() {
   const mainRef = useRef<HTMLDivElement>(null)

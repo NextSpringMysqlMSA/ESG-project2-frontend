@@ -10,7 +10,7 @@ import {motion} from 'framer-motion'
  */
 export default function NavBar() {
   return (
-    <div className="z-40 flex items-center justify-between w-full px-4 py-3 bg-white shadow-sm lg:px-6">
+    <div className="fixed z-40 items-center justify-between w-full px-4 py-3 bg-white shadow-sm lg:px-6">
       {/* 로고 영역 */}
       <Link href="/" className="flex items-center space-x-3">
         <div className="flex items-center justify-center w-10 h-10 rounded-lg shadow-sm bg-customG">

@@ -8,7 +8,7 @@ export default function Layout({
   return (
     <div className="flex flex-col w-full min-h-screen">
       <NavBar />
-      <div className="flex flex-col flex-1 w-full">{children}</div>
+      <div className="flex flex-col flex-1 w-full mt-16">{children}</div>
     </div>
   )
 }
