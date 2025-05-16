@@ -3,10 +3,8 @@ import Login from './login'
 
 export default function LoginPage() {
   return (
-    <div className="h-full">
-      <Suspense fallback={<div>Loading...</div>}>
-        <Login />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Login />
+    </Suspense>
   )
 }

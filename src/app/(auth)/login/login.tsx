@@ -79,7 +79,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4">
+    <div className="flex flex-col items-center justify-center flex-1 w-full h-full p-4">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
