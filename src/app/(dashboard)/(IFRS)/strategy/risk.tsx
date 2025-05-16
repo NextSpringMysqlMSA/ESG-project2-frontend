@@ -200,7 +200,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
                 setField('riskType', value)
                 setField('riskCategory', '')
               }}>
-              <SelectTrigger id="riskType" className="focus-visible:ring-rose-400">
+              <SelectTrigger id="riskType" className="focus-visible:ring-customG">
                 <SelectValue placeholder="리스크 종류를 선택하세요" />
               </SelectTrigger>
               <SelectContent>
@@ -221,7 +221,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
               value={riskCategory}
               onValueChange={value => setField('riskCategory', value)}
               disabled={!riskType}>
-              <SelectTrigger id="riskCategory" className="focus-visible:ring-rose-400">
+              <SelectTrigger id="riskCategory" className="focus-visible:ring-customG">
                 <SelectValue
                   placeholder={
                     !riskType
@@ -251,9 +251,8 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
               placeholder="기후 변화로 인한 구체적인 요인을 입력하세요"
               value={riskCause}
               onChange={e => setField('riskCause', e.target.value)}
-              className="focus-visible:ring-rose-400 pl-9"
+              className="border focus-visible:ring-customG"
             />
-            <Tag className="absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-rose-500" />
           </div>
         </div>
 
@@ -263,7 +262,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
               시점
             </Label>
             <Select value={time} onValueChange={value => setField('time', value)}>
-              <SelectTrigger id="time" className="focus-visible:ring-rose-400">
+              <SelectTrigger id="time" className="focus-visible:ring-customG">
                 <SelectValue placeholder="시점을 선택하세요" />
               </SelectTrigger>
               <SelectContent>
@@ -281,7 +280,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
               영향도 (1-5)
             </Label>
             <Select value={impact} onValueChange={value => setField('impact', value)}>
-              <SelectTrigger id="impact" className="focus-visible:ring-rose-400">
+              <SelectTrigger id="impact" className="focus-visible:ring-customG">
                 <SelectValue placeholder="영향도를 선택하세요" />
               </SelectTrigger>
               <SelectContent>
@@ -303,7 +302,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
             <Select
               value={financialImpact}
               onValueChange={value => setField('financialImpact', value)}>
-              <SelectTrigger id="financialImpact" className="focus-visible:ring-rose-400">
+              <SelectTrigger id="financialImpact" className="focus-visible:ring-customG">
                 <SelectValue placeholder="재무 영향 여부" />
               </SelectTrigger>
               <SelectContent>
@@ -324,7 +323,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
             rows={3}
             value={businessModelImpact}
             onChange={e => setField('businessModelImpact', e.target.value)}
-            className="resize-none focus-visible:ring-rose-400"
+            className="border resize-none focus-visible:ring-customG"
           />
         </div>
 
@@ -338,17 +337,19 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
             rows={3}
             value={plans}
             onChange={e => setField('plans', e.target.value)}
-            className="resize-none focus-visible:ring-rose-400"
+            className="border resize-none focus-visible:ring-customG"
           />
         </div>
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-2 mt-2 space-x-3 border-t">
+      <div className="flex items-center justify-between pt-2 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-1" disabled={submitting}>
+              <Button
+                className="gap-1 text-red-600 bg-white border border-red-600 hover:bg-red-600 hover:text-white"
+                disabled={submitting}>
                 <Trash className="w-4 h-4" />
                 삭제
               </Button>
@@ -382,31 +383,32 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
             </AlertDialogContent>
           </AlertDialog>
         )}
+        <div className="flex flex-row items-center justify-end w-full space-x-3 ">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            className="gap-1">
+            취소
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={onClose}
-          disabled={submitting}
-          className="gap-1">
-          취소
-        </Button>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="gap-1 bg-rose-600 hover:bg-rose-700">
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {isEditMode ? '저장하기' : '등록하기'}
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-1 text-white bg-customG hover:bg-customGDark">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isEditMode ? '저장하기' : '등록하기'}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )

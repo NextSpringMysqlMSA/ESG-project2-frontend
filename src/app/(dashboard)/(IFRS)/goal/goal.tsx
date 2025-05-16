@@ -437,7 +437,7 @@ export default function Goal() {
                             <DialogTrigger asChild>
                               <Button
                                 size="sm"
-                                className="flex items-center gap-1 text-white bg-amber-500 hover:bg-amber-600">
+                                className="flex items-center gap-1 text-white bg-emerald-600 hover:bg-emerald-700">
                                 <Edit2 className="w-4 h-4 mr-1" /> 넷제로 목표 수정
                               </Button>
                             </DialogTrigger>

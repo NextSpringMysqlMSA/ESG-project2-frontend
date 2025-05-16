@@ -187,10 +187,10 @@ export default function Meeting({onClose, rowId, mode}: MeetingProps) {
                 <Button
                   id="meetingDate"
                   variant={'outline'}
-                  className={`w-full justify-start text-left font-normal ${
+                  className={`w-full justify-start text-left font-norma focus-visible:ring-customG v ${
                     !meetingDate && 'text-gray-400'
                   }`}>
-                  <CalendarDays className="w-4 h-4 mr-2 text-customGRing" />
+                  <CalendarDays className="w-4 h-4 mr-2 text-customG" />
                   {meetingDate ? format(meetingDate, 'yyyy년 MM월 dd일') : '날짜 선택'}
                 </Button>
               </PopoverTrigger>
@@ -215,9 +215,8 @@ export default function Meeting({onClose, rowId, mode}: MeetingProps) {
                 placeholder="예: 2025년 1분기 ESG 위원회"
                 value={meetingName}
                 onChange={e => setField('meetingName', e.target.value)}
-                className="focus-visible:ring-customGRing pl-9"
+                className="border focus-visible:ring-customG"
               />
-              <FileText className="absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-customGRing" />
             </div>
           </div>
         </div>
@@ -232,17 +231,19 @@ export default function Meeting({onClose, rowId, mode}: MeetingProps) {
             rows={5}
             value={agenda}
             onChange={e => setField('agenda', e.target.value)}
-            className="resize-none focus-visible:ring-customGRing"
+            className="border resize-none focus-visible:ring-customG"
           />
         </div>
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-2 mt-2 space-x-3">
+      <div className="flex items-center justify-between pt-2 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-1" disabled={submitting}>
+              <Button
+                className="gap-1 text-red-600 bg-white border border-red-600 hover:bg-red-600 hover:text-white"
+                disabled={submitting}>
                 <Trash className="w-4 h-4" />
                 삭제
               </Button>
@@ -276,31 +277,32 @@ export default function Meeting({onClose, rowId, mode}: MeetingProps) {
             </AlertDialogContent>
           </AlertDialog>
         )}
+        <div className="flex flex-row items-center justify-end w-full space-x-3 ">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            className="gap-1">
+            취소
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={onClose}
-          disabled={submitting}
-          className="gap-1">
-          취소
-        </Button>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="gap-1 bg-customG hover:bg-customG/90">
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {isEditMode ? '저장하기' : '등록하기'}
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-1 text-white bg-customG hover:bg-customGDark">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isEditMode ? '저장하기' : '등록하기'}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )

@@ -393,28 +393,12 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
     validateForm
   ])
 
-  // 자산 유형에 따른 아이콘 선택 함수
-  const getAssetTypeIcon = useCallback((assetType: string) => {
-    switch (assetType) {
-      case '상장 주식/채권':
-        return <Landmark className="w-4 h-4 text-emerald-600" />
-      case '기업 대출':
-        return <Building2 className="w-4 h-4 text-emerald-600" />
-      case 'PF':
-        return <ArrowRight className="w-4 h-4 text-emerald-600" />
-      case '부동산 담보대출':
-        return <Building2 className="w-4 h-4 text-emerald-600" />
-      default:
-        return null
-    }
-  }, [])
-
   return (
     <motion.div
       initial={{opacity: 0, y: 5}}
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.3}}
-      className="flex flex-col space-y-5 max-h-[90vh] overflow-auto p-4 w-full">
+      className="flex flex-col space-y-5 max-h-[80vh] overflow-auto p-4 w-full">
       {loading ? (
         <div className="flex items-center justify-center w-full h-64">
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
@@ -423,7 +407,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
       ) : (
         <>
           {/* 헤더 섹션 */}
-          <div className="flex items-center justify-between pb-4 mb-2 border-b">
+          <div className="flex items-center justify-between pb-4 border-b">
             <div className="flex items-center">
               <div className="p-2 mr-3 rounded-full bg-emerald-50">
                 <ChartBar className="w-5 h-5 text-emerald-600" />
@@ -441,70 +425,59 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
 
           <div className="space-y-4">
             {/* 기본 정보 섹션 */}
-            {/* 기본 정보 섹션 */}
-            <Card className="shadow-sm border-emerald-200">
-              <CardHeader className="pb-2 bg-gradient-to-r from-emerald-50 to-white">
-                <CardTitle className="flex items-center text-lg text-emerald-800">
-                  <Calendar className="w-5 h-5 mr-2 text-emerald-600" />
-                  기본 정보
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div>
-                    <Label className="block mb-2 text-sm font-medium text-slate-700">
-                      산업군
-                    </Label>
-                    <CustomSelect
-                      key="industrialSector"
-                      placeholder="산업군 선택"
-                      options={industrialSectorOptions}
-                      value={industrialSector || ''}
-                      onValueChange={setIndustrialSector}
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="block mb-2 text-sm font-medium text-slate-700">
-                      기준 년도
-                    </Label>
-                    <input
-                      type="text"
-                      placeholder="예: 2020"
-                      value={baseYear === '' ? '' : baseYear}
-                      onChange={e => handleNumberChange(e.target.value, setBaseYear)}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 border-emerald-200 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="block mb-2 text-sm font-medium text-slate-700">
-                      목표 년도
-                    </Label>
-                    <input
-                      type="text"
-                      placeholder="예: 2050"
-                      value={targetYear === '' ? '' : targetYear}
-                      onChange={e => handleNumberChange(e.target.value, setTargetYear)}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 border-emerald-200 focus:ring-emerald-500"
-                    />
-                  </div>
+            <div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div>
+                  <Label className="block mb-2 text-sm font-medium text-slate-700">
+                    산업군
+                  </Label>
+                  <CustomSelect
+                    key="industrialSector"
+                    placeholder="산업군 선택"
+                    options={industrialSectorOptions}
+                    value={industrialSector || ''}
+                    onValueChange={setIndustrialSector}
+                  />
                 </div>
-              </CardContent>
-            </Card>
+
+                <div>
+                  <Label className="block mb-2 text-sm font-medium text-slate-700">
+                    기준 년도
+                  </Label>
+                  <input
+                    type="text"
+                    placeholder="예: 2020"
+                    value={baseYear === '' ? '' : baseYear}
+                    onChange={e => handleNumberChange(e.target.value, setBaseYear)}
+                    className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Label className="block mb-2 text-sm font-medium text-slate-700">
+                    목표 년도
+                  </Label>
+                  <input
+                    type="text"
+                    placeholder="예: 2050"
+                    value={targetYear === '' ? '' : targetYear}
+                    onChange={e => handleNumberChange(e.target.value, setTargetYear)}
+                    className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* 자산 항목 섹션 헤더 */}
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between pb-2 mt-4 border-b">
               <div className="flex items-center space-x-2">
-                <Landmark className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-lg font-medium text-emerald-800">
-                  투자/대출 포트폴리오
-                </h3>
+                <h3 className="text-lg font-medium text-black">투자/대출 포트폴리오</h3>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={addAssetItem}
-                className="flex items-center gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50">
+                className="gap-1 bg-white text-customG border-customG hover:bg-customG hover:text-white">
                 <PlusCircle className="w-4 h-4" /> 자산 추가
               </Button>
             </div>
@@ -526,18 +499,16 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
                         </h4>
                         {asset.assetType && (
                           <div className="flex items-center">
-                            {getAssetTypeIcon(asset.assetType)}
                             <span className="ml-1 text-xs text-emerald-600">
-                              {asset.assetType}
+                              ({asset.assetType})
                             </span>
                           </div>
                         )}
                       </div>
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={() => removeAssetItem(asset.id)}
-                        className="p-1 text-gray-500 hover:text-red-500 hover:bg-red-50">
+                        className="p-1 text-red-500 bg-white border border-red-500 hover:text-white hover:bg-red-500">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -573,70 +544,97 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
                         />
                       </div>
 
-                      <InputBox
-                        label="투자액/대출액 (원)"
-                        value={asset.amount}
-                        onChange={e =>
-                          handleAssetNumberChange(asset.id, 'amount', e.target.value)
-                        }
-                        className="border-emerald-200 focus-within:ring-emerald-500"
-                      />
+                      <div>
+                        <Label className="mb-1 text-xs font-medium text-slate-700">
+                          투자액/대출액 (원)
+                        </Label>
+                        <input
+                          type="text"
+                          value={asset.amount}
+                          onChange={e =>
+                            handleAssetNumberChange(asset.id, 'amount', e.target.value)
+                          }
+                          className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                        />
+                      </div>
 
-                      <InputBox
-                        label="총 자산/총 사업비/기업가치 (원)"
-                        value={asset.totalAssetValue}
-                        onChange={e =>
-                          handleAssetNumberChange(
-                            asset.id,
-                            'totalAssetValue',
-                            e.target.value
-                          )
-                        }
-                        className="border-emerald-200 focus-within:ring-emerald-500"
-                      />
+                      <div>
+                        <Label className="mb-1 text-xs font-medium text-slate-700">
+                          총 자산/총 사업비/기업가치 (원)
+                        </Label>
+                        <input
+                          type="text"
+                          value={asset.totalAssetValue}
+                          onChange={e =>
+                            handleAssetNumberChange(
+                              asset.id,
+                              'totalAssetValue',
+                              e.target.value
+                            )
+                          }
+                          className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                        />
+                      </div>
 
                       {/* 추가 필드 (접은 형태로 표시) */}
-                      <details className="col-span-2 p-2 mt-1 rounded-md bg-emerald-50/40">
-                        <summary className="text-xs font-medium cursor-pointer text-emerald-700">
+                      <details className="col-span-2 p-2 mt-1 rounded-md">
+                        <summary className="mb-2 text-xs font-medium cursor-pointer text-emerald-700">
                           추가 정보 (선택사항)
                         </summary>
                         <div className="grid grid-cols-1 gap-3 pt-2 md:grid-cols-3">
-                          <InputBox
-                            label="배출계수"
-                            value={asset.emissionFactor}
-                            onChange={e =>
-                              handleAssetNumberChange(
-                                asset.id,
-                                'emissionFactor',
-                                e.target.value
-                              )
-                            }
-                            className="border-emerald-200 focus-within:ring-emerald-500"
-                          />
-                          <InputBox
-                            label="기여도 계수"
-                            value={asset.attributionFactor}
-                            onChange={e =>
-                              handleAssetNumberChange(
-                                asset.id,
-                                'attributionFactor',
-                                e.target.value
-                              )
-                            }
-                            className="border-emerald-200 focus-within:ring-emerald-500"
-                          />
-                          <InputBox
-                            label="기준 배출량"
-                            value={asset.baseEmission}
-                            onChange={e =>
-                              handleAssetNumberChange(
-                                asset.id,
-                                'baseEmission',
-                                e.target.value
-                              )
-                            }
-                            className="border-emerald-200 focus-within:ring-emerald-500"
-                          />
+                          <div>
+                            <Label className="mb-1 text-xs font-medium text-slate-700">
+                              배출계수
+                            </Label>
+                            <input
+                              type="text"
+                              value={asset.emissionFactor}
+                              onChange={e =>
+                                handleAssetNumberChange(
+                                  asset.id,
+                                  'emissionFactor',
+                                  e.target.value
+                                )
+                              }
+                              className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            />
+                          </div>
+
+                          <div>
+                            <Label className="mb-1 text-xs font-medium text-slate-700">
+                              기여도 계수
+                            </Label>
+                            <input
+                              type="text"
+                              value={asset.attributionFactor}
+                              onChange={e =>
+                                handleAssetNumberChange(
+                                  asset.id,
+                                  'attributionFactor',
+                                  e.target.value
+                                )
+                              }
+                              className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            />
+                          </div>
+
+                          <div>
+                            <Label className="mb-1 text-xs font-medium text-slate-700">
+                              기준 배출량
+                            </Label>
+                            <input
+                              type="text"
+                              value={asset.baseEmission}
+                              onChange={e =>
+                                handleAssetNumberChange(
+                                  asset.id,
+                                  'baseEmission',
+                                  e.target.value
+                                )
+                              }
+                              className="flex w-full px-3 py-1 text-base transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-customG disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            />
+                          </div>
                         </div>
                       </details>
                     </div>
@@ -646,19 +644,19 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
             </div>
 
             {/* 저장 버튼 */}
-            <div className="flex justify-center w-full gap-4 pt-4">
+            <div className="flex flex-row items-center justify-end w-full space-x-3 ">
               <Button
+                variant="outline"
                 onClick={onClose}
                 disabled={submitting}
-                variant="outline"
-                className="gap-2 px-6 py-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                className="gap-1">
                 취소
               </Button>
 
               <Button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="gap-2 px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700">
+                className="gap-1 text-white bg-customG hover:bg-customGDark">
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />

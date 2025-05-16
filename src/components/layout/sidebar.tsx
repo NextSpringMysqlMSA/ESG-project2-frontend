@@ -306,18 +306,18 @@ export default function Sidebar() {
         </div>
 
         {/* 메인 네비게이션 영역 */}
-        <nav className="flex-grow px-2 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-grow py-4 space-y-1 overflow-y-auto">
           {/* 대시보드 메뉴 항목 */}
           <MenuItem href="/home" icon={Home} text="대시보드" isActive={isHomeActive} />
 
           {/* ESG 관리 섹션 */}
           <div className="mt-2 mb-2">
             {/* 섹션 제목 - 사이드바 확장시에만 표시 */}
-            {hovered && (
+            {/* {hovered && (
               <div className="px-4 py-1 mb-1">
                 <span className="text-xs font-medium text-gray-400">ESG 관리</span>
               </div>
-            )}
+            )} */}
 
             {/* ESG 공시 메뉴 - 하위메뉴 포함 */}
             <MenuItem

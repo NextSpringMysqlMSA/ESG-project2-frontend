@@ -174,7 +174,7 @@ export default function KPI({onClose, rowId, mode}: KPIProps) {
             placeholder="예: CEO 김ㅇㅇ, CFO 박ㅇㅇ"
             value={executiveName}
             onChange={e => setField('executiveName', e.target.value)}
-            className="focus-visible:ring-purple-400"
+            className="border focus-visible:ring-customG"
           />
         </div>
 
@@ -188,9 +188,8 @@ export default function KPI({onClose, rowId, mode}: KPIProps) {
               placeholder="예: 탄소배출량 감축률, 재생에너지 사용률"
               value={kpiName}
               onChange={e => setField('kpiName', e.target.value)}
-              className="focus-visible:ring-purple-400 pl-9"
+              className="border focus-visible:ring-customG"
             />
-            <TrendingUp className="absolute w-4 h-4 text-purple-500 transform -translate-y-1/2 left-3 top-1/2" />
           </div>
         </div>
 
@@ -205,9 +204,8 @@ export default function KPI({onClose, rowId, mode}: KPIProps) {
                 placeholder="예: 10% 혹은 10000tCO2eq"
                 value={targetValue}
                 onChange={e => setField('targetValue', e.target.value)}
-                className="focus-visible:ring-purple-400 pl-9"
+                className="border focus-visible:ring-customG"
               />
-              <Target className="absolute w-4 h-4 text-purple-500 transform -translate-y-1/2 left-3 top-1/2" />
             </div>
           </div>
 
@@ -221,20 +219,21 @@ export default function KPI({onClose, rowId, mode}: KPIProps) {
                 placeholder="예: 8% 혹은 8000tCO2eq"
                 value={achievedValue}
                 onChange={e => setField('achievedValue', e.target.value)}
-                className="focus-visible:ring-purple-400 pl-9"
+                className="border focus-visible:ring-customG"
               />
-              <TrendingUp className="absolute w-4 h-4 text-green-500 transform -translate-y-1/2 left-3 top-1/2" />
             </div>
           </div>
         </div>
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-2 mt-2 space-x-3">
+      <div className="flex items-center justify-between pt-2 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-1" disabled={submitting}>
+              <Button
+                className="gap-1 text-red-600 bg-white border border-red-600 hover:bg-red-600 hover:text-white"
+                disabled={submitting}>
                 <Trash className="w-4 h-4" />
                 삭제
               </Button>
@@ -268,31 +267,32 @@ export default function KPI({onClose, rowId, mode}: KPIProps) {
             </AlertDialogContent>
           </AlertDialog>
         )}
+        <div className="flex flex-row items-center justify-end w-full space-x-3 ">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            className="gap-1">
+            취소
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={onClose}
-          disabled={submitting}
-          className="gap-1">
-          취소
-        </Button>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="gap-1 bg-purple-600 hover:bg-purple-700">
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {isEditMode ? '저장하기' : '등록하기'}
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-1 text-white bg-customG hover:bg-customGDark">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isEditMode ? '저장하기' : '등록하기'}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )

@@ -21,7 +21,7 @@ export default function CustomSelect({
 }: CustomSelectProps) {
   return (
     <Select value={value ?? undefined} onValueChange={onValueChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full focus-visible:ring-customG">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
