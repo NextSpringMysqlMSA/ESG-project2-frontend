@@ -31,12 +31,6 @@ export default function LandingNavBar() {
 
         {/* 로그인/시작하기 버튼 */}
         <div className="flex items-center space-x-3">
-          <Link
-            href="/login"
-            className="hidden px-4 py-2 text-sm font-medium transition-colors rounded-md text-customG md:block hover:bg-customGLight">
-            로그인
-          </Link>
-
           <Link href="/login">
             <motion.button
               whileHover={{scale: 1.03}}
