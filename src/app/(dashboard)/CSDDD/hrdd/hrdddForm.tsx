@@ -580,7 +580,7 @@ export default function HrdddForm() {
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.3}}
-        className="flex flex-row px-2 mb-6 text-base font-medium text-black">
+        className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
