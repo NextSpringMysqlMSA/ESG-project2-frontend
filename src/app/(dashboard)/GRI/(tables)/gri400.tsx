@@ -281,7 +281,7 @@ export default function GRI400() {
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-2">
             <HeartHandshake className="w-6 h-6 text-customG" />
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-2xl text-gray-800 font-gmBold">
               GRI 400: 사회
             </CardTitle>
           </div>

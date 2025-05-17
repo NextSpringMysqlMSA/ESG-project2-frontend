@@ -181,7 +181,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">위원회</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.committees}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -196,7 +196,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">회의</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.meetings}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -211,7 +211,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">KPI</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.kpis}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -226,7 +226,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">교육</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.educations}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>

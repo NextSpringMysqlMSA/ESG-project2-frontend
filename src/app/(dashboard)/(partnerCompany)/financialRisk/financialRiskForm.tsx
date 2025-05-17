@@ -146,7 +146,7 @@ export default function FinancialRiskForm() {
 
       {selectedPartner && (
         <p
-          className={`text-base font-bold text-center ${
+          className={`text-base font-gmBold text-center ${
             getStatusLabel(partnerQuestionMap[selectedPartner].length).color
           }`}>
           {selectedPartner}는 항목 총 {partnerQuestionMap[selectedPartner].length}개 :{' '}

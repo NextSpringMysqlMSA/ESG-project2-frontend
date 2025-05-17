@@ -21,7 +21,7 @@ export default function NavBar() {
           animate={{opacity: 1, x: 0}}
           transition={{duration: 0.3}}
           className="flex flex-col">
-          <span className="text-xl font-bold tracking-tight text-customGTextLight">
+          <span className="text-xl tracking-tight font-gmBold text-customGTextLight">
             NSMM
           </span>
           <span className="-mt-1 text-xs font-medium text-customG">Dashboard</span>

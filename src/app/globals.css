@@ -3,10 +3,13 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'gmarket';
+  font-family: 'gmNormal';
   src: url('/fonts/GmarketSansTTFMedium.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+}
+
+@font-face {
+  font-family: 'gmBold';
+  src: url('/fonts/GmarketSansTTFBold.ttf') format('truetype');
 }
 
 @layer base {

@@ -438,7 +438,7 @@ export default function HrdddForm() {
           initial={{opacity: 0, y: -5}}
           animate={{opacity: 1, y: 0}}
           transition={{duration: 0.4}}
-          className="flex items-center mb-3 text-lg font-bold text-gray-700">
+          className="flex items-center mb-3 text-lg text-gray-700 font-gmBold">
           <div className="flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-customG/10">
             <BadgeCheck className="w-5 h-5 text-customG" />
           </div>
@@ -469,7 +469,7 @@ export default function HrdddForm() {
             </div>
 
             <p className="font-medium text-gray-700">
-              <span className="mr-1 text-sm font-bold text-customG">
+              <span className="mr-1 text-sm font-gmBold text-customG">
                 {id.split('-').slice(1).join('-')}
               </span>
               <span className="mx-1 text-gray-500">|</span>
@@ -607,7 +607,7 @@ export default function HrdddForm() {
               <BadgeCheck className="w-6 h-6 text-customG" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-customG">
+              <h1 className="text-xl font-gmBold text-customG">
                 인권 실사 지침 요구사항 이행 자가진단
               </h1>
               <p className="text-sm text-gray-600">

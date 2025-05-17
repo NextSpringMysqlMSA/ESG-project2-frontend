@@ -339,7 +339,7 @@ export default function Goal() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">넷제로 목표</p>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-gmBold">
                 {netZeroLoading ? <Skeleton className="w-8 h-8" /> : stats.netZero}
                 <span className="ml-1 text-sm font-normal text-gray-500">개</span>
               </h3>
@@ -354,7 +354,7 @@ export default function Goal() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">KPI 목표</p>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-gmBold">
                 {loading ? <Skeleton className="w-8 h-8" /> : stats.kpiGoals}
                 <span className="ml-1 text-sm font-normal text-gray-500">개</span>
               </h3>
@@ -369,7 +369,7 @@ export default function Goal() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">총 데이터</p>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-gmBold">
                 {loading || netZeroLoading ? (
                   <Skeleton className="w-8 h-8" />
                 ) : (

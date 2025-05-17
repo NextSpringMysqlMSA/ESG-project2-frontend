@@ -32,7 +32,7 @@ export function StatCard({title, count, icon, color, description}: StatCardProps
         <div className="flex items-start justify-between">
           <div>
             <p className="mb-1 text-sm font-medium text-gray-500">{title}</p>
-            <h3 className="text-2xl font-bold">{count}</h3>
+            <h3 className="text-2xl font-gmBold">{count}</h3>
             <p className="mt-1 text-xs text-gray-500">{description}</p>
           </div>
           <div

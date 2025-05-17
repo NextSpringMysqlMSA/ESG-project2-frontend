@@ -145,7 +145,7 @@ export default function Account() {
             className="p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
             <div className="flex flex-col md:flex-row md:items-start">
               <div className="flex-1">
-                <h2 className="flex items-center mb-4 text-xl font-bold text-gray-800">
+                <h2 className="flex items-center mb-4 text-xl text-gray-800 font-gmBold">
                   <User size={20} className="mr-2" />
                   계정 정보
                 </h2>
@@ -207,7 +207,7 @@ export default function Account() {
             animate={{opacity: 1, y: 0}}
             transition={{duration: 0.5, delay: 0.4}}
             className="p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
-            <h2 className="flex items-center mb-6 text-xl font-bold text-gray-800">
+            <h2 className="flex items-center mb-6 text-xl text-gray-800 font-gmBold">
               <ShieldCheck size={20} className="mr-2" />
               비밀번호 변경
             </h2>

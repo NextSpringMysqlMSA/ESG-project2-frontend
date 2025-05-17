@@ -91,7 +91,7 @@ export default function IfrsChart({refreshTrigger = 0}: IfrsChartProps) {
         ) : (
           <>
             <Pie data={chartData} options={chartOptions} />
-            <div className="absolute text-3xl font-bold text-center transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+            <div className="absolute text-3xl text-center transform -translate-x-1/2 -translate-y-1/2 font-gmBold top-1/2 left-1/2">
               {data.completedRate}%
             </div>
           </>
@@ -102,14 +102,14 @@ export default function IfrsChart({refreshTrigger = 0}: IfrsChartProps) {
         <div className="flex items-center">
           <div className="w-3 h-3 mr-2 bg-indigo-500 rounded-full"></div>
           <span className="mr-2 text-sm">작성 완료</span>
-          <span className="text-sm font-bold">
+          <span className="text-sm font-gmBold">
             {data.completedCount}개 ({data.completedRate}%)
           </span>
         </div>
         <div className="flex items-center">
           <div className="w-3 h-3 mr-2 bg-blue-100 rounded-full"></div>
           <span className="mr-2 text-sm">미완료</span>
-          <span className="text-sm font-bold">
+          <span className="text-sm font-gmBold">
             {data.inCompletedCount}개 ({100 - data.completedRate}%)
           </span>
         </div>

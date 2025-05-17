@@ -319,7 +319,7 @@ export default function Home() {
         transition={{duration: 0.5}}
         className="flex flex-col items-start justify-between mb-6 md:flex-row md:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-800">
+          <h1 className="text-2xl tracking-tight text-gray-800 font-gmBold">
             ESG 공시 대시보드
           </h1>
           <p className="text-gray-500">
@@ -411,7 +411,7 @@ export default function Home() {
               <div className="relative mx-auto mb-8 w-36 h-36">
                 {mounted && <Pie data={supplierData} options={chartOptions} />}
                 <div className="absolute text-center transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                  <p className="text-4xl font-bold text-rose-800">80%</p>
+                  <p className="text-4xl font-gmBold text-rose-800">80%</p>
                 </div>
               </div>
 
@@ -445,9 +445,9 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between mb-6">
-                <div className="text-5xl font-bold text-gray-500">A</div>
+                <div className="text-5xl text-gray-500 font-gmBold">A</div>
                 <ArrowRight className="w-12 h-12 mx-4 text-gray-400" />
-                <div className="text-5xl font-bold text-purple-600">AA</div>
+                <div className="text-5xl text-purple-600 font-gmBold">AA</div>
               </div>
 
               <div className="mb-6 text-center">
