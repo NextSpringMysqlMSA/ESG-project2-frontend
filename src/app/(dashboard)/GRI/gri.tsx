@@ -285,14 +285,7 @@ export default function GRI() {
         icon={<BookOpen className="w-6 h-6" />}
         title="GRI 표준"
         description="Global Reporting Initiative(GRI) 표준에 따른 ESG 공시 요구사항"
-        module="GRI">
-        <Badge
-          variant="outline"
-          className="bg-green-50 text-green-700 border-green-200 pl-1.5">
-          <BookOpen className="w-3.5 h-3.5 mr-1" />
-          GRI 2021
-        </Badge>
-      </PageHeader>
+        module="GRI"></PageHeader>
 
       {/* 메인 컨텐츠 카드 */}
       <Card className="bg-white border rounded-lg shadow-sm">

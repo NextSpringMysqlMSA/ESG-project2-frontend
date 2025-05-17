@@ -99,23 +99,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
     }
   }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage])
 
-  // 공통 작업 처리 함수 (중복 코드 제거)
-  const handleAfterOperation = async () => {
-    const updatedList = await fetchScenarioList()
-    setData(updatedList)
-    resetFields()
-    onClose()
-  }
-
-  // API 오류 처리를 위한 공통 함수
-  const handleApiError = (err: unknown) => {
-    const errorMessage =
-      axios.isAxiosError(err) && err.response?.data?.message
-        ? err.response.data.message
-        : '작업 실패: 서버 오류 발생'
-    showError(errorMessage)
-  }
-
   const handleSubmit = async () => {
     // 필수 필드 검증
     if (
@@ -148,7 +131,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
 
     try {
       setSubmitting(true)
-
       if (isEditMode && rowId !== undefined) {
         // 수정 모드
         const updateData: UpdateScenarioDto = {...scenarioData, id: rowId}
@@ -158,12 +140,19 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
         // 추가 모드
         await createScenario(scenarioData)
         showSuccess('새 시나리오가 성공적으로 등록되었습니다.')
+        localStorage.removeItem('scenario-storage')
       }
 
-      // 공통 작업 호출
-      await handleAfterOperation()
+      const updatedList = await fetchScenarioList()
+      setData(updatedList)
+      resetFields()
+      onClose()
     } catch (err) {
-      handleApiError(err)
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '처리 실패: 서버 오류가 발생했습니다.'
+      showError(errorMessage)
     } finally {
       setSubmitting(false)
     }
@@ -177,10 +166,16 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
       await deleteScenario(rowId)
       showSuccess('시나리오가 성공적으로 삭제되었습니다.')
 
-      // 공통 작업 호출
-      await handleAfterOperation()
+      const updatedList = await fetchScenarioList()
+      setData(updatedList)
+      resetFields()
+      onClose()
     } catch (err) {
-      handleApiError(err)
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류가 발생했습니다.'
+      showError(errorMessage)
     } finally {
       setSubmitting(false)
       setDeleteDialogOpen(false)
@@ -471,28 +466,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
             )}
           />
         </div>
-
-        {isEditMode && (
-          <div className="grid gap-2">
-            <Label htmlFor="estimatedDamage" className="text-sm font-medium">
-              예상 피해액 (원)
-            </Label>
-            <Input
-              id="estimatedDamage"
-              placeholder="예상 피해액 입력 (시스템 계산값 또는 직접 입력)"
-              value={
-                typeof estimatedDamage === 'number'
-                  ? estimatedDamage.toLocaleString('ko-KR')
-                  : '0'
-              }
-              onChange={e => {
-                const numericValue = e.target.value.replace(/[^0-9]/g, '')
-                setField('estimatedDamage', numericValue ? parseFloat(numericValue) : 0)
-              }}
-              className="focus-visible:ring-customG"
-            />
-          </div>
-        )}
       </div>
 
       {/* 버튼 영역 */}

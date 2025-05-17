@@ -116,7 +116,7 @@ export default function Strategy() {
           IFRS S2
         </BreadcrumbLink>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-blue-600">전략</span>
+        <span className="text-customG">전략</span>
       </div>
 
       {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}

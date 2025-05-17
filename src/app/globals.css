@@ -94,27 +94,21 @@
   }
 }
 
-/* globals.css */
-.scrollbar-overlay {
-  scrollbar-gutter: stable overlay; /* 콘텐츠 위에 겹치게 */
-  overflow-y: scroll;
+.custom-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: #b0b0b0 transparent; /* thumb track */
 }
 
-.scrollbar-overlay::-webkit-scrollbar {
+/* Webkit 기반 브라우저 */
+.custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
-.scrollbar-overlay::-webkit-scrollbar-track {
-  background: transparent; /* 트랙 완전 투명 */
-  zindex: -50;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* 트랙 배경 투명 */
 }
 
-.scrollbar-overlay::-webkit-scrollbar-thumb {
-  background-color: rgba(34, 197, 94, 0.4); /* 손잡이 반투명 green-500 */
-  border-radius: 6px;
-  backdrop-filter: blur(1px); /* 부드러운 느낌 주고 싶다면 */
-}
-
-.scrollbar-overlay::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(34, 197, 94, 0.6);
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #b0b0b0; /* 손잡이 */
+  border-radius: 4px;
 }

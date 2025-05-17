@@ -398,7 +398,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
       initial={{opacity: 0, y: 5}}
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.3}}
-      className="flex flex-col space-y-5 max-h-[80vh] overflow-auto p-4 w-full">
+      className="flex flex-col space-y-5 max-h-[80vh] overflow-auto custom-scrollbar p-4 w-full">
       {loading ? (
         <div className="flex items-center justify-center w-full h-64">
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
