@@ -90,7 +90,7 @@ export default function HomeNavbar() {
                 <Avatar className="border-2 w-9 h-9 border-customGBorder">
                   {profile?.profileImageUrl ? (
                     <AvatarImage
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
+                      src={profile.profileImageUrl}
                       alt={fullName}
                       className="object-cover"
                     />
@@ -107,7 +107,7 @@ export default function HomeNavbar() {
                 <Avatar className="w-16 h-16 border-2 border-customGBorder">
                   {profile?.profileImageUrl ? (
                     <AvatarImage
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
+                      src={profile.profileImageUrl}
                       alt={fullName}
                       className="object-cover"
                     />

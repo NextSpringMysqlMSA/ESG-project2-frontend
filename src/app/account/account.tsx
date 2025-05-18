@@ -119,7 +119,6 @@ export default function Account() {
       placeholder: '새 비밀번호 다시 입력'
     }
   ]
-
   return (
     <div className="flex flex-col w-full min-h-screen px-4 py-8">
       <div className="w-full max-w-5xl mx-auto">
@@ -173,7 +172,7 @@ export default function Account() {
                   <div className="overflow-hidden bg-white border-2 rounded-full w-60 h-60 border-customGLight ring-2 ring-customGLight">
                     {profile?.profileImageUrl ? (
                       <img
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
+                        src={profile.profileImageUrl}
                         alt="Profile"
                         className="object-cover w-full h-full"
                       />
@@ -200,7 +199,6 @@ export default function Account() {
               </div>
             </div>
           </motion.div>
-
           {/* 비밀번호 변경 카드 */}
           <motion.div
             initial={{opacity: 0, y: 20}}
