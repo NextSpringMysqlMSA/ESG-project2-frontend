@@ -34,18 +34,18 @@ export default function NavBar() {
 /**
  * 네비게이션 링크 컴포넌트
  */
-const NavLink = ({
-  href,
-  text,
-  className = ''
-}: {
-  href: string
-  text: string
-  className?: string
-}) => (
-  <Link
-    href={href}
-    className={`px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight ${className}`}>
-    {text}
-  </Link>
-)
+// const NavLink = ({
+//   href,
+//   text,
+//   className = ''
+// }: {
+//   href: string
+//   text: string
+//   className?: string
+// }) => (
+//   <Link
+//     href={href}
+//     className={`px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight ${className}`}>
+//     {text}
+//   </Link>
+// )

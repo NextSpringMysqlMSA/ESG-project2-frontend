@@ -64,7 +64,7 @@ export default function Governance() {
   const [error, setError] = useState<string | null>(null)
 
   // 탭 상태 관리
-  const [activeTab, setActiveTab] = useState('all')
+  // const [activeTab, setActiveTab] = useState('all')
 
   // 데이터 스토어
   const {data: committeeData, setData} = useCommitteeStore()

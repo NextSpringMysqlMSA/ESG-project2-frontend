@@ -93,7 +93,7 @@ export default function Strategy() {
 
   // 요약 통계 계산
   const scenarioCount = ScenarioData?.length || 0
-  const riskCount = RiskData?.length || 0
+  // const riskCount = RiskData?.length || 0
 
   // 리스크 유형 카운트
   const riskTypeCount = {

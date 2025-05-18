@@ -14,7 +14,6 @@ import {
   ShoppingCart,
   UserRound,
   ListFilter,
-  FileCheck,
   Landmark
 } from 'lucide-react'
 import {

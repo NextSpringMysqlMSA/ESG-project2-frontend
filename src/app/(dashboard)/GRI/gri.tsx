@@ -18,7 +18,6 @@ import {motion} from 'framer-motion'
 import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {LoadingState} from '@/components/ui/loading-state'
-import {Badge} from '@/components/ui/badge'
 
 // GRI 테이블 컴포넌트 임포트
 import GRI2 from './(tables)/gri2'

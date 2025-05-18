@@ -32,7 +32,7 @@ import {
 import {useEffect, useState} from 'react'
 import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
 import {KPIGoalState, NetZeroResponse} from '@/types/IFRS/goal'
-import {fetchKPIGoal, fetchNetZeroList, fetchNetZeroById} from '@/services/goal'
+import {fetchKPIGoal, fetchNetZeroList} from '@/services/goal'
 import {
   Card,
   CardContent,
@@ -42,16 +42,7 @@ import {
 } from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
 import {motion} from 'framer-motion'
-import {
-  Home,
-  ChevronRight,
-  BarChart3,
-  Target,
-  Edit,
-  Edit2,
-  Plus,
-  ArrowDown
-} from 'lucide-react'
+import {Home, ChevronRight, BarChart3, Target, Edit2, Plus, ArrowDown} from 'lucide-react'
 import {Badge} from '@/components/ui/badge'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {Skeleton} from '@/components/ui/skeleton'

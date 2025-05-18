@@ -1,7 +1,7 @@
 'use client'
 
 import {ReactNode} from 'react'
-import {Loader2, AlertCircle, CheckCircle, Info} from 'lucide-react'
+import {AlertCircle, Info} from 'lucide-react'
 import {motion} from 'framer-motion'
 import {Card, CardContent} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'

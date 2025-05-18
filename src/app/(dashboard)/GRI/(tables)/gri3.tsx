@@ -1,6 +1,5 @@
 'use client'
 
-import {useState} from 'react'
 import GriTable from '@/app/(dashboard)/GRI/(tables)/griTable'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Info, BookOpen, LucideClipboardList} from 'lucide-react'
@@ -65,9 +64,9 @@ export default function GRI3() {
         <div className="flex-1 text-sm text-gray-600">
           <h4 className="mb-2 font-medium text-customG">GRI 3 개요</h4>
           <p>
-            GRI 3는 조직이 '중요 주제(Material Topics)'를 식별하고 관리하는 방법에 대한
-            표준입니다. 이는 이해관계자들에게 가장 중요한 경제적, 환경적, 사회적 영향을
-            파악하고 보고하는 프로세스를 설명합니다.
+            GRI 3는 조직이 &apos;중요 주제(Material Topics)&apos;를 식별하고 관리하는
+            방법에 대한 표준입니다. 이는 이해관계자들에게 가장 중요한 경제적, 환경적,
+            사회적 영향을 파악하고 보고하는 프로세스를 설명합니다.
           </p>
         </div>
       </div>

@@ -3,7 +3,6 @@
 import {ReactNode} from 'react'
 import {Button} from '@/components/ui/button'
 import {ModalContainer} from '@/components/ui/modal-container'
-import {cn} from '@/lib/utils'
 
 type ModuleModalProps = {
   open: boolean

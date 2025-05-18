@@ -49,10 +49,10 @@ export default function LandingNavBar() {
 /**
  * 네비게이션 메뉴 아이템 컴포넌트
  */
-const NavItem = ({href, label}: {href: string; label: string}) => (
-  <Link
-    href={href}
-    className="px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight">
-    {label}
-  </Link>
-)
+// const NavItem = ({href, label}: {href: string; label: string}) => (
+//   <Link
+//     href={href}
+//     className="px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight">
+//     {label}
+//   </Link>
+// )

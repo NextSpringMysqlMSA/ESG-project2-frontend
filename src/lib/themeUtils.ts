@@ -83,7 +83,7 @@ export function getSeverityClass(
 
 // UI 컴포넌트 테마 클래스 생성 함수
 export function getThemeClasses(module: string, submodule?: string) {
-  let colors = themeColors
+  // let colors = themeColors
   let moduleColor = themeColors.primary
 
   // 모듈별 색상 선택

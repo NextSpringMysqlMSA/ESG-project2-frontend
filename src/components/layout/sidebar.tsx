@@ -1,26 +1,10 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {
-  Home,
-  Mail,
-  FileText,
-  Users,
-  ChevronRight,
-  BarChart3,
-  Shield,
-  LineChart,
-  Settings,
-  LogOut,
-  PieChart,
-  BookOpen,
-  Landmark,
-  Leaf
-} from 'lucide-react'
+import {Home, FileText, Users, ChevronRight, Shield, Leaf} from 'lucide-react'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 import {motion, AnimatePresence} from 'framer-motion'
-import Image from 'next/image'
 import {cn} from '@/lib/utils'
 
 /**

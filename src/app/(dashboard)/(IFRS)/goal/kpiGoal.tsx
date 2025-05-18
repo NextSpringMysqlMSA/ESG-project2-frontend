@@ -7,16 +7,7 @@ import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
 import {createKPIGoal, updateKPIGoal, deleteKPIGoal, fetchKPIGoal} from '@/services/goal'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
-import {
-  Trash,
-  Save,
-  BarChart3,
-  Loader2,
-  AlertCircle,
-  Target,
-  Calendar,
-  ChevronRight
-} from 'lucide-react'
+import {Trash, Save, BarChart3, Loader2, AlertCircle} from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,

@@ -2,17 +2,7 @@
 
 import {useEffect, useState} from 'react'
 import {motion} from 'framer-motion'
-import {
-  LineChart,
-  Save,
-  Trash,
-  AlertCircle,
-  Loader2,
-  MapPin,
-  Building2,
-  Cloud,
-  Thermometer
-} from 'lucide-react'
+import {LineChart, Save, Trash, AlertCircle, Loader2} from 'lucide-react'
 import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
 import {
   createScenario,
@@ -49,7 +39,6 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import {Badge} from '@/components/ui/badge'
-import {Card, CardContent} from '@/components/ui/card'
 import {CreateScenarioDto, UpdateScenarioDto} from '@/types/IFRS/strategy'
 
 type ScenarioProps = {

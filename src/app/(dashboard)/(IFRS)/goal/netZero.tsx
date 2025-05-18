@@ -1,23 +1,12 @@
 'use client'
 
 import {useState, useEffect, useCallback} from 'react'
-import {
-  PlusCircle,
-  Trash2,
-  Save,
-  Building2,
-  ArrowRight,
-  Calendar,
-  Landmark,
-  Loader2,
-  ChartBar
-} from 'lucide-react'
-import InputBox from '@/components/tools/inputBox'
+import {PlusCircle, Trash2, Save, Loader2, ChartBar} from 'lucide-react'
 import CustomSelect from '@/components/tools/customSelect'
 import {showError, showSuccess} from '@/util/toast'
 import {motion} from 'framer-motion'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card, CardContent} from '@/components/ui/card'
 import {Badge} from '@/components/ui/badge'
 import {createNetZero, fetchNetZeroById, updateNetZero} from '@/services/goal'
 import {Label} from '@/components/ui/label'

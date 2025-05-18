@@ -1,7 +1,7 @@
 'use client'
 
 import {useState} from 'react'
-import {Check, Database, ChevronRight, ArrowRight, Home, BookOpen} from 'lucide-react'
+import {Check, Database, ChevronRight, Home, BookOpen} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   Card,

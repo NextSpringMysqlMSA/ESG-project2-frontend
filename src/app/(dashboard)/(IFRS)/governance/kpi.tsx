@@ -2,15 +2,7 @@
 
 import {useEffect, useState} from 'react'
 import {motion} from 'framer-motion'
-import {
-  BarChart,
-  Save,
-  Trash,
-  AlertCircle,
-  Loader2,
-  Target,
-  TrendingUp
-} from 'lucide-react'
+import {BarChart, Save, Trash, AlertCircle, Loader2} from 'lucide-react'
 import {useKPIStore} from '@/stores/IFRS/governance/useKPIStore'
 import {createKpi, updateKpi, deleteKpi, fetchKpiList} from '@/services/governance'
 import {showError, showSuccess} from '@/util/toast'

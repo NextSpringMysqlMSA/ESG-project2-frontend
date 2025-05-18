@@ -1,3 +1,5 @@
+'use client'
+
 import api from '@/lib/axios'
 
 export const fetchTcfdProgress = async () => {

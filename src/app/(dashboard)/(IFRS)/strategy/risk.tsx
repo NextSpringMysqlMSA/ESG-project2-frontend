@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react'
 import {motion} from 'framer-motion'
-import {AlertTriangle, Save, Trash, AlertCircle, Loader2, Tag} from 'lucide-react'
+import {AlertTriangle, Save, Trash, AlertCircle, Loader2} from 'lucide-react'
 import {useRiskStore} from '@/stores/IFRS/strategy/useRiskStore'
 import {createRisk, updateRisk, deleteRisk, fetchRiskList} from '@/services/strategy'
 import {showError, showSuccess} from '@/util/toast'
@@ -69,7 +69,7 @@ export default function Risk({onClose, rowId, mode}: RiskProps) {
   }
   const time2 = ['단기', '중기', '장기']
   const impact2 = ['1', '2', '3', '4', '5']
-  const financialImpact2 = ['O', 'X']
+  // const financialImpact2 = ['O', 'X']
 
   useEffect(() => {
     if (isEditMode && rowId !== undefined) {

@@ -3,7 +3,6 @@
 import {useState, useEffect} from 'react'
 import type {JSX} from 'react'
 import {motion, AnimatePresence} from 'framer-motion' // Framer Motion 추가
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {cn} from '@/lib/utils'
 import DashButton from '@/components/tools/dashButton'
 import {
@@ -19,7 +18,7 @@ import {BadgeCheck, FileQuestion, Home} from 'lucide-react'
 import {fetchEddResult, updateEddAnswers} from '@/services/csddd'
 import {useRouter} from 'next/navigation'
 import type {EddViolationDto} from '@/types/IFRS/csddd'
-import axios, {AxiosError} from 'axios'
+import {AxiosError} from 'axios'
 const questions: Record<
   string,
   {type: 'title' | 'question'; text: string; id?: string}[]

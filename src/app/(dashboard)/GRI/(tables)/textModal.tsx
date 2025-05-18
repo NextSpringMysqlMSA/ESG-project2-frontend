@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {AlertCircle, CheckCircle, X} from 'lucide-react'
+import {AlertCircle, CheckCircle} from 'lucide-react'
 import {cn} from '@/lib/utils'
 import {GRIModal} from '@/components/modals/module-modals'
 
@@ -89,12 +89,12 @@ export default function TextModal({
     return 'text-gray-500'
   }
 
-  // Dialog가 닫힐 때 핸들러
-  const handleDialogChange = (isOpen: boolean) => {
-    if (!isOpen && !isSaving) {
-      onClose()
-    }
-  }
+  // // Dialog가 닫힐 때 핸들러
+  // const handleDialogChange = (isOpen: boolean) => {
+  //   if (!isOpen && !isSaving) {
+  //     onClose()
+  //   }
+  // }
 
   // Dialog가 열려 있지 않을 때는 아무 것도 렌더링하지 않음
   if (!open) {
@@ -161,7 +161,7 @@ export default function TextModal({
             <ul className="pl-1 space-y-1 list-disc list-inside">
               <li>문장은 간결하고 명확하게 작성해주세요.</li>
               <li>내용은 최대 {maxLength}자까지 입력 가능합니다.</li>
-              <li>변경사항은 '저장' 버튼을 클릭하면 즉시 반영됩니다.</li>
+              <li>변경사항은 &apos;저장&apos; 버튼을 클릭하면 즉시 반영됩니다.</li>
             </ul>
           </div>
         </div>

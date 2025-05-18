@@ -14,17 +14,8 @@ import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hov
 import {useProfileStore} from '@/stores/profileStore'
 import {useAuthStore} from '@/stores/authStore'
 import {useRouter} from 'next/navigation'
-import {
-  Bell,
-  ChevronDown,
-  Settings,
-  LogOut,
-  User,
-  MessageSquare,
-  Leaf
-} from 'lucide-react'
+import {ChevronDown, LogOut, User, Leaf} from 'lucide-react'
 import {motion} from 'framer-motion'
-import {Badge} from '@/components/ui/badge'
 
 /**
  * 상단 네비게이션 바 컴포넌트

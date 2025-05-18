@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react'
 import {motion} from 'framer-motion'
-import {CalendarDays, Save, Trash, AlertCircle, Loader2, FileText} from 'lucide-react'
+import {CalendarDays, Save, Trash, AlertCircle, Loader2} from 'lucide-react'
 import {useMeetingStore} from '@/stores/IFRS/governance/useMeetingStore'
 import {
   createMeeting,

@@ -1,7 +1,6 @@
 'use client'
 
 import {useState} from 'react'
-import {Label} from '@/components/ui/label'
 import {Check, ChevronRight, FileText, Home} from 'lucide-react'
 import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
@@ -15,7 +14,6 @@ import {
 } from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Card, CardContent} from '@/components/ui/card'
-import DashButton from '@/components/tools/dashButton'
 import {
   Dialog,
   DialogContent,
@@ -23,14 +21,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb'
+import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {PageHeader} from '@/components/layout/PageHeader'
 
 const partners = ['협력사 A', '협력사 B', '협력사 C', '협력사 D', '협력사 E']
@@ -139,7 +130,7 @@ export default function FinancialRiskForm() {
 
       <PageHeader
         icon={<FileText className="w-6 h-6" />}
-        title="제무제표 리스크 관리"
+        title="재무제표 리스크 관리"
         module="GRI"></PageHeader>
 
       {selectedPartner && (

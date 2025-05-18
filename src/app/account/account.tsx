@@ -9,15 +9,12 @@ import {motion} from 'framer-motion'
 import {
   User,
   ChevronLeft,
-  Upload,
-  Key,
   Mail,
   Phone,
   Building,
   Briefcase,
   ShieldCheck
 } from 'lucide-react'
-import Link from 'next/link'
 import axios from 'axios'
 
 export default function Account() {
@@ -52,6 +49,7 @@ export default function Account() {
       } catch (e: unknown) {
         showError('이미지 업로드에 실패했습니다. 다시 시도해 주세요.')
       } finally {
+        console.log(e)
         setIsLoading(false)
       }
     }
