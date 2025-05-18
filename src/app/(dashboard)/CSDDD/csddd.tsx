@@ -51,15 +51,11 @@ export default function CSDDD() {
   const router = useRouter()
 
   return (
-    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span
-          className="cursor-pointer hover:text-customG"
-          onClick={() => router.push('/dashboard')}>
-          대시보드
-        </span>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">공급망 실사</span>
       </div>

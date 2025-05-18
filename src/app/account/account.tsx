@@ -118,7 +118,7 @@ export default function Account() {
     }
   ]
   return (
-    <div className="flex flex-col w-full min-h-screen px-4 py-8">
+    <div className="flex flex-col w-full min-h-screen p-4 md:p-8">
       <div className="w-full max-w-5xl mx-auto">
         <motion.div
           initial={{opacity: 0, y: 10}}

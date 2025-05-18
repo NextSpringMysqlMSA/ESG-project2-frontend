@@ -42,7 +42,7 @@ export default function Main() {
             />
           </div>
           <div className="flex flex-col w-full h-full p-8 space-y-4 bg-white shadow rounded-xl">
-            <h1 className="text-2xl">협력사 실시관 관리</h1>
+            <h1 className="text-2xl">협력사 실시간 관리</h1>
             <h3>- 협력사 ESG 데이터 실시간 취합 및 알림 서비스</h3>
             <h3>- 협력사별 추이 비교 및 이슈 이력 관리 기능</h3>
             <img src="/images/partner.gif" alt="협력사" className="border rounded-xl" />

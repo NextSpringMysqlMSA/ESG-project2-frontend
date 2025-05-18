@@ -42,6 +42,7 @@ import GriChart from '@/components/chart/griChart'
 import IfrsChart from '@/components/chart/IfrsChart'
 import NetZeroChart from '@/components/chart/netZeroChart'
 import {Button} from '@/components/ui/button'
+import Link from 'next/link'
 
 // 차트 설정
 ChartJS.register(
@@ -343,50 +344,54 @@ export default function Home() {
         animate="visible">
         {/* GRI 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="overflow-hidden h-[320px] hover:shadow-md transition-shadow">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-green-600" />
-                  <span className="text-xl text-green-800">GRI 작성 현황</span>
-                </CardTitle>
-                <Badge variant="outline" className="text-green-700 bg-green-50">
-                  실시간 데이터
-                </Badge>
-              </div>
-              <CardDescription>
-                Global Reporting Initiative 지표 작성 현황
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between h-[220px]">
-                {mounted && <GriChart refreshTrigger={refreshTrigger} />}
-              </div>
-            </CardContent>
-          </Card>
+          <Link href="/GRI">
+            <Card className="overflow-hidden h-[320px] hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-green-600" />
+                    <span className="text-xl text-green-800">GRI 작성 현황</span>
+                  </CardTitle>
+                  <Badge variant="outline" className="text-green-700 bg-green-50">
+                    실시간 데이터
+                  </Badge>
+                </div>
+                <CardDescription>
+                  Global Reporting Initiative 지표 작성 현황
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between h-[220px]">
+                  {mounted && <GriChart refreshTrigger={refreshTrigger} />}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
 
         {/* IFRS S2 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="overflow-hidden h-[320px] hover:shadow-md transition-shadow">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <CloudSun className="w-5 h-5 text-indigo-600" />
-                  <span className="text-xl text-indigo-800">IFRS S2 (TCFD) 현황</span>
-                </CardTitle>
-                <Badge variant="outline" className="text-indigo-700 bg-indigo-50">
-                  실시간 데이터
-                </Badge>
-              </div>
-              <CardDescription>기후 관련 공시(TCFD) 작성 현황</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between h-[220px]">
-                {mounted && <IfrsChart refreshTrigger={refreshTrigger} />}
-              </div>
-            </CardContent>
-          </Card>
+          <Link href="/governance">
+            <Card className="overflow-hidden h-[320px] hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <CloudSun className="w-5 h-5 text-indigo-600" />
+                    <span className="text-xl text-indigo-800">IFRS S2 (TCFD) 현황</span>
+                  </CardTitle>
+                  <Badge variant="outline" className="text-indigo-700 bg-indigo-50">
+                    실시간 데이터
+                  </Badge>
+                </div>
+                <CardDescription>기후 관련 공시(TCFD) 작성 현황</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between h-[220px]">
+                  {mounted && <IfrsChart refreshTrigger={refreshTrigger} />}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
       </motion.div>
       {/* 하단 세 개 카드 */}
@@ -397,43 +402,45 @@ export default function Home() {
         animate="visible">
         {/* 협력사 ESG 정보 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="h-[420px] overflow-hidden hover:shadow-md transition-shadow">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg text-rose-800">
-                <Zap className="w-5 h-5 mr-2 text-rose-600" />
-                협력사 ESG 정보 수집 현황
-              </CardTitle>
-              <CardDescription className="text-gray-500">
-                주요 협력사 ESG 정보 수집 진행률
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="relative mx-auto mb-8 w-36 h-36">
-                {mounted && <Pie data={supplierData} options={chartOptions} />}
-                <div className="absolute text-center transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                  <p className="text-4xl font-gmBold text-rose-800">80%</p>
+          <Link href="/financialRisk">
+            <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg text-rose-800">
+                  <Zap className="w-5 h-5 mr-2 text-rose-600" />
+                  협력사 ESG 정보 수집 현황
+                </CardTitle>
+                <CardDescription className="text-gray-500">
+                  주요 협력사 ESG 정보 수집 진행률
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="relative mx-auto mb-8 w-36 h-36">
+                  {mounted && <Pie data={supplierData} options={chartOptions} />}
+                  <div className="absolute text-center transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+                    <p className="text-2xl font-gmBold text-rose-800">80%</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="h-[150px]">
-                {mounted && <Bar data={companyData} options={companyOptions} />}
-              </div>
-            </CardContent>
-            <CardFooter className="pt-0 pb-4">
-              <Button
-                variant="ghost"
-                className="w-full text-rose-600 hover:text-rose-700"
-                size="sm">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                모든 협력사 보기
-              </Button>
-            </CardFooter>
-          </Card>
+                <div className="h-[150px]">
+                  {mounted && <Bar data={companyData} options={companyOptions} />}
+                </div>
+              </CardContent>
+              <CardFooter className="pt-0 pb-4">
+                <Button
+                  variant="ghost"
+                  className="w-full text-rose-600 hover:text-rose-700"
+                  size="sm">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  모든 협력사 보기
+                </Button>
+              </CardFooter>
+            </Card>
+          </Link>
         </motion.div>
 
         {/* ESG Rating 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="h-[420px] overflow-hidden hover:shadow-md transition-shadow">
+          <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center text-lg text-purple-800">
                 <Award className="w-5 h-5 mr-2 text-purple-600" />
@@ -444,7 +451,7 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-2">
                 <div className="text-5xl text-gray-500 font-gmBold">A</div>
                 <ArrowRight className="w-12 h-12 mx-4 text-gray-400" />
                 <div className="text-5xl text-purple-600 font-gmBold">AA</div>
@@ -477,21 +484,23 @@ export default function Home() {
 
         {/* Net Zero 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="h-[420px] overflow-hidden hover:shadow-md transition-shadow">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg text-blue-800">
-                <Leaf className="w-5 h-5 mr-2 text-blue-600" />
-                Net Zero 달성 경로
-                <span className="ml-2 text-xs font-normal">(단위:tCO₂e)</span>
-              </CardTitle>
-              <CardDescription className="text-gray-500">
-                탄소 중립 목표 및 감축 경로
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[320px]">
-              {mounted && <NetZeroChart refreshTrigger={refreshTrigger} />}
-            </CardContent>
-          </Card>
+          <Link href="/goal">
+            <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg text-blue-800">
+                  <Leaf className="w-5 h-5 mr-2 text-blue-600" />
+                  Net Zero 달성 경로
+                  <span className="ml-2 text-xs font-normal">(단위:tCO₂e)</span>
+                </CardTitle>
+                <CardDescription className="text-gray-500">
+                  탄소 중립 목표 및 감축 경로
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="h-[320px]">
+                {mounted && <NetZeroChart refreshTrigger={refreshTrigger} />}
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
       </motion.div>
     </div>

@@ -138,15 +138,13 @@ export default function Governance() {
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          IFRS S2
-        </BreadcrumbLink>
+        <span>ESG 공시</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-customG">거버넌스</span>
+        <span>IFRS S2</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="text-customG">거버넌스</span>
       </div>
       {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
       <PageHeader

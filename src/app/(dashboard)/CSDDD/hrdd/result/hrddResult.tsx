@@ -125,9 +125,9 @@ export default function Hrdddesult() {
         transition={{duration: 0.3}}
         className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/CSDDD" className="hover:text-customG">
-          공급망 실사
-        </BreadcrumbLink>
+        <span>대시보드</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>공급망 실사</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">인권 실사</span>
       </motion.div>
@@ -198,12 +198,21 @@ export default function Hrdddesult() {
                       자가진단에서 식별된 위반 가능성이 있는 항목들입니다
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2 mt-2 md:mt-0">
-                    <Link
-                      href="/CSDDD/hrdd"
-                      className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customGLight/20">
-                      {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
-                    </Link>
+                  <div className="flex flex-row items-center space-x-4">
+                    <div className="flex gap-2 mt-2 md:mt-0">
+                      <Link
+                        href="/CSDDD"
+                        className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customG hover:text-white">
+                        실사 유형 선택
+                      </Link>
+                    </div>
+                    <div className="flex gap-2 mt-2 md:mt-0">
+                      <Link
+                        href="/CSDDD/hrdd"
+                        className="px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md shadow-sm text-customG border-customG hover:bg-customG hover:text-white">
+                        {results.length > 0 ? '자가진단 다시하기' : '자가진단 시작하기'}
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </CardHeader>

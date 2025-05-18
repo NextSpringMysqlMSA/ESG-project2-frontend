@@ -65,7 +65,8 @@ export default function Sidebar() {
       if (
         pathname.startsWith('/governance') ||
         pathname.startsWith('/strategy') ||
-        pathname.startsWith('/goal')
+        pathname.startsWith('/goal') ||
+        pathname === '/GRI'
       ) {
         setOpenParent(true)
         setOpenESGChild(true)
@@ -81,7 +82,8 @@ export default function Sidebar() {
   const isESGActive =
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
-    pathname.startsWith('/goal')
+    pathname.startsWith('/goal') ||
+    pathname === '/GRI'
   const isESGChildActive =
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
@@ -381,8 +383,9 @@ export default function Sidebar() {
                       className={cn(
                         'px-2 py-1.5 text-sm rounded-md w-full',
                         pathname === '/GRI'
-                          ? 'text-customGDark font-medium'
-                          : 'text-gray-600 hover:text-customGDark'
+                          ? 'bg-customGLight text-customGDark'
+                          : 'text-gray-600 hover:bg-gray-100',
+                        hovered ? 'justify-start' : 'justify-center'
                       )}>
                       <motion.span variants={itemVariants}>GRI</motion.span>
                     </Link>

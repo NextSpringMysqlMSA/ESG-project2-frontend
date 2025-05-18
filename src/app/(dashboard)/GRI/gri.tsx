@@ -268,13 +268,13 @@ export default function GRI() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8 ">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>ESG 공시</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">GRI</span>
       </div>

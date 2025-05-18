@@ -138,7 +138,7 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
     // 불필요한 로딩 표시를 제거하기 위해 initLoad 사용하지 않음
     if (isEditMode && rowId !== undefined) {
       // 수정 모드: API에서 데이터 로드
-      initFromApi(rowId).catch((error: any) => {
+      initFromApi(rowId).catch(error => {
         console.error('KPI 목표 데이터 로드 오류:', error)
         showError('데이터를 불러오는데 실패했습니다.')
       })
@@ -278,7 +278,7 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
       setData(updatedList)
       resetFields() // 삭제 후 상태 초기화
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message

@@ -55,7 +55,7 @@ const initialState = {
 
 export const useNetZeroStore = create(
   persist<NetZeroStore>(
-    (set, get) => ({
+    set => ({
       ...initialState,
 
       // 필드 설정 메소드

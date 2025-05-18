@@ -108,13 +108,11 @@ export default function Strategy() {
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-2 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-blue-600">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="/official" className="hover:text-blue-600">
-          IFRS S2
-        </BreadcrumbLink>
+        <span>ESG 공시</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>IFRS S2</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="text-customG">전략</span>
       </div>

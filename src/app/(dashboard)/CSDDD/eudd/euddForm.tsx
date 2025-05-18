@@ -13,7 +13,7 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import {showError, showSuccess} from '@/util/toast'
-import {BadgeCheck, FileQuestion, Home} from 'lucide-react'
+import {BadgeCheck, ChevronRight, FileQuestion, Home} from 'lucide-react'
 import {useRouter} from 'next/navigation'
 import {fetchEuddResult, updateEuddAnswers} from '@/services/csddd'
 import type {EuddViolationDto} from '@/types/IFRS/csddd'
@@ -583,21 +583,13 @@ export default function EuddForm() {
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.3}}
-        className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <Home className="w-4 h-4 mr-1" />
-              <BreadcrumbLink href="/CSDDD">공급망 실사</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-customG">
-                EU 공급망 실사 진단
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
+        <Home className="w-4 h-4 mr-1" />
+        <span>대시보드</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>공급망 실사</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="font-medium text-customG">EU 공급망 실사 진단</span>
       </motion.div>
 
       <div className="w-full mx-auto max-w-7xl">
