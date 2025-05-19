@@ -469,8 +469,8 @@ export default function Home() {
           <Link href="/goal">
             <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center text-lg text-blue-800">
-                  <Leaf className="w-5 h-5 mr-2 text-blue-600" />
+                <CardTitle className="flex items-center text-lg text-[#4bc0c0]">
+                  <Leaf className="w-5 h-5 mr-2 text-[#4bc0c0]" />
                   Net Zero 달성 경로
                   <span className="ml-2 text-xs font-normal">(단위:tCO₂e)</span>
                 </CardTitle>

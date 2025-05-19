@@ -90,19 +90,19 @@ export default function NetZeroChart({refreshTrigger = 0}: NetZeroChartProps) {
       {
         label: ' CO₂e 배출량',
         data: data.map(item => item.emission),
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderColor: '#4bc0c0',
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
         tension: 0.3,
         pointRadius: 6,
         pointBackgroundColor: '#ffffff',
-        pointBorderColor: '#3b82f6',
+        pointBorderColor: '#059669',
         pointBorderWidth: 2,
         fill: true
       },
       {
         label: ' 목표 경로',
         data: calculateTargetPath(),
-        borderColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: '#4bc0c0',
         borderDash: [5, 5],
         backgroundColor: 'transparent',
         tension: 0.1,
@@ -152,7 +152,7 @@ export default function NetZeroChart({refreshTrigger = 0}: NetZeroChartProps) {
         align: -10,
         anchor: 'end',
         offset: 4,
-        color: '#3b82f6',
+        color: '#059669',
         font: {
           size: 10,
           weight: 'bold'

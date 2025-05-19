@@ -132,7 +132,7 @@ export default function Goal() {
           {
             label: '넷제로 배출량 (tCO2e)',
             data: emissionValues,
-            borderColor: 'rgb(75, 192, 192)',
+            borderColor: '#4bc0c0',
             backgroundColor: 'rgba(75, 192, 192, 0.5)',
             tension: 0.3,
             pointRadius: 6,
@@ -144,7 +144,7 @@ export default function Goal() {
           {
             label: ' 목표 경로',
             data: calculateTargetPath(),
-            borderColor: 'rgb(75, 192, 192)',
+            borderColor: '#4bc0c0',
             borderDash: [5, 5],
             backgroundColor: 'transparent',
             tension: 0.1,

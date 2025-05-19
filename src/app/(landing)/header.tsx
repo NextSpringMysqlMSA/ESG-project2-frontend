@@ -48,7 +48,7 @@ export default function Header({onArrowClick}: HeaderProps) {
 
   return (
     <div className="flex justify-center items-center w-full min-h-[calc(100vh-64px)]">
-      <div className="flex flex-col w-full max-w-screen-xl md:space-y-32">
+      <div className="flex flex-col w-full max-w-screen-xl mt-16 md:space-y-32">
         {/* 헤더 글----------------------------------------------------------------------- */}
         <div className="flex flex-col w-full space-y-8 text-center">
           <h1 className="text-6xl">신뢰할 수 있는 ESG 데이터 플랫폼</h1>
