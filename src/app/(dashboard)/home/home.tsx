@@ -345,7 +345,7 @@ export default function Home() {
         {/* GRI 섹션 */}
         <motion.div variants={itemVariants}>
           <Link href="/GRI">
-            <Card className="overflow-hidden h-[320px] hover:shadow-md transition-shadow">
+            <Card className="overflow-hidden h-[320px] hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
@@ -372,7 +372,7 @@ export default function Home() {
         {/* IFRS S2 섹션 */}
         <motion.div variants={itemVariants}>
           <Link href="/governance">
-            <Card className="overflow-hidden h-[320px] hover:shadow-md transition-shadow">
+            <Card className="overflow-hidden h-[320px] hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export default function Home() {
         {/* 협력사 ESG 정보 섹션 */}
         <motion.div variants={itemVariants}>
           <Link href="/financialRisk">
-            <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+            <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center text-lg text-rose-800">
                   <Zap className="w-5 h-5 mr-2 text-rose-600" />
@@ -431,7 +431,7 @@ export default function Home() {
 
         {/* ESG Rating 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+          <Card className="h-full overflow-hidden transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center text-lg text-purple-800">
                 <Award className="w-5 h-5 mr-2 text-purple-600" />
@@ -467,7 +467,7 @@ export default function Home() {
         {/* Net Zero 섹션 */}
         <motion.div variants={itemVariants}>
           <Link href="/goal">
-            <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+            <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center text-lg text-[#4bc0c0]">
                   <Leaf className="w-5 h-5 mr-2 text-[#4bc0c0]" />
