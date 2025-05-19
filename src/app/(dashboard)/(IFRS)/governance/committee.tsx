@@ -185,7 +185,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
             placeholder="예: ESG 위원회, 지속가능경영위원회"
             value={committeeName}
             onChange={e => setField('committeeName', e.target.value)}
-            className="border-blue-100 focus-visible:ring-blue-600"
+            className="border focus-visible:ring-customG"
           />
         </div>
 
@@ -199,7 +199,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
               placeholder="이름"
               value={memberName}
               onChange={e => setField('memberName', e.target.value)}
-              className="border-blue-100 focus-visible:ring-blue-600"
+              className="border focus-visible:ring-customG"
             />
           </div>
           <div className="grid gap-2">
@@ -211,7 +211,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
               placeholder="직책"
               value={memberPosition}
               onChange={e => setField('memberPosition', e.target.value)}
-              className="border-blue-100 focus-visible:ring-blue-600"
+              className="border focus-visible:ring-customG"
             />
           </div>
           <div className="grid gap-2">
@@ -223,7 +223,7 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
               placeholder="소속"
               value={memberAffiliation}
               onChange={e => setField('memberAffiliation', e.target.value)}
-              className="border-blue-100 focus-visible:ring-blue-600"
+              className="border focus-visible:ring-customG"
             />
           </div>
         </div>
@@ -238,17 +238,19 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
             rows={4}
             value={climateResponsibility}
             onChange={e => setField('climateResponsibility', e.target.value)}
-            className="border-blue-100 resize-none focus-visible:ring-blue-600"
+            className="border resize-none focus-visible:ring-customG"
           />
         </div>
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-2 mt-2 space-x-3">
+      <div className="flex items-center justify-between pt-2 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-1" disabled={submitting}>
+              <Button
+                className="gap-1 text-red-600 bg-white border border-red-600 hover:bg-red-600 hover:text-white"
+                disabled={submitting}>
                 <Trash className="w-4 h-4" />
                 삭제
               </Button>
@@ -282,31 +284,32 @@ export default function Committee({onClose, rowId, mode}: CommitteeProps) {
             </AlertDialogContent>
           </AlertDialog>
         )}
+        <div className="flex flex-row items-center justify-end w-full space-x-3 ">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            className="gap-1">
+            취소
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={onClose}
-          disabled={submitting}
-          className="gap-1">
-          취소
-        </Button>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="gap-1 text-white bg-blue-600 hover:bg-blue-700">
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {isEditMode ? '저장하기' : '등록하기'}
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-1 text-white bg-customG hover:bg-customGDark">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isEditMode ? '저장하기' : '등록하기'}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )

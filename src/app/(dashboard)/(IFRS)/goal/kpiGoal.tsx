@@ -7,16 +7,7 @@ import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
 import {createKPIGoal, updateKPIGoal, deleteKPIGoal, fetchKPIGoal} from '@/services/goal'
 import {showError, showSuccess} from '@/util/toast'
 import axios from 'axios'
-import {
-  Trash,
-  Save,
-  BarChart3,
-  Loader2,
-  AlertCircle,
-  Target,
-  Calendar,
-  ChevronRight
-} from 'lucide-react'
+import {Trash, Save, BarChart3, Loader2, AlertCircle} from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,23 +19,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
-import {Separator} from '@/components/ui/separator'
-import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 
 // 테마 색상 정의 - 싱글톤으로 관리
 const THEME_STYLE = {
-  text: 'text-purple-600',
-  bg: 'bg-purple-50',
-  border: 'border-purple-200',
-  ring: 'ring-purple-500',
+  text: 'text-customG',
+  bg: 'bg-customGBorder200',
+  border: 'bg-customG',
+  ring: 'ring-customG',
   focusRing: 'focus:ring-2 focus:ring-purple-500/40 focus:ring-offset-2',
-  buttonBg: 'rgb(124, 58, 237)',
-  buttonHoverBg: 'rgb(109, 40, 217)',
+  buttonBg: 'bg-customG',
+  buttonHoverBg: 'bg-customGDark',
   buttonText: 'text-white',
-  progressBg: 'bg-purple-600'
+  progressBg: 'bg-customG'
 }
 
 // 공통 입력 핸들러
@@ -87,7 +76,7 @@ const StyledInput = ({
           onChange={onChange}
           placeholder={placeholder}
           readOnly={readOnly}
-          className={`w-full focus-visible:ring-purple-400 ${className}`}
+          className={`w-full focus-visible:ring-customG ${className}`}
           style={{
             ...style
           }}
@@ -149,7 +138,7 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
     // 불필요한 로딩 표시를 제거하기 위해 initLoad 사용하지 않음
     if (isEditMode && rowId !== undefined) {
       // 수정 모드: API에서 데이터 로드
-      initFromApi(rowId).catch((error: any) => {
+      initFromApi(rowId).catch(error => {
         console.error('KPI 목표 데이터 로드 오류:', error)
         showError('데이터를 불러오는데 실패했습니다.')
       })
@@ -289,7 +278,7 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
       setData(updatedList)
       resetFields() // 삭제 후 상태 초기화
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage =
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
@@ -325,13 +314,7 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
       <div className="grid gap-6">
         {/* 지표 선택 섹션 */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 mb-1">
-            <Target className={`w-4 h-4 ${THEME_STYLE.text}`} />
-            <h3 className="text-sm font-medium text-slate-800">지표 정보</h3>
-          </div>
-          <Separator className="mb-4" />
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <Label className="mb-2 text-sm font-medium text-slate-700">지표 유형</Label>
               <CustomSelect
@@ -373,12 +356,6 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
 
         {/* 목표 기간 섹션 */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar className={`w-4 h-4 ${THEME_STYLE.text}`} />
-            <h3 className="text-sm font-medium text-slate-800">목표 기간</h3>
-          </div>
-          <Separator className="mb-4" />
-
           {/* 3컬럼으로 변경하여 목표 기간을 오른쪽에 표시 */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <StyledInput
@@ -425,12 +402,6 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
 
         {/* 목표 수치 섹션 */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className={`w-4 h-4 ${THEME_STYLE.text}`} />
-            <h3 className="text-sm font-medium text-slate-800">목표 수치</h3>
-          </div>
-          <Separator className="mb-4" />
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <StyledInput
               label="기준값"
@@ -463,11 +434,13 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-4 mt-2 space-x-3 border-t">
+      <div className="flex items-center justify-between pt-4 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-1" disabled={submitting}>
+              <Button
+                className="gap-1 text-red-600 bg-white border border-red-600 hover:bg-red-600 hover:text-white"
+                disabled={submitting}>
                 <Trash className="w-4 h-4" />
                 삭제
               </Button>
@@ -501,34 +474,35 @@ export default function KPIGoal({onClose, rowId, mode}: KPIGoalProps) {
             </AlertDialogContent>
           </AlertDialog>
         )}
+        <div className="flex flex-row items-center justify-end w-full space-x-3 ">
+          <Button
+            variant="outline"
+            onClick={() => {
+              resetFields() // 취소 시 상태 초기화
+              onClose()
+            }}
+            disabled={submitting}
+            className="gap-1">
+            취소
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={() => {
-            resetFields() // 취소 시 상태 초기화
-            onClose()
-          }}
-          disabled={submitting}
-          className="gap-1">
-          취소
-        </Button>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="gap-1 text-white bg-purple-600 hover:bg-purple-700 focus:ring-2 focus:ring-purple-400">
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {isEditMode ? '저장하기' : '등록하기'}
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-1 text-white bg-customG hover:bg-customGDark ">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isEditMode ? '저장하기' : '등록하기'}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )

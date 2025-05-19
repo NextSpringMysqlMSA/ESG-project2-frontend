@@ -3,7 +3,6 @@
 import {useState, useEffect} from 'react'
 import type {JSX} from 'react'
 import {motion, AnimatePresence} from 'framer-motion' // Framer Motion 추가
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {cn} from '@/lib/utils'
 import DashButton from '@/components/tools/dashButton'
 import {
@@ -15,11 +14,11 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import {showError, showSuccess} from '@/util/toast'
-import {BadgeCheck, FileQuestion, Home} from 'lucide-react'
+import {BadgeCheck, ChevronRight, FileQuestion, Home} from 'lucide-react'
 import {fetchEddResult, updateEddAnswers} from '@/services/csddd'
 import {useRouter} from 'next/navigation'
 import type {EddViolationDto} from '@/types/IFRS/csddd'
-import axios, {AxiosError} from 'axios'
+import {AxiosError} from 'axios'
 const questions: Record<
   string,
   {type: 'title' | 'question'; text: string; id?: string}[]
@@ -352,7 +351,7 @@ export default function EddForm() {
           initial={{opacity: 0, y: -5}}
           animate={{opacity: 1, y: 0}}
           transition={{duration: 0.4}}
-          className="flex items-center mb-3 text-lg font-bold text-gray-700">
+          className="flex items-center mb-3 text-lg text-gray-700 font-gmBold">
           <div className="flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-customG/10">
             <BadgeCheck className="w-5 h-5 text-customG" />
           </div>
@@ -384,7 +383,7 @@ export default function EddForm() {
             </div>
 
             <p className="font-medium text-gray-700">
-              <span className="mr-1 text-sm font-bold text-customG">
+              <span className="mr-1 text-sm font-gmBold text-customG">
                 {id.split('-').slice(1).join('-')}
               </span>
               <span className="mx-1 text-gray-500">|</span>
@@ -495,19 +494,13 @@ export default function EddForm() {
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.3}}
-        className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <Home className="w-4 h-4 mr-1" />
-              <BreadcrumbLink href="/CSDDD">공급망 실사</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-customG">환경 실사 진단</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
+        <Home className="w-4 h-4 mr-1" />
+        <span>대시보드</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>공급망 실사</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="font-medium text-customG">환경 실사 진단</span>
       </motion.div>
       <div className="w-full mx-auto max-w-7xl">
         {/* 헤더 섹션 - 컴팩트 버전으로 개선 */}
@@ -521,7 +514,7 @@ export default function EddForm() {
               <BadgeCheck className="w-6 h-6 text-customG" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-customG">
+              <h1 className="text-xl font-gmBold text-customG">
                 환경 실사 지침 요구사항 이행 자가진단
               </h1>
               <p className="text-sm text-gray-600">

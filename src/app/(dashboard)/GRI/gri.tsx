@@ -18,7 +18,6 @@ import {motion} from 'framer-motion'
 import {BreadcrumbLink} from '@/components/ui/breadcrumb'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {LoadingState} from '@/components/ui/loading-state'
-import {Badge} from '@/components/ui/badge'
 
 // GRI 테이블 컴포넌트 임포트
 import GRI2 from './(tables)/gri2'
@@ -269,13 +268,13 @@ export default function GRI() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8 ">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>ESG 공시</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">GRI</span>
       </div>
@@ -285,14 +284,7 @@ export default function GRI() {
         icon={<BookOpen className="w-6 h-6" />}
         title="GRI 표준"
         description="Global Reporting Initiative(GRI) 표준에 따른 ESG 공시 요구사항"
-        module="GRI">
-        <Badge
-          variant="outline"
-          className="bg-green-50 text-green-700 border-green-200 pl-1.5">
-          <BookOpen className="w-3.5 h-3.5 mr-1" />
-          GRI 2021
-        </Badge>
-      </PageHeader>
+        module="GRI"></PageHeader>
 
       {/* 메인 컨텐츠 카드 */}
       <Card className="bg-white border rounded-lg shadow-sm">

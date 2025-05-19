@@ -22,7 +22,7 @@ export default function LandingNavBar() {
             animate={{opacity: 1, x: 0}}
             transition={{duration: 0.3}}
             className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-customGTextLight">
+            <span className="text-xl tracking-tight font-gmBold text-customGTextLight">
               NSMM
             </span>
             <span className="-mt-1 text-xs font-medium text-customG">Dashboard</span>
@@ -31,12 +31,6 @@ export default function LandingNavBar() {
 
         {/* 로그인/시작하기 버튼 */}
         <div className="flex items-center space-x-3">
-          <Link
-            href="/login"
-            className="hidden px-4 py-2 text-sm font-medium transition-colors rounded-md text-customG md:block hover:bg-customGLight">
-            로그인
-          </Link>
-
           <Link href="/login">
             <motion.button
               whileHover={{scale: 1.03}}
@@ -55,10 +49,10 @@ export default function LandingNavBar() {
 /**
  * 네비게이션 메뉴 아이템 컴포넌트
  */
-const NavItem = ({href, label}: {href: string; label: string}) => (
-  <Link
-    href={href}
-    className="px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight">
-    {label}
-  </Link>
-)
+// const NavItem = ({href, label}: {href: string; label: string}) => (
+//   <Link
+//     href={href}
+//     className="px-3 py-2 text-sm font-medium text-gray-600 transition-colors rounded-md hover:text-customGDark hover:bg-customGLight">
+//     {label}
+//   </Link>
+// )

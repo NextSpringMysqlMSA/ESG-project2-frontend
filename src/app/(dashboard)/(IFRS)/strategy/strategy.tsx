@@ -93,7 +93,7 @@ export default function Strategy() {
 
   // 요약 통계 계산
   const scenarioCount = ScenarioData?.length || 0
-  const riskCount = RiskData?.length || 0
+  // const riskCount = RiskData?.length || 0
 
   // 리스크 유형 카운트
   const riskTypeCount = {
@@ -108,15 +108,13 @@ export default function Strategy() {
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-2 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-blue-600">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="/official" className="hover:text-blue-600">
-          IFRS S2
-        </BreadcrumbLink>
+        <span>ESG 공시</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-blue-600">전략</span>
+        <span>IFRS S2</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="text-customG">전략</span>
       </div>
 
       {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
@@ -148,7 +146,7 @@ export default function Strategy() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">시나리오</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : scenarioCount}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -163,7 +161,7 @@ export default function Strategy() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">물리적 리스크</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? (
                     <Skeleton className="w-8 h-8" />
                   ) : (
@@ -182,7 +180,7 @@ export default function Strategy() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">전환 리스크</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? (
                     <Skeleton className="w-8 h-8" />
                   ) : (
@@ -201,7 +199,7 @@ export default function Strategy() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">기회 요인</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? (
                     <Skeleton className="w-8 h-8" />
                   ) : (

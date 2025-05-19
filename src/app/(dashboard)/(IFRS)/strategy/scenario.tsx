@@ -2,17 +2,7 @@
 
 import {useEffect, useState} from 'react'
 import {motion} from 'framer-motion'
-import {
-  LineChart,
-  Save,
-  Trash,
-  AlertCircle,
-  Loader2,
-  MapPin,
-  Building2,
-  Cloud,
-  Thermometer
-} from 'lucide-react'
+import {LineChart, Save, Trash, AlertCircle, Loader2} from 'lucide-react'
 import {useScenarioStore} from '@/stores/IFRS/strategy/useScenarioStore'
 import {
   createScenario,
@@ -49,8 +39,6 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import {Badge} from '@/components/ui/badge'
-import {Separator} from '@/components/ui/separator'
-import {Card, CardContent} from '@/components/ui/card'
 import {CreateScenarioDto, UpdateScenarioDto} from '@/types/IFRS/strategy'
 
 type ScenarioProps = {
@@ -100,23 +88,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
     }
   }, [isEditMode, rowId, initFromApi, initFromStorage, persistToStorage])
 
-  // 공통 작업 처리 함수 (중복 코드 제거)
-  const handleAfterOperation = async () => {
-    const updatedList = await fetchScenarioList()
-    setData(updatedList)
-    resetFields()
-    onClose()
-  }
-
-  // API 오류 처리를 위한 공통 함수
-  const handleApiError = (err: unknown) => {
-    const errorMessage =
-      axios.isAxiosError(err) && err.response?.data?.message
-        ? err.response.data.message
-        : '작업 실패: 서버 오류 발생'
-    showError(errorMessage)
-  }
-
   const handleSubmit = async () => {
     // 필수 필드 검증
     if (
@@ -149,7 +120,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
 
     try {
       setSubmitting(true)
-
       if (isEditMode && rowId !== undefined) {
         // 수정 모드
         const updateData: UpdateScenarioDto = {...scenarioData, id: rowId}
@@ -159,12 +129,19 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
         // 추가 모드
         await createScenario(scenarioData)
         showSuccess('새 시나리오가 성공적으로 등록되었습니다.')
+        localStorage.removeItem('scenario-storage')
       }
 
-      // 공통 작업 호출
-      await handleAfterOperation()
+      const updatedList = await fetchScenarioList()
+      setData(updatedList)
+      resetFields()
+      onClose()
     } catch (err) {
-      handleApiError(err)
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '처리 실패: 서버 오류가 발생했습니다.'
+      showError(errorMessage)
     } finally {
       setSubmitting(false)
     }
@@ -178,10 +155,16 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
       await deleteScenario(rowId)
       showSuccess('시나리오가 성공적으로 삭제되었습니다.')
 
-      // 공통 작업 호출
-      await handleAfterOperation()
+      const updatedList = await fetchScenarioList()
+      setData(updatedList)
+      resetFields()
+      onClose()
     } catch (err) {
-      handleApiError(err)
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : '삭제 실패: 서버 오류가 발생했습니다.'
+      showError(errorMessage)
     } finally {
       setSubmitting(false)
       setDeleteDialogOpen(false)
@@ -215,22 +198,6 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
     return 'bg-gray-100 text-gray-700 border-gray-200'
   }
 
-  // 기후 지표에 따른 아이콘
-  const getClimateIcon = (climate: string) => {
-    switch (climate) {
-      case '태풍':
-        return <Cloud className="w-4 h-4" />
-      case '홍수':
-        return <Cloud className="w-4 h-4" />
-      case '폭염':
-        return <Thermometer className="w-4 h-4" />
-      case '가뭄':
-        return <Thermometer className="w-4 h-4" />
-      default:
-        return <Cloud className="w-4 h-4" />
-    }
-  }
-
   return (
     <motion.div
       initial={{opacity: 0, y: 5}}
@@ -260,317 +227,243 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
       </div>
 
       {/* 폼 영역 */}
-      <Card className="overflow-hidden border border-gray-200 shadow-sm">
-        <CardContent className="p-6">
-          <div className="grid gap-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="scenario"
-                  className="flex items-center text-sm font-medium">
-                  SSP 시나리오
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Select
-                  value={scenario}
-                  onValueChange={value => setField('scenario', value)}>
-                  <SelectTrigger
-                    id="scenario"
-                    className={cn(
-                      'focus-visible:ring-blue-400',
-                      !scenario ? 'border-red-300' : 'border-gray-300'
-                    )}>
-                    <SelectValue placeholder="SSP 시나리오 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>SSP 시나리오</SelectLabel>
-                      {scenarioOptions.map(option => (
-                        <SelectItem key={option} value={option}>
-                          <div className="flex items-center">
-                            <Badge className={getScenarioColor(option)}>{option}</Badge>
-                            <span className="ml-2">
-                              {option === 'SSP1-2.6'
-                                ? '지속가능성'
-                                : option === 'SSP2-4.5'
-                                ? '중도'
-                                : option === 'SSP3-7.0'
-                                ? '지역 경쟁'
-                                : '화석연료 의존'}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
 
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="baseYear"
-                  className="flex items-center text-sm font-medium">
-                  분석 기준 연도
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Select
-                  value={baseYear ? baseYear.toString() : ''}
-                  onValueChange={value => setField('baseYear', parseInt(value))}>
-                  <SelectTrigger
-                    id="baseYear"
-                    className={cn(
-                      'focus-visible:ring-blue-400',
-                      !baseYear ? 'border-red-300' : 'border-gray-300'
-                    )}>
-                    <SelectValue placeholder="분석 기준 연도 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>분석 기준 연도</SelectLabel>
-                      {baseYearOptions.map(option => (
-                        <SelectItem key={option} value={option}>
-                          {option}년
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Separator className="my-1" />
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="regions"
-                  className="flex items-center text-sm font-medium">
-                  <MapPin className="w-4 h-4 mr-1 text-gray-500" />
-                  행정구역
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Select
-                  value={regions}
-                  onValueChange={value => setField('regions', value)}>
-                  <SelectTrigger
-                    id="regions"
-                    className={cn(
-                      'focus-visible:ring-blue-400',
-                      !regions ? 'border-red-300' : 'border-gray-300'
-                    )}>
-                    <SelectValue placeholder="행정구역 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>행정구역</SelectLabel>
-                      {regionOptions.map(option => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="climate"
-                  className="flex items-center text-sm font-medium">
-                  <Cloud className="w-4 h-4 mr-1 text-gray-500" />
-                  기후 지표
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Select
-                  value={climate}
-                  onValueChange={value => setField('climate', value)}>
-                  <SelectTrigger
-                    id="climate"
-                    className={cn(
-                      'focus-visible:ring-blue-400',
-                      !climate ? 'border-red-300' : 'border-gray-300'
-                    )}>
-                    <SelectValue placeholder="기후 지표 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>기후 지표</SelectLabel>
-                      {climateOptions.map(option => (
-                        <SelectItem key={option} value={option}>
-                          <div className="flex items-center">
-                            {getClimateIcon(option)}
-                            <span className="ml-2">{option}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="latitude"
-                  className="flex items-center text-sm font-medium">
-                  위도 (예: 37.56)
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Input
-                  id="latitude"
-                  type="number"
-                  placeholder="위도 입력 (예: 37.56)"
-                  value={latitude || ''}
-                  onChange={e => setField('latitude', parseFloat(e.target.value) || 0)}
-                  className={cn(
-                    'focus-visible:ring-blue-400',
-                    !latitude ? 'border-red-300' : 'border-gray-300'
-                  )}
-                  step="0.01"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="longitude"
-                  className="flex items-center text-sm font-medium">
-                  경도 (예: 126.97)
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Input
-                  id="longitude"
-                  type="number"
-                  placeholder="경도 입력 (예: 126.97)"
-                  value={longitude || ''}
-                  onChange={e => setField('longitude', parseFloat(e.target.value) || 0)}
-                  className={cn(
-                    'focus-visible:ring-blue-400',
-                    !longitude ? 'border-red-300' : 'border-gray-300'
-                  )}
-                  step="0.01"
-                />
-              </div>
-            </div>
-
-            <Separator className="my-1" />
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="industry"
-                  className="flex items-center text-sm font-medium">
-                  <Building2 className="w-4 h-4 mr-1 text-gray-500" />
-                  산업 분야
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Select
-                  value={industry}
-                  onValueChange={value => setField('industry', value)}>
-                  <SelectTrigger
-                    id="industry"
-                    className={cn(
-                      'focus-visible:ring-blue-400',
-                      !industry ? 'border-red-300' : 'border-gray-300'
-                    )}>
-                    <SelectValue placeholder="산업 분야 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>산업 분야</SelectLabel>
-                      {industryOptions.map(option => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="assetValue"
-                  className="flex items-center text-sm font-medium">
-                  자산 가치 (원)
-                  <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Input
-                  id="assetValue"
-                  placeholder="자산 가치 입력 (예: 10,000,000)"
-                  value={
-                    typeof assetValue === 'number'
-                      ? assetValue.toLocaleString('ko-KR')
-                      : '0'
-                  }
-                  onChange={e => {
-                    // Remove non-numeric characters for processing
-                    const numericValue = e.target.value.replace(/[^0-9]/g, '')
-                    setField('assetValue', numericValue ? parseFloat(numericValue) : 0)
-                  }}
-                  className={cn(
-                    'focus-visible:ring-blue-400',
-                    !assetValue ? 'border-red-300' : 'border-gray-300'
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label
-                htmlFor="assetType"
-                className="flex items-center text-sm font-medium">
-                자산 유형
-                <span className="ml-1 text-red-500">*</span>
-              </Label>
-              <Input
-                id="assetType"
-                placeholder="자산 유형 입력 (예: 사무실 건물, 물류 창고, 생산 설비 등)"
-                value={assetType || ''}
-                onChange={e => setField('assetType', e.target.value)}
+      <div className="grid gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="scenario" className="flex items-center text-sm font-medium">
+              SSP 시나리오
+            </Label>
+            <Select value={scenario} onValueChange={value => setField('scenario', value)}>
+              <SelectTrigger
+                id="scenario"
                 className={cn(
-                  'focus-visible:ring-blue-400',
-                  !assetType ? 'border-red-300' : 'border-gray-300'
-                )}
-              />
-            </div>
-
-            {isEditMode && (
-              <div className="grid gap-2">
-                <Label htmlFor="estimatedDamage" className="text-sm font-medium">
-                  예상 피해액 (원)
-                </Label>
-                <Input
-                  id="estimatedDamage"
-                  placeholder="예상 피해액 입력 (시스템 계산값 또는 직접 입력)"
-                  value={
-                    typeof estimatedDamage === 'number'
-                      ? estimatedDamage.toLocaleString('ko-KR')
-                      : '0'
-                  }
-                  onChange={e => {
-                    const numericValue = e.target.value.replace(/[^0-9]/g, '')
-                    setField(
-                      'estimatedDamage',
-                      numericValue ? parseFloat(numericValue) : 0
-                    )
-                  }}
-                  className="focus-visible:ring-blue-400"
-                />
-              </div>
-            )}
+                  'focus-visible:ring-customG',
+                  !scenario ? 'border-gray-300' : 'border-gray-300'
+                )}>
+                <SelectValue placeholder="SSP 시나리오 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>SSP 시나리오</SelectLabel>
+                  {scenarioOptions.map(option => (
+                    <SelectItem key={option} value={option}>
+                      <div className="flex items-center">
+                        <Badge className={getScenarioColor(option)}>{option}</Badge>
+                        <span className="ml-2">
+                          {option === 'SSP1-2.6'
+                            ? '지속가능성'
+                            : option === 'SSP2-4.5'
+                            ? '중도'
+                            : option === 'SSP3-7.0'
+                            ? '지역 경쟁'
+                            : '화석연료 의존'}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="grid gap-2">
+            <Label htmlFor="baseYear" className="flex items-center text-sm font-medium">
+              분석 기준 연도
+            </Label>
+            <Select
+              value={baseYear ? baseYear.toString() : ''}
+              onValueChange={value => setField('baseYear', parseInt(value))}>
+              <SelectTrigger
+                id="baseYear"
+                className={cn(
+                  'focus-visible:ring-customG',
+                  !baseYear ? 'border-gray-300' : 'border-gray-300'
+                )}>
+                <SelectValue placeholder="분석 기준 연도 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>분석 기준 연도</SelectLabel>
+                  {baseYearOptions.map(option => (
+                    <SelectItem key={option} value={option}>
+                      {option}년
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="regions" className="flex items-center text-sm font-medium">
+              행정구역
+            </Label>
+            <Select value={regions} onValueChange={value => setField('regions', value)}>
+              <SelectTrigger
+                id="regions"
+                className={cn(
+                  'focus-visible:ring-customG',
+                  !regions ? 'border-gray-300' : 'border-gray-300'
+                )}>
+                <SelectValue placeholder="행정구역 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>행정구역</SelectLabel>
+                  {regionOptions.map(option => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="climate" className="flex items-center text-sm font-medium">
+              기후 지표
+            </Label>
+            <Select value={climate} onValueChange={value => setField('climate', value)}>
+              <SelectTrigger
+                id="climate"
+                className={cn(
+                  'focus-visible:ring-customG',
+                  !climate ? 'border-gray-300' : 'border-gray-300'
+                )}>
+                <SelectValue placeholder="기후 지표 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>기후 지표</SelectLabel>
+                  {climateOptions.map(option => (
+                    <SelectItem key={option} value={option}>
+                      <div className="flex items-center">
+                        <span>{option}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="latitude" className="flex items-center text-sm font-medium">
+              위도 (예: 37.56)
+            </Label>
+            <Input
+              id="latitude"
+              type="number"
+              placeholder="위도 입력 (예: 37.56)"
+              value={latitude || ''}
+              onChange={e => setField('latitude', parseFloat(e.target.value) || 0)}
+              className={cn(
+                'focus-visible:ring-customG',
+                !latitude ? 'border-gray-300' : 'border-gray-300'
+              )}
+              step="0.01"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="longitude" className="flex items-center text-sm font-medium">
+              경도 (예: 126.97)
+            </Label>
+            <Input
+              id="longitude"
+              type="number"
+              placeholder="경도 입력 (예: 126.97)"
+              value={longitude || ''}
+              onChange={e => setField('longitude', parseFloat(e.target.value) || 0)}
+              className={cn(
+                'focus-visible:ring-customG',
+                !longitude ? 'border-gray-300' : 'border-gray-300'
+              )}
+              step="0.01"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="industry" className="flex items-center text-sm font-medium">
+              산업 분야
+            </Label>
+            <Select value={industry} onValueChange={value => setField('industry', value)}>
+              <SelectTrigger
+                id="industry"
+                className={cn(
+                  'focus-visible:ring-customG',
+                  !industry ? 'border-gray-300' : 'border-gray-300'
+                )}>
+                <SelectValue placeholder="산업 분야 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>산업 분야</SelectLabel>
+                  {industryOptions.map(option => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="assetValue" className="flex items-center text-sm font-medium">
+              자산 가치 (원)
+            </Label>
+            <Input
+              id="assetValue"
+              placeholder="자산 가치 입력 (예: 10,000,000)"
+              value={
+                typeof assetValue === 'number' ? assetValue.toLocaleString('ko-KR') : '0'
+              }
+              onChange={e => {
+                // Remove non-numeric characters for processing
+                const numericValue = e.target.value.replace(/[^0-9]/g, '')
+                setField('assetValue', numericValue ? parseFloat(numericValue) : 0)
+              }}
+              className={cn(
+                'focus-visible:ring-customG',
+                !assetValue ? 'border-gray-300' : 'border-gray-300'
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="assetType" className="flex items-center text-sm font-medium">
+            자산 유형
+          </Label>
+          <Input
+            id="assetType"
+            placeholder="자산 유형 입력 (예: 사무실 건물, 물류 창고, 생산 설비 등)"
+            value={assetType || ''}
+            onChange={e => setField('assetType', e.target.value)}
+            className={cn(
+              'focus-visible:ring-customG',
+              !assetType ? 'border-gray-300' : 'border-gray-300'
+            )}
+          />
+        </div>
+      </div>
 
       {/* 버튼 영역 */}
-      <div className="flex items-center justify-end pt-3 mt-2 space-x-3 border-t">
+      <div className="flex items-center justify-between pt-2 mt-2 space-x-3">
         {isEditMode && (
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
               <Button
-                variant="destructive"
-                className="gap-1 transition-all hover:bg-red-700"
+                className="gap-1 text-red-600 bg-white border border-red-600 hover:bg-red-600 hover:text-white"
                 disabled={submitting}>
                 <Trash className="w-4 h-4" />
                 삭제
@@ -607,31 +500,32 @@ export default function Scenario({onClose, rowId, mode}: ScenarioProps) {
             </AlertDialogContent>
           </AlertDialog>
         )}
+        <div className="flex flex-row items-center justify-end w-full space-x-3 ">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            className="gap-1 transition-all hover:bg-gray-50">
+            취소
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={onClose}
-          disabled={submitting}
-          className="gap-1 transition-all hover:bg-gray-50">
-          취소
-        </Button>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="gap-1 transition-all bg-blue-600 shadow-sm hover:bg-blue-700">
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {isEditMode ? '저장하기' : '등록하기'}
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-1 text-white bg-customG hover:bg-customGDark">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isEditMode ? '저장하기' : '등록하기'}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )

@@ -152,7 +152,7 @@ export default function SignUp() {
   )
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4">
+    <div className="flex flex-col items-center justify-center flex-1 w-full p-4">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
@@ -163,7 +163,7 @@ export default function SignUp() {
             <Leaf className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-bold tracking-tight text-customGTextLight">
+            <span className="text-2xl tracking-tight font-gmBold text-customGTextLight">
               ESG
             </span>
             <span className="text-sm font-medium text-customG">Dashboard</span>
@@ -178,7 +178,7 @@ export default function SignUp() {
         className="w-full max-w-md p-8 bg-white border border-gray-100 shadow-xl rounded-2xl">
         <motion.h1
           variants={itemVariants}
-          className="mb-6 text-2xl font-bold text-center text-gray-800">
+          className="mb-6 text-2xl text-center text-gray-800 font-gmBold">
           회원가입
         </motion.h1>
         <motion.p

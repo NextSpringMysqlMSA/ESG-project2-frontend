@@ -32,7 +32,7 @@ import {
 import {useEffect, useState} from 'react'
 import {useKPIGoalStore} from '@/stores/IFRS/goal/useKPIGoalStore'
 import {KPIGoalState, NetZeroResponse} from '@/types/IFRS/goal'
-import {fetchKPIGoal, fetchNetZeroList, fetchNetZeroById} from '@/services/goal'
+import {fetchKPIGoal, fetchNetZeroList} from '@/services/goal'
 import {
   Card,
   CardContent,
@@ -42,16 +42,7 @@ import {
 } from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
 import {motion} from 'framer-motion'
-import {
-  Home,
-  ChevronRight,
-  BarChart3,
-  Target,
-  Edit,
-  Edit2,
-  Plus,
-  ArrowDown
-} from 'lucide-react'
+import {Home, ChevronRight, BarChart3, Target, Edit2, Plus, ArrowDown} from 'lucide-react'
 import {Badge} from '@/components/ui/badge'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {Skeleton} from '@/components/ui/skeleton'
@@ -303,17 +294,15 @@ export default function Goal() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full p-4 md:p-8 bg-slate-50">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 - 유지 */}
       <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-emerald-600">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="/official" className="hover:text-emerald-600">
-          IFRS S2
-        </BreadcrumbLink>
+        <span>ESG 공시</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>IFRS S2</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-emerald-600">목표 및 지표</span>
       </div>
@@ -339,7 +328,7 @@ export default function Goal() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">넷제로 목표</p>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-gmBold">
                 {netZeroLoading ? <Skeleton className="w-8 h-8" /> : stats.netZero}
                 <span className="ml-1 text-sm font-normal text-gray-500">개</span>
               </h3>
@@ -354,7 +343,7 @@ export default function Goal() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">KPI 목표</p>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-gmBold">
                 {loading ? <Skeleton className="w-8 h-8" /> : stats.kpiGoals}
                 <span className="ml-1 text-sm font-normal text-gray-500">개</span>
               </h3>
@@ -369,7 +358,7 @@ export default function Goal() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">총 데이터</p>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-gmBold">
                 {loading || netZeroLoading ? (
                   <Skeleton className="w-8 h-8" />
                 ) : (
@@ -437,7 +426,7 @@ export default function Goal() {
                             <DialogTrigger asChild>
                               <Button
                                 size="sm"
-                                className="flex items-center gap-1 text-white bg-amber-500 hover:bg-amber-600">
+                                className="flex items-center gap-1 text-white bg-emerald-600 hover:bg-emerald-700">
                                 <Edit2 className="w-4 h-4 mr-1" /> 넷제로 목표 수정
                               </Button>
                             </DialogTrigger>

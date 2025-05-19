@@ -64,7 +64,7 @@ export default function Governance() {
   const [error, setError] = useState<string | null>(null)
 
   // 탭 상태 관리
-  const [activeTab, setActiveTab] = useState('all')
+  // const [activeTab, setActiveTab] = useState('all')
 
   // 데이터 스토어
   const {data: committeeData, setData} = useCommitteeStore()
@@ -138,15 +138,13 @@ export default function Governance() {
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          IFRS S2
-        </BreadcrumbLink>
+        <span>ESG 공시</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-customG">거버넌스</span>
+        <span>IFRS S2</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="text-customG">거버넌스</span>
       </div>
       {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
       <PageHeader
@@ -181,7 +179,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">위원회</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.committees}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -196,7 +194,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">회의</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.meetings}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -211,7 +209,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">KPI</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.kpis}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>
@@ -226,7 +224,7 @@ export default function Governance() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">교육</p>
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-gmBold">
                   {loading ? <Skeleton className="w-8 h-8" /> : stats.educations}
                   <span className="ml-1 text-sm font-normal text-gray-500">개</span>
                 </h3>

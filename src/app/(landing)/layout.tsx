@@ -1,4 +1,4 @@
-import NavBar from '@/components/layout/navbar'
+import LandingNavBar from '@/components/layout/landingNavbar'
 
 export default function Layout({
   children
@@ -7,7 +7,8 @@ export default function Layout({
 }>) {
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <NavBar />
+      <div className="fixed w-full h-screen bg-gradient-to-b from-customGStart to-white -z-50" />
+      <LandingNavBar />
       <div className="flex flex-col flex-1 w-full mt-16">{children}</div>
     </div>
   )

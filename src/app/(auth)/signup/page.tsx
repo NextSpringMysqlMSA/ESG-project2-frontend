@@ -2,7 +2,7 @@ import SignUp from './signup'
 
 export default function signup() {
   return (
-    <div className="h-full">
+    <div>
       <SignUp />
     </div>
   )

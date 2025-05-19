@@ -79,7 +79,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4">
+    <div className="flex flex-col items-center justify-center flex-1 w-full p-4">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
@@ -90,7 +90,7 @@ export default function Login() {
             <Leaf className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-bold tracking-tight text-customGTextLight">
+            <span className="text-2xl tracking-tight font-gmBold text-customGTextLight">
               NSMM
             </span>
             <span className="text-sm font-medium text-customG">Dashboard</span>
@@ -108,7 +108,7 @@ export default function Login() {
         }}
         className="flex flex-col w-full max-w-md p-8 space-y-6 bg-white border border-gray-100 shadow-xl rounded-2xl">
         <motion.div variants={itemVariants} className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800">로그인</h1>
+          <h1 className="text-2xl text-gray-800 font-gmBold">로그인</h1>
           <p className="mt-2 text-sm text-gray-500">
             NSMM 대시보드에 오신 것을 환영합니다
           </p>
