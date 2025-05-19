@@ -6,16 +6,17 @@ const getApiBaseUrl = () => {
   // 환경변수 확인
   const configuredUrl = process.env.NEXT_PUBLIC_SPRING_API_URL
 
-  // 환경변수가 없거나 ${GATEWAY_ALB}와 같은 미치환 변수가 있는 경우
+  // 환경변수가 없거나 ${GATEWAY_URL}와 같은 미치환 변수가 있는 경우
   if (!configuredUrl || configuredUrl.includes('${') || configuredUrl === 'undefined') {
     // 브라우저 환경인 경우 현재 호스트 기반으로 URL 생성
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname
       const protocol = window.location.protocol
+      // API 경로는 제거하고 기본 URL만 설정 (게이트웨이 서비스가 경로 처리)
       return `${protocol}//${hostname}`
     }
-    // 서버사이드 렌더링 환경
-    return 'http://gateway-service:8080'
+    // 서버사이드 렌더링 환경 - Kubernetes 내부 서비스 이름 사용
+    return 'http://gateway-service'
   }
 
   return configuredUrl
