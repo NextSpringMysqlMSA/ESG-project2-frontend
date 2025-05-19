@@ -51,17 +51,17 @@ api.interceptors.request.use(
 )
 
 // 응답 인터셉터는 그대로 유지
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      if (typeof window !== 'undefined') {
-        useAuthStore.getState().logout()
-        window.location.href = '/login?error=unauthorized'
-      }
-    }
-    return Promise.reject(error)
-  }
-)
+// api.interceptors.response.use(
+//   response => response,
+//   error => {
+//     if (error.response?.status === 401 || error.response?.status === 403) {
+//       if (typeof window !== 'undefined') {
+//         useAuthStore.getState().logout()
+//         window.location.href = '/login?error=unauthorized'
+//       }
+//     }
+//     return Promise.reject(error)
+//   }
+// )
 
 export default api
