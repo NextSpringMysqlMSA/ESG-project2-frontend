@@ -36,14 +36,16 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
   const industrialSectorOptions = ['금융업']
   const assetTypeOptions = ['상장 주식/채권', '기업 대출', 'PF', '부동산 담보대출']
   const industryOptions = [
-    '철강 제조',
-    '정유 및 화학',
+    '전력 및 에너지',
     '화석연료 생산',
-    'IT/통신',
-    '자동차',
-    '반도체',
-    '유틸리티',
-    '건설/인프라'
+    '철강 제조',
+    '시멘트 제조',
+    '정유 및 화학',
+    '운송',
+    '전자',
+    '농업/임업',
+    '상업용 부동산',
+    '주택담보대출'
   ]
 
   // 로컬 상태 정의
