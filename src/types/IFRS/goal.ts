@@ -14,15 +14,29 @@ export interface NetZeroEmission {
   year: number // 연도
   emission: number // 배출량
 }
-// types/IFRS/goal.ts 파일에서
-interface NetZeroPayload {
+
+// 기본 페이로드 정의
+export interface NetZeroPayload {
   industrialSector: string
   baseYear: number
   targetYear: number
-  industrialGroup: string // 추가된 필드
+  industrialGroup: string // 필수 필드
   assets: NetZeroAsset[]
 }
 
+// 생성 시 사용하는 DTO - 페이로드와 동일하거나 추가 정보 포함
+export interface NetZeroCreateDTO extends NetZeroPayload {
+  // 필요한 경우 추가 필드 정의
+  emissions?: NetZeroEmission[] // 선택적으로 초기 배출량 데이터 추가 가능
+}
+
+// 업데이트 시 사용하는 DTO - 모든 필드가 선택적(Partial)
+export interface NetZeroUpdateDTO extends Partial<NetZeroPayload> {
+  // 업데이트 시 모든 필드는 선택적
+  emissions?: NetZeroEmission[] // 배출량 데이터도 업데이트 가능
+}
+
+// 응답 타입 정의
 export interface NetZeroResponse extends NetZeroPayload {
   id: number // 넷제로 목표 ID
   memberId: number // 사용자 ID

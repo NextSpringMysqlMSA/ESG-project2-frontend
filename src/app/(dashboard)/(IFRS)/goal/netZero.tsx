@@ -304,6 +304,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
         industrialSector,
         baseYear: typeof baseYear === 'string' ? parseInt(baseYear) : baseYear,
         targetYear: typeof targetYear === 'string' ? parseInt(targetYear) : targetYear,
+        industrialGroup: industrialSector, // 필수 필드 추가 (같은 값 사용)
         assets: assets.map(
           ({
             industry,

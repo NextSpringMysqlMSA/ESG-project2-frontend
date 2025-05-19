@@ -2,8 +2,7 @@ import api from '@/lib/axios'
 import {
   KPIGoalCreateDTO,
   KPIGoalState,
-  NetZeroCreateDTO,
-  NetZeroPayload,
+  NetZeroCreateDTO, // 추가
   NetZeroResponse,
   NetZeroUpdateDTO
 } from '@/types/IFRS/goal'
