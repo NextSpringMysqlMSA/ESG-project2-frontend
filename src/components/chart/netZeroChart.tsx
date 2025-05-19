@@ -149,7 +149,7 @@ export default function NetZeroChart({refreshTrigger = 0}: NetZeroChartProps) {
         display: function (context) {
           return context.datasetIndex === 0
         },
-        align: 'end',
+        align: -10,
         anchor: 'end',
         offset: 4,
         color: '#3b82f6',

@@ -425,15 +425,6 @@ export default function Home() {
                   {mounted && <Bar data={companyData} options={companyOptions} />}
                 </div>
               </CardContent>
-              <CardFooter className="pt-0 pb-4">
-                <Button
-                  variant="ghost"
-                  className="w-full text-rose-600 hover:text-rose-700"
-                  size="sm">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  모든 협력사 보기
-                </Button>
-              </CardFooter>
             </Card>
           </Link>
         </motion.div>
@@ -470,15 +461,6 @@ export default function Home() {
                 {mounted && <PolarArea data={esgScoreData} options={esgScoreOptions} />}
               </div>
             </CardContent>
-            <CardFooter className="pt-0 pb-4">
-              <Button
-                variant="ghost"
-                className="w-full text-purple-600 hover:text-purple-700"
-                size="sm">
-                <ArrowUpRight className="w-4 h-4 mr-1" />
-                상세 분석 보기
-              </Button>
-            </CardFooter>
           </Card>
         </motion.div>
 

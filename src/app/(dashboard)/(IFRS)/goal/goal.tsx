@@ -19,7 +19,8 @@ import {
   CategoryScale,
   LinearScale,
   PointElement,
-  LineElement
+  LineElement,
+  Filler
 } from 'chart.js'
 import {
   Dialog,
@@ -46,12 +47,15 @@ import {Badge} from '@/components/ui/badge'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {Skeleton} from '@/components/ui/skeleton'
 import {LoadingState} from '@/components/ui/loading-state'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
 
 ChartJS.register(
   ArcElement,
   Tooltip,
   Legend,
   Title,
+  Filler,
+  ChartDataLabels,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -108,6 +112,18 @@ export default function Goal() {
       const years = sortedEmissions.map(item => item.year.toString())
       const emissionValues = sortedEmissions.map(item => item.emission)
 
+      const calculateTargetPath = () => {
+        if (emissionValues.length < 2) return []
+
+        const firstValue = emissionValues[0]
+        const lastValue = emissionValues[emissionValues.length - 1]
+        const totalSteps = emissionValues.length - 1
+
+        return emissionValues.map((_, index) => {
+          return firstValue - (firstValue - lastValue) * (index / totalSteps)
+        })
+      }
+
       console.log('차트 데이터:', {years, emissionValues}) // 디버깅용 로그
 
       return {
@@ -116,10 +132,24 @@ export default function Goal() {
           {
             label: '넷제로 배출량 (tCO2e)',
             data: emissionValues,
-            fill: false,
             borderColor: 'rgb(75, 192, 192)',
             backgroundColor: 'rgba(75, 192, 192, 0.5)',
-            tension: 0.1
+            tension: 0.3,
+            pointRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#059669',
+            pointBorderWidth: 2,
+            fill: true
+          },
+          {
+            label: ' 목표 경로',
+            data: calculateTargetPath(),
+            borderColor: 'rgb(75, 192, 192)',
+            borderDash: [5, 5],
+            backgroundColor: 'transparent',
+            tension: 0.1,
+            pointRadius: 0,
+            fill: false
           }
         ]
       }
@@ -597,6 +627,19 @@ export default function Goal() {
                                     ...chartOptions.plugins,
                                     legend: {
                                       display: false
+                                    },
+                                    datalabels: {
+                                      display: (context: any) =>
+                                        context.datasetIndex === 0,
+                                      align: -10 as const,
+                                      anchor: 'end',
+                                      offset: 4,
+                                      color: '#059669',
+                                      font: {
+                                        size: 10,
+                                        weight: 'bold'
+                                      },
+                                      formatter: (value: number) => value.toLocaleString()
                                     }
                                   }
                                 }}
