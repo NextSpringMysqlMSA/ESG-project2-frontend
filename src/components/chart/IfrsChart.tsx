@@ -114,9 +114,9 @@ export default function IfrsChart({refreshTrigger = 0}: IfrsChartProps) {
           </span>
         </div>
         <div className="pt-2 mt-2 text-xs text-right text-gray-500 border-t border-gray-100">
-          <Badge className="text-xs font-normal text-indigo-600 border-indigo-200 bg-indigo-50">
+          <div className="p-1 text-xs font-normal text-indigo-600 border border-indigo-200 rounded-md shadow-sm bg-indigo-50">
             총 {data.totalCount}개 항목 중 {data.completedRate}% 완료
-          </Badge>
+          </div>
         </div>
       </div>
     </div>

@@ -448,11 +448,11 @@ export default function Home() {
                 <div className="text-5xl text-purple-600 font-gmBold">AA</div>
               </div>
 
-              <div className="mb-6 text-center">
-                <Badge className="px-3 py-1.5 bg-purple-500 hover:bg-purple-600">
-                  <ChevronUp className="w-3 h-3 mr-1" />
-                  36.7점 상승 필요
-                </Badge>
+              <div className="flex justify-center mb-6 text-center">
+                <div className="flex flex-row px-3 py-1.5 bg-purple-500 rounded-lg items-center">
+                  <ChevronUp className="w-3 h-3 mr-1 text-white" />
+                  <span className="text-sm text-white">36.7점 상승 필요</span>
+                </div>
               </div>
 
               <Separator className="my-4" />
