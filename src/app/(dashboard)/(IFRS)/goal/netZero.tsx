@@ -405,7 +405,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
                 <ChartBar className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-base font-semibold">
                   {isEditMode ? '넷제로 목표 수정' : '넷제로 목표 설정'}
                 </h2>
                 <p className="text-sm text-gray-500">

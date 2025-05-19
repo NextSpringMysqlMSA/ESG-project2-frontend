@@ -42,7 +42,16 @@ import {
 } from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
 import {motion} from 'framer-motion'
-import {Home, ChevronRight, BarChart3, Target, Edit2, Plus, ArrowDown} from 'lucide-react'
+import {
+  Home,
+  ChevronRight,
+  BarChart3,
+  Target,
+  Edit2,
+  Plus,
+  ArrowDown,
+  PlusCircle
+} from 'lucide-react'
 import {Badge} from '@/components/ui/badge'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {Skeleton} from '@/components/ui/skeleton'
@@ -318,6 +327,10 @@ export default function Goal() {
     }))
   }
 
+  const handleNetZeroAdd = () => {
+    setIsAddOpen(true)
+  }
+
   const handleNetZeroClose = () => {
     setIsAddOpen(false)
   }
@@ -400,6 +413,7 @@ export default function Goal() {
         </Card>
       </motion.div>
 
+      {/* ----------------------------------------------------------------------------- */}
       {/* 메인 콘텐츠 - LoadingState 컴포넌트 사용 */}
       <LoadingState
         isLoading={loading && netZeroLoading}
@@ -446,20 +460,32 @@ export default function Goal() {
                     </AccordionTrigger>
 
                     <AccordionContent className="p-4">
-                      <div className="flex flex-row justify-end mb-4 space-x-2">
+                      <div className="flex flex-row mb-4">
                         {netZeroLoading ? (
                           <Skeleton className="w-32 h-9" />
                         ) : netZeroData.length > 0 ? (
                           // 데이터가 이미 있으면 수정 버튼만 표시
+                          // ------------------------------------------------------------------------
                           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                className="flex items-center gap-1 text-white bg-emerald-600 hover:bg-emerald-700">
-                                <Edit2 className="w-4 h-4 mr-1" /> 넷제로 목표 수정
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-4xl">
+                            <div className="flex flex-row items-center justify-between w-full">
+                              <div className="text-sm text-gray-500 min-h-[20px]">
+                                <>
+                                  총{' '}
+                                  <span className="font-medium text-emerald-600">
+                                    {netZeroData.length}개
+                                  </span>
+                                  의 목표가 있습니다
+                                </>
+                              </div>
+                              <DialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  className="flex items-center gap-1 text-white bg-emerald-600 hover:bg-emerald-700">
+                                  <Edit2 className="w-4 h-4 mr-1" /> 넷제로 목표 수정
+                                </Button>
+                              </DialogTrigger>
+                            </div>
+                            <DialogContent className="sm:max-w-[550px]">
                               <DialogHeader>
                                 <DialogTitle>넷제로 목표 수정</DialogTitle>
                               </DialogHeader>
@@ -477,27 +503,35 @@ export default function Goal() {
                           </Dialog>
                         ) : (
                           // 데이터가 없을 때만 추가 버튼 표시
-                          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                className="flex items-center gap-1 text-white bg-emerald-600 hover:bg-emerald-700">
-                                <Plus className="w-4 h-4 mr-1" /> 넷제로 목표 설정
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-4xl">
-                              <DialogHeader>
-                                <DialogTitle>넷제로 목표 설정</DialogTitle>
-                              </DialogHeader>
-                              <NetZero
-                                onClose={() => {
-                                  handleNetZeroClose()
-                                  loadNetZeroData() // 데이터 다시 로드
-                                }}
-                                mode="add"
-                              />
-                            </DialogContent>
-                          </Dialog>
+                          // ------------------------------------------------------------------------
+                          <div className="flex">
+                            {/* 오른쪽 버튼 */}
+                            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  className="flex items-center gap-1 text-white bg-emerald-600 hover:bg-emerald-700">
+                                  <PlusCircle className="w-4 h-4 mr-1" /> 넷제로 목표 설정
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[550px]">
+                                <DialogHeader>
+                                  <DialogTitle
+                                    className="flex items-center text-xs sr-only"
+                                    hidden
+                                  />
+                                </DialogHeader>
+                                <NetZero
+                                  onClose={() => {
+                                    handleNetZeroClose()
+                                    loadNetZeroData() // 데이터 다시 로드
+                                  }}
+                                  mode="add"
+                                />
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                          // -----------------------------------------------------------------------
                         )}
                       </div>
 
@@ -547,27 +581,14 @@ export default function Goal() {
                                 탄소 중립으로 가는 여정의 첫 걸음입니다.
                               </p>
                             </div>
-                            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                              <DialogTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  className="flex items-center gap-1 mt-2 text-white bg-emerald-600 hover:bg-emerald-700">
-                                  <Plus className="w-4 h-4 mr-1" /> 넷제로 목표 설정하기
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-4xl">
-                                <DialogHeader>
-                                  <DialogTitle>넷제로 목표 설정</DialogTitle>
-                                </DialogHeader>
-                                <NetZero
-                                  onClose={() => {
-                                    handleNetZeroClose()
-                                    loadNetZeroData()
-                                  }}
-                                  mode="add"
-                                />
-                              </DialogContent>
-                            </Dialog>
+                            {/* ------------------------------------------------------------------- */}
+                            <Button
+                              onClick={handleNetZeroAdd}
+                              className="flex items-center h-5 gap-2 px-3 py-1 mt-2 text-xs text-white rounded-md bg-emerald-600 hover:bg-emerald-700">
+                              <PlusCircle className="w-4 h-4 mr-1.5 text-white" />
+                              넷제로 목표 설정하기
+                            </Button>
+                            {/* ------------------------------------------------------------------ */}
                           </div>
                         </div>
                       ) : (
