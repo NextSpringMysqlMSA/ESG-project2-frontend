@@ -469,13 +469,7 @@ export default function Goal() {
                           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                             <div className="flex flex-row items-center justify-between w-full">
                               <div className="text-sm text-gray-500 min-h-[20px]">
-                                <>
-                                  총{' '}
-                                  <span className="font-medium text-emerald-600">
-                                    {netZeroData.length}개
-                                  </span>
-                                  의 목표가 있습니다
-                                </>
+                                목표 설정이 완료되었습니다
                               </div>
                               <DialogTrigger asChild>
                                 <Button

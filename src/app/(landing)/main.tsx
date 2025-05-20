@@ -7,23 +7,23 @@ export default function Main() {
             <h1 className="text-2xl">ESG 프레임워크에 따른 데이터 관리</h1>
             <h3>- 공시/평가별 데이터 항목 관리</h3>
             <h3>- 비주얼 대시보드를 통한 시계열 추이비교</h3>
-            <img src="/images/dash.png" alt="대시보드" className="border rounded-xl" />
+            <img
+              src="/images/dashboard.gif"
+              alt="대시보드"
+              className="border rounded-xl"
+            />
           </div>
           <div className="flex flex-col w-full h-full p-8 space-y-4 bg-white shadow rounded-xl">
             <h1 className="text-2xl">GRI (Global Reporting Initiative)</h1>
             <h3>- GRI 항목별 데이터 관리 및 검토 지원</h3>
             <h3>- 누락된 항목을 한 페이지에서 직관적으로 확인</h3>
-            <img src="/images/dash.png" alt="대시보드" className="border rounded-xl" />
+            <img src="/images/GRI.gif" alt="대시보드" className="border rounded-xl" />
           </div>
           <div className="flex flex-col w-full h-full p-8 space-y-4 bg-white shadow rounded-xl">
             <h1 className="text-2xl">공급망 실사</h1>
             <h3>- EU 공급 실사, 인권실사, 환경실사 자기 관리</h3>
             <h3>- 실사 현황에 따른 대응 방안 제안</h3>
-            <img
-              src="/images/supplyChain.gif"
-              alt="공급망"
-              className="border rounded-xl"
-            />
+            <img src="/images/csddd.gif" alt="공급망" className="border rounded-xl" />
           </div>
         </div>
         <div className="flex flex-col w-full md:w-[50%] h-full p-4 space-y-4 md:mt-36">
@@ -36,7 +36,7 @@ export default function Main() {
             <h3>- 사용자 입력 기반 넷제로 로드맵 및 그래프 제공</h3>
             <h3>- 데이터를 시각적으로 확인하여 성과 추이를 쉽게 파악</h3>
             <img
-              src="/images/supplyChain.gif"
+              src="/images/governance.gif"
               alt="공급망"
               className="border rounded-xl"
             />
@@ -45,7 +45,7 @@ export default function Main() {
             <h1 className="text-2xl">협력사 실시간 관리</h1>
             <h3>- 협력사 ESG 데이터 실시간 취합 및 알림 서비스</h3>
             <h3>- 협력사별 추이 비교 및 이슈 이력 관리 기능</h3>
-            <img src="/images/partner.gif" alt="협력사" className="border rounded-xl" />
+            <img src="/images/dashboard.gif" alt="협력사" className="border rounded-xl" />
           </div>
         </div>
       </div>
