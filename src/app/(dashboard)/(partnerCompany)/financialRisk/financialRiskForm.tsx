@@ -1,7 +1,7 @@
 'use client'
 
 import {useState} from 'react'
-import {Check, ChevronRight, FileText, Home} from 'lucide-react'
+import {Check, ChevronRight, FileEdit, FileText, Home} from 'lucide-react'
 import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
 import {
@@ -182,7 +182,17 @@ export default function FinancialRiskForm() {
         </Card>
       ) : (
         <div className="flex items-center justify-center h-64 text-base text-gray-500 bg-white border rounded-lg shadow-sm">
-          협력사를 선택해주세요.
+          <div className="flex flex-col items-center justify-center h-48 p-6 text-center rounded-lg">
+            <div className="flex items-center justify-center w-16 h-16 mb-4 bg-gray-100 rounded-full">
+              <FileEdit className="w-8 h-8 text-gray-300" />
+            </div>
+            <h3 className="mb-1 text-base font-medium text-gray-600">
+              데이터가 없습니다
+            </h3>
+            <p className="mb-4 text-sm text-gray-500">
+              선택된 협력사가 없습니다. 협력사를 선택해보세요.
+            </p>
+          </div>
         </div>
       )}
 

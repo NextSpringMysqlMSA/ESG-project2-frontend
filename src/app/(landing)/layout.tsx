@@ -1,5 +1,13 @@
 import LandingNavBar from '@/components/layout/landingNavbar'
 
+export const metadata = {
+  title: 'NSMM',
+  description: 'NSMM home page',
+  icons: {
+    icon: '/icons/leaf.svg'
+  }
+}
+
 export default function Layout({
   children
 }: Readonly<{
