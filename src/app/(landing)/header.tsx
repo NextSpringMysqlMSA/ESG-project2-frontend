@@ -51,7 +51,7 @@ export default function Header({onArrowClick}: HeaderProps) {
       <div className="flex flex-col w-full max-w-screen-xl mt-16 md:space-y-32">
         {/* 헤더 글----------------------------------------------------------------------- */}
         <div className="flex flex-col w-full space-y-8 text-center">
-          <h1 className="text-6xl">신뢰할 수 있는 ESG 데이터 플랫폼</h1>
+          <h1 className="text-7xl font-gmBold">신뢰할 수 있는 ESG 데이터 플랫폼</h1>
           <h2 className="text-4xl">NSMM</h2>
           <p className="text-xl">정확한 분석, 실시간 알림, 공급망 리스크까지 한눈에.</p>
         </div>
@@ -88,7 +88,7 @@ export default function Header({onArrowClick}: HeaderProps) {
                 }}
                 transition={{duration: 0.5, ease: 'easeOut'}}
                 className="absolute w-[350px] p-4 bg-white shadow-xl rounded-xl border border-gray-200 origin-bottom"
-                style={{zIndex: 100 - index}}>
+                style={{zIndex: 40 - index}}>
                 <div className="flex items-start">
                   <div className="flex flex-col w-full h-full pl-4 border-l-8 border-red-500">
                     <div className="flex flex-row w-full h-full space-x-4">
