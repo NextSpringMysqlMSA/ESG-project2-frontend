@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import {
   Home,
   Mail,
@@ -18,10 +18,10 @@ import {
   Leaf
 } from 'lucide-react'
 import Link from 'next/link'
-import {usePathname} from 'next/navigation'
-import {motion, AnimatePresence} from 'framer-motion'
+import { usePathname } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import {cn} from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 /**
  * MenuItem 컴포넌트에 필요한 props 타입 정의
@@ -85,7 +85,7 @@ export default function Sidebar() {
       ) {
         setOpenParent(true)
         setOpenESGChild(true)
-      } else if (pathname.startsWith('/financialRisk')) {
+      } else if (pathname.startsWith('/financialRisk') || pathname.startsWith('/managePartner')) {
         setOpenPartnerChild(true)
       }
       setIsMounted(true)
@@ -103,7 +103,7 @@ export default function Sidebar() {
     pathname.startsWith('/strategy') ||
     pathname.startsWith('/goal')
   const isSupplyActive = pathname === '/CSDDD'
-  const isPartnerActive = pathname.startsWith('/financialRisk')
+  const isPartnerActive = pathname.startsWith('/financialRisk') || pathname.startsWith('/managePartner')
 
   /**
    * 사이드바에 마우스가 들어왔을 때 실행되는 이벤트 핸들러
@@ -197,9 +197,9 @@ export default function Sidebar() {
       onClick={
         hasSubmenu
           ? e => {
-              e.preventDefault()
-              onClick?.()
-            }
+            e.preventDefault()
+            onClick?.()
+          }
           : undefined
       }>
       <div className="flex items-center gap-3">
@@ -215,9 +215,9 @@ export default function Sidebar() {
         {/* 메뉴 텍스트 - 사이드바 확장시에만 표시 */}
         {hovered && (
           <motion.span
-            initial={{opacity: 0, width: 0}}
-            animate={{opacity: 1, width: 'auto'}}
-            exit={{opacity: 0, width: 0}}
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: 'auto' }}
+            exit={{ opacity: 0, width: 0 }}
             className="font-medium whitespace-nowrap">
             {text}
           </motion.span>
@@ -227,7 +227,7 @@ export default function Sidebar() {
       {/* 하위 메뉴가 있는 경우 화살표 아이콘 표시 */}
       {hasSubmenu && hovered && (
         <motion.div
-          initial={{opacity: 0, rotate: 0}}
+          initial={{ opacity: 0, rotate: 0 }}
           animate={{
             opacity: 1,
             rotate: isSubmenuOpen ? 90 : 0
@@ -249,7 +249,7 @@ export default function Sidebar() {
    * 메인 메뉴보다 들여쓰기 되어 있고, 활성화 시 밑줄 표시
    * 녹색 테마로 스타일 변경
    */
-  const SubMenuItem = ({href, text, isActive}: SubMenuItemProps) => (
+  const SubMenuItem = ({ href, text, isActive }: SubMenuItemProps) => (
     <Link
       href={href}
       className={cn(
@@ -262,7 +262,7 @@ export default function Sidebar() {
         {text}
         {/* 활성화된 하위 메뉴 표시를 위한 밑줄 */}
         {isActive && (
-          <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-customG rounded-full"></span>
+          <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-customG rounded-full" />
         )}
       </span>
     </Link>
@@ -293,9 +293,9 @@ export default function Sidebar() {
             <AnimatePresence>
               {hovered && (
                 <motion.div
-                  initial={{opacity: 0, width: 0}}
-                  animate={{opacity: 1, width: 'auto'}}
-                  exit={{opacity: 0, width: 0}}
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 'auto' }}
+                  exit={{ opacity: 0, width: 0 }}
                   className="overflow-hidden">
                   <span className="font-semibold text-customGTextLight">ESG</span>
                   <span className="font-medium text-customG">Dashboard</span>
@@ -452,6 +452,11 @@ export default function Sidebar() {
               className="overflow-hidden">
               <div className="pl-4 mt-1 space-y-1">
                 <SubMenuItem
+                  href="/managePartner"
+                  text="파트너사 관리"
+                  isActive={pathname === '/managePartner'}
+                />
+                <SubMenuItem
                   href="/financialRisk"
                   text="재무제표 리스크 관리"
                   isActive={pathname === '/financialRisk'}
@@ -461,8 +466,11 @@ export default function Sidebar() {
           ) : (
             // 축소 상태에서는 활성화된 하위 메뉴만 작은 점으로 표시
             openPartnerChild && (
-              <div className="flex flex-col items-center py-1 mt-1">
+              <div className="flex flex-col items-center py-1 mt-1 space-y-1">
                 {pathname === '/financialRisk' && (
+                  <div className="w-2 h-2 rounded-full bg-customG" />
+                )}
+                {pathname === '/managePartner' && (
                   <div className="w-2 h-2 rounded-full bg-customG" />
                 )}
               </div>
