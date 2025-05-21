@@ -129,11 +129,9 @@ export default function EuddResult() {
         transition={{duration: 0.3}} // 애니메이션 시간
         className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span>대시보드</span>
-        <ChevronRight className="w-4 h-4 mx-2" />
         <span>공급망 실사</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-customG">EU 공금망 실사 결과</span>
+        <span className="font-medium text-customG">EU 공급망 실사 결과</span>
       </motion.div>
 
       {/* ======== 헤더 섹션 ======== */}

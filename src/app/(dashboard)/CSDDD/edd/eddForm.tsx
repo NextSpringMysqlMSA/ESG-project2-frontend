@@ -496,8 +496,6 @@ export default function EddForm() {
         transition={{duration: 0.3}}
         className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span>대시보드</span>
-        <ChevronRight className="w-4 h-4 mx-2" />
         <span>공급망 실사</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">환경 실사 진단</span>

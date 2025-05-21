@@ -390,7 +390,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
       initial={{opacity: 0, y: 5}}
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.3}}
-      className="flex flex-col space-y-5 max-h-[80vh] overflow-auto custom-scrollbar p-4 w-full">
+      className="flex flex-col space-y-5 max-h-[80vh] overflow-auto custom-scrollbar w-full">
       {loading ? (
         <div className="flex items-center justify-center w-full h-64">
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
@@ -405,9 +405,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
                 <ChartBar className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h2 className="text-base font-semibold">
-                  {isEditMode ? '넷제로 목표 수정' : '넷제로 목표 설정'}
-                </h2>
+                <h3>{isEditMode ? '넷제로 목표 수정' : '넷제로 목표 설정'}</h3>
                 <p className="text-sm text-gray-500">
                   금융 포트폴리오의 탄소배출 감축 목표를 설정하고 관리합니다
                 </p>

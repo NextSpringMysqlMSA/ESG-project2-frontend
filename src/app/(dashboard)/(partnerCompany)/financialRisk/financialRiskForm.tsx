@@ -265,8 +265,6 @@ export default function FinancialRiskForm() {
     <div className="flex flex-col w-full h-full p-4 md:p-8">
       <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span>대시보드</span>
-        <ChevronRight className="w-4 h-4 mx-2" />
         <span>협력사 관리</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="text-customG">재무제표 리스크 관리</span>
