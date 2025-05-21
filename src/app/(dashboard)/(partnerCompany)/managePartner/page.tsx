@@ -1,343 +1,610 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Home, ChevronRight, Users, Search, X, Loader2, MoreHorizontal, Trash2 } from 'lucide-react';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { BreadcrumbLink } from '@/components/ui/breadcrumb';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
+import { useState, useEffect, useCallback } from 'react'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { 
+  Building2, 
+  Plus, 
+  Search, 
+  X, 
+  Loader2, 
+  AlertTriangle, 
+  Check, 
+  MoreHorizontal, 
+  Trash, 
+  Edit3 
+} from 'lucide-react'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogFooter, 
+  DialogHeader, 
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
   DialogTrigger,
-  DialogClose,
-} from '@/components/ui/dialog';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { searchCompaniesFromDart, DartCorpInfo, PartnerCompany, createPartnerCompany, fetchPartnerCompanies, deletePartnerCompany } from '@/services/partnerCompany';
+  DialogClose
+} from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu'
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { useToast } from '@/hooks/use-toast'
+import type { 
+  PartnerCompany,
+  DartCorpInfo
+} from '@/services/partnerCompany'
+import { 
+  fetchPartnerCompanies, 
+  createPartnerCompany, 
+  deletePartnerCompany, 
+  updatePartnerCompany,
+  searchCompaniesFromDart
+} from '@/services/partnerCompany'
 
-// useDebounce 훅
+// 디바운스 훅: 검색 최적화를 위함
 function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+      setDebouncedValue(value)
+    }, delay)
+
     return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
 }
 
-// 파트너사 관리 페이지
-// TODO: 실제 파트너사 데이터 연동 및 기능 구현 필요
-
 export default function ManagePartnerPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [searchResults, setSearchResults] = useState<DartCorpInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<DartCorpInfo | null>(null);
+  const { toast } = useToast()
   
-  const [partnerList, setPartnerList] = useState<PartnerCompany[]>([]);
-  const [pageLoading, setPageLoading] = useState(true); // 페이지 초기 파트너 목록 로딩
-
-  // 초기 파트너사 목록 로드
+  // 상태 관리
+  const [partners, setPartners] = useState<PartnerCompany[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const [pageSize] = useState(10)
+  
+  // 다이얼로그 상태
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedPartner, setSelectedPartner] = useState<PartnerCompany | null>(null)
+  
+  // 추가 다이얼로그 상태
+  const [companySearchQuery, setCompanySearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<DartCorpInfo[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [newPartnerData, setNewPartnerData] = useState({
+    companyName: '',
+    corpCode: '',
+    contractStartDate: new Date().toISOString().split('T')[0]
+  })
+  
+  // 디바운스된 검색어
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+  const debouncedCompanySearchQuery = useDebounce(companySearchQuery, 500)
+  
+  // 파트너사 목록 로드 (페이징 및 검색 지원)
+  const loadPartners = useCallback(async (page: number, companyNameFilter?: string) => {
+    try {
+      setIsLoading(true)
+      const response = await fetchPartnerCompanies(page, pageSize, companyNameFilter)
+      
+      setPartners(response.data)
+      setCurrentPage(response.page)
+      setTotalPages(Math.ceil(response.total / response.pageSize))
+      setTotalItems(response.total)
+    } catch (error) {
+      console.error('Failed to load partner companies:', error)
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '파트너사 목록을 불러오는데 실패했습니다.',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [pageSize, toast])
+  
+  // 페이지 로드 시 파트너사 목록 조회
   useEffect(() => {
     const loadInitialPartners = async () => {
-      setPageLoading(true);
       try {
-        const partners = await fetchPartnerCompanies(); // 서비스 함수 호출
-        setPartnerList(partners);
-      } catch (err) {
-        console.error('초기 파트너 목록 로드 오류:', err);
-        // 페이지 레벨의 에러 처리 (예: 토스트 메시지)
+        setIsLoading(true)
+        await loadPartners(1)
+      } catch (error) {
+        console.error('Failed to load partner companies:', error)
+      } finally {
+        setIsLoading(false)
       }
-      setPageLoading(false);
-    };
-    loadInitialPartners();
-  }, []);
-
-  // DART API 검색 로직
-  useEffect(() => {
-    if (debouncedSearchTerm && debouncedSearchTerm.trim() !== '') {
-      const fetchCompanies = async () => {
-        setIsLoading(true); // 검색 로딩 시작
-        setError(null); // 이전 에러 메시지 초기화
-        setSearchResults([]);
-        try {
-          const response = await searchCompaniesFromDart({ corpNameFilter: debouncedSearchTerm, pageSize: 10 });
-          setSearchResults(response.data);
-          if (response.data.length === 0) {
-            setError(`'${debouncedSearchTerm}'에 대한 검색 결과가 없습니다.`);
-          }
-        } catch (err) {
-          console.error('DART API 검색 오류:', err);
-          setError(err instanceof Error ? err.message : '기업 정보 검색 중 오류가 발생했습니다.');
-        }
-        setIsLoading(false); // 검색 로딩 종료
-      };
-      fetchCompanies();
-    } else {
-      setSearchResults([]);
-      setSelectedCompany(null);
-      setError(null); // 검색어 없을 시 에러도 초기화
     }
-  }, [debouncedSearchTerm]);
-
-  const handleSelectCompany = (company: DartCorpInfo) => {
-    setSelectedCompany(company);
-    setError(null); // 회사 선택 시 에러 메시지 초기화
-  };
+    
+    loadInitialPartners()
+  }, [loadPartners])
   
-  const handleAddPartner = async () => {
-    if (!selectedCompany) {
-      setError('먼저 검색을 통해 회사를 선택해주세요.');
-      return;
+  // 검색어 변경 시 파트너사 목록 재조회
+  useEffect(() => {
+    if (debouncedSearchQuery) {
+      loadPartners(1, debouncedSearchQuery)
+    } else {
+      loadPartners(1)
     }
-
-    setIsSubmitting(true); // 제출 로딩 시작
-    setError(null); // 이전 에러 메시지 초기화
-
+  }, [debouncedSearchQuery, loadPartners])
+  
+  // DART 기업 검색
+  const searchDartCompanies = useCallback(async () => {
+    if (!debouncedCompanySearchQuery) {
+      setSearchResults([])
+      return
+    }
+    
     try {
-      const newPartnerData: Omit<PartnerCompany, 'id' | 'createdAt' | 'updatedAt'> = {
-        companyName: selectedCompany.corp_name,
-        registrationNumber: selectedCompany.corp_code,
-      };
+      setIsSearching(true)
+      const response = await searchCompaniesFromDart({
+        page: 1,
+        pageSize: 5,
+        listedOnly: true,
+        corpNameFilter: debouncedCompanySearchQuery
+      })
       
-      const createdPartner = await createPartnerCompany(newPartnerData);
-      // console.log('새 파트너사 등록 성공:', createdPartner);
-      // alert(`${createdPartner.companyName} 회사가 성공적으로 파트너사로 추가되었습니다.`);
-      setPartnerList(prevList => [createdPartner, ...prevList]); // 목록 상단에 추가
-
-      setIsModalOpen(false); // 성공 시 모달 닫기 (상태 초기화는 onOpenChange에서 처리)
-
-    } catch (err) {
-      console.error('파트너사 추가 오류:', err);
-      setError(err instanceof Error ? err.message : '파트너사 추가 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setSearchResults(response.data as DartCorpInfo[])
+    } catch (error) {
+      console.error('Failed to search companies from DART:', error)
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: 'DART 기업 검색에 실패했습니다.',
+      })
     } finally {
-      setIsSubmitting(false); // 제출 로딩 종료
+      setIsSearching(false)
     }
-  };
-
-  // 파트너사 삭제 함수
-  const handleDeletePartner = async (partnerId: string) => {
-    // TODO: 실제 삭제 전 확인 다이얼로그 추가 고려
-    // console.log('Deleting partner:', partnerId);
+  }, [debouncedCompanySearchQuery, toast])
+  
+  // 회사 검색어 변경 시 DART 검색
+  useEffect(() => {
+    if (debouncedCompanySearchQuery && isAddDialogOpen) {
+      searchDartCompanies()
+    }
+  }, [debouncedCompanySearchQuery, isAddDialogOpen, searchDartCompanies])
+  
+  // 파트너사 선택 핸들러
+  const handleSelectCompany = useCallback((company: DartCorpInfo) => {
+    setNewPartnerData({
+      ...newPartnerData,
+      companyName: company.corp_name,
+      corpCode: company.corp_code
+    })
+    setSearchResults([])
+    setCompanySearchQuery('')
+  }, [newPartnerData])
+  
+  // 파트너사 추가 핸들러
+  const handleAddPartner = useCallback(async () => {
     try {
-      await deletePartnerCompany(partnerId); // 서비스 함수 호출 (현재는 목업)
-      setPartnerList(prevList => prevList.filter(partner => partner.id !== partnerId));
-      // TODO: 삭제 성공/실패에 대한 사용자 피드백 (예: 토스트 메시지)
-    } catch (err) {
-      console.error('파트너사 삭제 오류:', partnerId, err);
-      // TODO: 삭제 실패 시 에러 처리 및 사용자 피드백
-      alert('파트너사 삭제 중 오류가 발생했습니다.'); // 임시 알림
+      if (!newPartnerData.companyName || !newPartnerData.corpCode || !newPartnerData.contractStartDate) {
+        toast({
+          variant: 'destructive',
+          title: '입력 오류',
+          description: '모든 필드를 입력해주세요.',
+        })
+        return
+      }
+      
+      setIsLoading(true)
+      await createPartnerCompany({
+        companyName: newPartnerData.companyName,
+        corpCode: newPartnerData.corpCode,
+        contractStartDate: newPartnerData.contractStartDate
+      })
+      
+      toast({
+        title: '성공',
+        description: '파트너사가 추가되었습니다.',
+      })
+      
+      setIsAddDialogOpen(false)
+      resetModalState()
+      await loadPartners(currentPage, debouncedSearchQuery || undefined)
+    } catch (error) {
+      console.error('Failed to add partner company:', error)
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '파트너사 추가에 실패했습니다.',
+      })
+    } finally {
+      setIsLoading(false)
     }
-  };
-
-  const resetModalState = () => {
-    setSearchTerm('');
-    setSearchResults([]);
-    setSelectedCompany(null);
-    setError(null);
-    setIsLoading(false);
-    setIsSubmitting(false);
-  };
+  }, [newPartnerData, toast, currentPage, debouncedSearchQuery, loadPartners])
+  
+  // 파트너사 삭제 핸들러
+  const handleDeletePartner = useCallback(async (partnerId: string) => {
+    try {
+      setIsLoading(true)
+      await deletePartnerCompany(partnerId)
+      
+      toast({
+        title: '성공',
+        description: '파트너사가 삭제되었습니다.',
+      })
+      
+      setIsDeleteDialogOpen(false)
+      setSelectedPartner(null)
+      await loadPartners(currentPage, debouncedSearchQuery || undefined)
+    } catch (error) {
+      console.error('Failed to delete partner company:', error)
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '파트너사 삭제에 실패했습니다.',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage, debouncedSearchQuery, loadPartners, toast])
+  
+  // 모달 상태 초기화
+  const resetModalState = useCallback(() => {
+    setNewPartnerData({
+      companyName: '',
+      corpCode: '',
+      contractStartDate: new Date().toISOString().split('T')[0]
+    })
+    setCompanySearchQuery('')
+    setSearchResults([])
+  }, [])
+  
+  // 페이지 이동 핸들러
+  const handlePageChange = useCallback((page: number) => {
+    if (page < 1 || page > totalPages) return
+    loadPartners(page, debouncedSearchQuery || undefined)
+  }, [totalPages, debouncedSearchQuery, loadPartners])
 
   return (
-    <div className="flex flex-col w-full h-full p-4 md:p-8 bg-slate-50">
-      {/* 상단 네비게이션 */}
-      <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
-        <Home className="w-4 h-4 mr-1" />
-        {/* TODO: 실제 상위 경로로 수정 필요 */}
-        <BreadcrumbLink href="/home" className="hover:text-customG">
-          ESG 공시 
-        </BreadcrumbLink>
-        <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="#" className="hover:text-customG"> {/* 협력사 관리 그룹 페이지가 있다면 해당 경로로 */}
-          협력사 관리
-        </BreadcrumbLink>
-        <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-customG">파트너사 관리</span>
-      </div>
-
+    <div className="flex flex-col gap-6">
       <PageHeader
-        icon={<Users className="w-6 h-6" />}
+        icon={<Building2 className="h-8 w-8" />}
         title="파트너사 관리"
-        description="협력 파트너사 정보 및 계약 관리"
-        // module="Partner"
-        // submodule="Manage"
-      >
-        {/* <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 pl-1.5">
-          <Users className="w-3.5 h-3.5 mr-1" />
-          협력사
-        </Badge> */}
-      </PageHeader>
-
-      <Card className="mt-6 overflow-hidden shadow-sm">
-        <CardHeader className="p-4 bg-white border-b">
-          <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
-            <div>
-              <CardTitle className="text-xl">파트너사 목록</CardTitle>
-              <CardDescription>
-                등록된 파트너사를 확인하고 관리합니다. (총 {partnerList.length}개사)
-              </CardDescription>
-            </div>
-            <div>
-              <Dialog open={isModalOpen} onOpenChange={(open) => {
-                setIsModalOpen(open);
-                if (!open) {
-                  resetModalState();
-                }
-              }}>
-                <DialogTrigger asChild>
-                  <Button variant="default">
-                    <Users className="w-4 h-4 mr-2" />
-                    파트너사 추가
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
-                  <DialogHeader>
-                    <DialogTitle>새 파트너사 추가</DialogTitle>
-                    <DialogDescription>
-                      회사명을 검색하여 정보를 확인하고 파트너사로 추가합니다.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="relative">
-                      <Search className="absolute w-4 h-4 text-gray-400 left-3 top-1/2 -translate-y-1/2" />
-                      <Input
-                        type="text"
-                        placeholder="회사명 검색 (예: 삼성전자)"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                        disabled={isLoading || isSubmitting}
-                      />
-                    </div>
-                    
-                    {isLoading && (
-                      <div className="flex items-center justify-center h-[100px]">
-                        <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-                        <p className="ml-2 text-sm text-gray-500">기업 정보 검색 중...</p>
-                      </div>
-                    )}
-
-                    {!isLoading && error && searchResults.length === 0 && (
-                      <p className="text-sm text-center text-red-500 py-2">{error}</p>
-                    )}
-                    
-                    {!isLoading && searchResults.length > 0 && (
-                      <div className="overflow-y-auto max-h-[200px] border rounded-md p-2">
-                        <p className="mb-2 text-sm text-gray-600">검색 결과: {searchResults.length}건 (클릭하여 선택)</p>
-                        <ul className="space-y-1">
-                          {searchResults.map((company) => (
-                            <li key={company.corp_code}>
-                              <Button
-                                variant={selectedCompany?.corp_code === company.corp_code ? "secondary" : "ghost"}
-                                className="w-full justify-start text-left h-auto py-2 px-3"
-                                onClick={() => handleSelectCompany(company)}
-                                disabled={isSubmitting}
-                              >
-                                <div>
-                                  <p className="font-semibold">{company.corp_name}</p>
-                                  <p className="text-xs text-gray-500">
-                                    기업코드: {company.corp_code}
-                                    {company.stock_code && `, 주식코드: ${company.stock_code}`}
-                                  </p>
-                                </div>
-                              </Button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {selectedCompany && (
-                      <div className="p-4 mt-3 border rounded-md bg-slate-50">
-                        <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-md">선택된 회사: {selectedCompany.corp_name}</h4>
-                            <Button variant="ghost" size="sm" onClick={() => {setSelectedCompany(null); setError(null);}} className="text-xs" disabled={isSubmitting}>
-                                <X className="w-3 h-3 mr-1" /> 선택 취소
-                            </Button>
-                        </div>
-                        <p className="mb-1 text-sm text-gray-600">기업 코드: {selectedCompany.corp_code}</p>
-                      </div>
-                    )}
-
-                  </div>
-                  <DialogFooter className="mt-2">
-                    <DialogClose asChild>
-                        <Button variant="outline" disabled={isSubmitting}>취소</Button>
-                    </DialogClose>
-                    <Button 
-                        type="button" 
-                        onClick={handleAddPartner} 
-                        disabled={!selectedCompany || isSubmitting || isLoading}
-                    >
-                      {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Users className="w-4 h-4 mr-2"/>}
-                      {isSubmitting ? '추가 중...' : '파트너사로 추가'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6 bg-white rounded-b-lg">
-          {pageLoading ? (
-            <div className="flex items-center justify-center h-20">
-                <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-                <p className="ml-2 text-gray-500">파트너사 목록을 불러오는 중...</p>
-            </div>
-          ) : partnerList.length === 0 ? (
-            <p className="text-gray-600">
-              등록된 파트너사가 없습니다. "파트너사 추가" 버튼을 클릭하여 새 파트너사를 등록하세요.
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {partnerList.map(partner => (
-                <li key={partner.id} className="flex items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">{partner.companyName}</h3>
-                    {partner.registrationNumber && <p className="text-sm text-gray-600">사업자번호: {partner.registrationNumber}</p>}
-                    <p className="text-xs text-gray-500">등록일: {new Date(partner.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
-                        <MoreHorizontal className="w-5 h-5" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-1 rounded-md shadow-lg bg-white border">
-                      <Button
-                        variant="ghost"
-                        className="flex items-center justify-start w-full px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 hover:text-red-700"
-                        onClick={() => handleDeletePartner(partner.id)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        삭제
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
-                </li>
-              ))}
-            </ul>
+        description="파트너사를 등록하고 관리합니다."
+        module="CSDD"
+      />
+      
+      <div className="flex justify-between items-center mb-4">
+        <div className="relative w-64">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="파트너사 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            >
+              <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+            </button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+        
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={() => {
+              resetModalState()
+              setIsAddDialogOpen(true)
+            }}>
+              <Plus className="mr-2 h-4 w-4" />
+              파트너사 추가
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>파트너사 추가</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div>
+                <Label htmlFor="companySearch" className="text-right">
+                  회사 검색
+                </Label>
+                <div className="relative mt-1">
+                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="companySearch"
+                    placeholder="회사명 검색..."
+                    value={companySearchQuery}
+                    onChange={(e) => setCompanySearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                  {isSearching && (
+                    <Loader2 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                
+                {searchResults.length > 0 && (
+                  <div className="mt-2 border rounded-md overflow-hidden">
+                    <ul className="divide-y">
+                      {searchResults.map((company) => (
+                        <button
+                          key={company.corp_code}
+                          type="button"
+                          className="w-full p-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-left"
+                          onClick={() => handleSelectCompany(company)}
+                        >
+                          <div>
+                            <p className="font-medium">{company.corp_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {company.stock_code ? `주식코드: ${company.stock_code}` : '비상장'}
+                            </p>
+                          </div>
+                          <span className="flex-shrink-0">
+                            <Check className="h-4 w-4" />
+                          </span>
+                        </button>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {debouncedCompanySearchQuery && searchResults.length === 0 && !isSearching && (
+                  <p className="mt-2 text-sm text-muted-foreground flex items-center">
+                    <AlertTriangle className="h-4 w-4 mr-1 text-amber-500" />
+                    검색 결과가 없습니다.
+                  </p>
+                )}
+              </div>
+              
+              <div>
+                <Label htmlFor="companyName" className="text-right">
+                  회사명
+                </Label>
+                <Input
+                  id="companyName"
+                  value={newPartnerData.companyName}
+                  onChange={(e) => setNewPartnerData({...newPartnerData, companyName: e.target.value})}
+                  className="mt-1"
+                  placeholder="회사명"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="corpCode" className="text-right">
+                  DART 코드
+                </Label>
+                <Input
+                  id="corpCode"
+                  value={newPartnerData.corpCode}
+                  onChange={(e) => setNewPartnerData({...newPartnerData, corpCode: e.target.value})}
+                  className="mt-1"
+                  placeholder="DART 코드 (8자리)"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="contractStartDate" className="text-right">
+                  계약 시작일
+                </Label>
+                <Input
+                  id="contractStartDate"
+                  type="date"
+                  value={newPartnerData.contractStartDate}
+                  onChange={(e) => setNewPartnerData({...newPartnerData, contractStartDate: e.target.value})}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  취소
+                </Button>
+              </DialogClose>
+              <Button
+                type="button"
+                onClick={handleAddPartner}
+                disabled={isLoading || !newPartnerData.companyName || !newPartnerData.corpCode}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    처리 중...
+                  </>
+                ) : (
+                  '추가'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      {isLoading && partners.length === 0 ? (
+        <div className="flex justify-center items-center p-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
+          <div className="border rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>회사명</TableHead>
+                  <TableHead>DART 코드</TableHead>
+                  <TableHead>상장 여부</TableHead>
+                  <TableHead>계약 시작일</TableHead>
+                  <TableHead>상태</TableHead>
+                  <TableHead className="text-right">관리</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {partners.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                      {searchQuery ? '검색 결과가 없습니다.' : '등록된 파트너사가 없습니다.'}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  partners.map((partner) => (
+                    <TableRow key={partner.id}>
+                      <TableCell className="font-medium">{partner.corp_name}</TableCell>
+                      <TableCell>{partner.corp_code}</TableCell>
+                      <TableCell>
+                        {partner.stock_code ? (
+                          <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                            {partner.stock_code}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">비상장</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>{partner.contract_start_date}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            partner.status === 'ACTIVE'
+                              ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                              : 'bg-red-100 text-red-800 hover:bg-red-100'
+                          }
+                        >
+                          {partner.status === 'ACTIVE' ? '활성' : '비활성'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">메뉴 열기</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedPartner(partner)
+                                setIsEditDialogOpen(true)
+                              }}
+                            >
+                              <Edit3 className="mr-2 h-4 w-4" />
+                              <span>수정</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedPartner(partner)
+                                setIsDeleteDialogOpen(true)
+                              }}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              <span>삭제</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-1 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                이전
+              </Button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handlePageChange(page)}
+                  className="w-8"
+                >
+                  {page}
+                </Button>
+              ))}
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                다음
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+      
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>파트너사 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedPartner?.corp_name} 파트너사를 삭제하시겠습니까?
+              <br />
+              이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => selectedPartner?.id && handleDeletePartner(selectedPartner.id)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  처리 중...
+                </>
+              ) : (
+                '삭제'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* 수정 다이얼로그 구현은 생략 (파트너사 추가와 유사하게 구현) */}
     </div>
-  );
+  )
 }
