@@ -481,7 +481,10 @@ export default function Goal() {
                             </div>
                             <DialogContent className="sm:max-w-[550px]">
                               <DialogHeader>
-                                <DialogTitle>넷제로 목표 수정</DialogTitle>
+                                <DialogTitle
+                                  className="flex items-center text-xs sr-only"
+                                  hidden
+                                />
                               </DialogHeader>
                               {selectedNetZeroId && (
                                 <NetZero
