@@ -405,9 +405,7 @@ export default function NetZero({onClose, rowId, mode = 'add'}: NetZeroProps) {
                 <ChartBar className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h2 className="text-base font-semibold">
-                  {isEditMode ? '넷제로 목표 수정' : '넷제로 목표 설정'}
-                </h2>
+                <h3>{isEditMode ? '넷제로 목표 수정' : '넷제로 목표 설정'}</h3>
                 <p className="text-sm text-gray-500">
                   금융 포트폴리오의 탄소배출 감축 목표를 설정하고 관리합니다
                 </p>
