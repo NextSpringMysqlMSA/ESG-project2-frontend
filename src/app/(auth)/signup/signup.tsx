@@ -164,7 +164,7 @@ export default function SignUp() {
           </div>
           <div className="flex flex-col">
             <span className="text-2xl tracking-tight font-gmBold text-customGTextLight">
-              ESG
+              NSMM
             </span>
             <span className="text-sm font-medium text-customG">Dashboard</span>
           </div>
@@ -184,7 +184,7 @@ export default function SignUp() {
         <motion.p
           variants={itemVariants}
           className="mb-8 text-sm text-center text-gray-500">
-          ESG 대시보드를 시작하기 위한 계정을 만드세요
+          NSMM 대시보드를 시작하기 위한 계정을 만드세요
         </motion.p>
 
         {/* 그리드 레이아웃을 단일 열로 변경 */}
@@ -298,7 +298,7 @@ export default function SignUp() {
         animate={{opacity: 1}}
         transition={{delay: 0.6}}
         className="mt-6 text-xs text-center text-gray-500">
-        © 2025 ESG Dashboard. All rights reserved.
+        © 2025 NSMM Dashboard. All rights reserved.
         <div className="mt-1">
           <Link href="/terms" className="mx-2 hover:text-customG">
             이용약관
