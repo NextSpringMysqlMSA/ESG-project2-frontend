@@ -1,5 +1,5 @@
 'use client'
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useCallback} from 'react'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -13,18 +13,36 @@ import {
   BarElement,
   RadialLinearScale
 } from 'chart.js'
-import {Pie, Line, Bar, PolarArea} from 'react-chartjs-2'
+import {Pie, Bar, PolarArea} from 'react-chartjs-2'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
+  CardFooter
 } from '@/components/ui/card'
 import {Badge} from '@/components/ui/badge'
-import {ArrowRight, TrendingUp, Award, Zap, Leaf, ChevronUp} from 'lucide-react'
+import {Separator} from '@/components/ui/separator'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Award,
+  Zap,
+  Leaf,
+  ChevronUp,
+  RefreshCcw,
+  FileText,
+  CloudSun,
+  TrendingUp
+} from 'lucide-react'
 import {motion} from 'framer-motion'
+import GriChart from '@/components/chart/griChart'
+import IfrsChart from '@/components/chart/IfrsChart'
+import NetZeroChart from '@/components/chart/netZeroChart'
+import {Button} from '@/components/ui/button'
+import Link from 'next/link'
 
 // 차트 설정
 ChartJS.register(
@@ -43,88 +61,16 @@ ChartJS.register(
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  // 데이터 새로고침 함수
+  const handleRefresh = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1)
+  }, [])
 
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  // GRI 데이터
-  const griData = {
-    labels: ['작성 완료', '작성중', '미완료'],
-    datasets: [
-      {
-        label: '작성 상태',
-        data: [50, 30, 20],
-        backgroundColor: [
-          'rgba(74, 222, 128, 0.8)',
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(220, 252, 231, 0.8)'
-        ],
-        borderColor: [
-          'rgba(74, 222, 128, 1)',
-          'rgba(34, 197, 94, 1)',
-          'rgba(220, 252, 231, 1)'
-        ],
-        borderWidth: 1,
-        cutout: '70%',
-        borderRadius: 5,
-        hoverOffset: 10
-      }
-    ]
-  }
-
-  // GRI 차트 옵션
-  const griOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#333',
-        bodyColor: '#333',
-        borderColor: '#e5e7eb',
-        borderWidth: 1,
-        padding: 10,
-        usePointStyle: true,
-        callbacks: {
-          label: function (context: any) {
-            return ` ${context.label}: ${context.raw}%`
-          }
-        }
-      },
-      datalabels: {
-        display: false
-      }
-    }
-  }
-
-  // IFRS S2 데이터
-  const ifrsData = {
-    labels: ['작성 완료', '작성중', '미완료'],
-    datasets: [
-      {
-        label: '작성 상태',
-        data: [50, 20, 30],
-        backgroundColor: [
-          'rgba(99, 102, 241, 0.8)',
-          'rgba(37, 99, 235, 0.8)',
-          'rgba(224, 242, 254, 0.8)'
-        ],
-        borderColor: [
-          'rgba(99, 102, 241, 1)',
-          'rgba(37, 99, 235, 1)',
-          'rgba(224, 242, 254, 1)'
-        ],
-        borderWidth: 1,
-        cutout: '70%',
-        borderRadius: 5,
-        hoverOffset: 10
-      }
-    ]
-  }
 
   // 협력사 ESG 데이터
   const supplierData = {
@@ -165,6 +111,34 @@ export default function Home() {
         maxBarThickness: 25
       }
     ]
+  }
+
+  // 차트 옵션
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#333',
+        bodyColor: '#333',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 10,
+        usePointStyle: true,
+        callbacks: {
+          label: function (context: any) {
+            return ` ${context.label}: ${context.raw}%`
+          }
+        }
+      },
+      datalabels: {
+        display: false
+      }
+    }
   }
 
   const companyOptions = {
@@ -224,12 +198,6 @@ export default function Home() {
       }
     }
   }
-
-  // ESG Rating 데이터
-  const currentRating = 'A'
-  const targetRating = 'AA'
-  const currentScore = 30
-  const targetScore = 66.7
 
   // ESG 세부 점수 데이터
   const esgScoreData = {
@@ -315,105 +283,6 @@ export default function Home() {
     }
   }
 
-  // Net Zero 데이터
-  const netZeroData = {
-    labels: ['2024', '2026', '2030', '2050'],
-    datasets: [
-      {
-        label: 'CO2e 배출량',
-        data: [100000, 80000, 30000, 0],
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.3,
-        pointRadius: 6,
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: '#3b82f6',
-        pointBorderWidth: 2,
-        fill: true
-      },
-      {
-        label: '목표 배출량',
-        data: [95000, 70000, 25000, 0],
-        borderColor: 'rgba(59, 130, 246, 0.5)',
-        backgroundColor: 'transparent',
-        borderDash: [5, 5],
-        tension: 0.3,
-        pointRadius: 0
-      }
-    ]
-  }
-
-  const netZeroOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#333',
-        bodyColor: '#333',
-        borderColor: '#e5e7eb',
-        borderWidth: 1,
-        padding: 10,
-        callbacks: {
-          label: function (context: any) {
-            const label = context.dataset.label || ''
-            return `${label}: ${context.raw.toLocaleString()} tCO₂e`
-          }
-        }
-      },
-      datalabels: {
-        display: function (context: any) {
-          // 첫 번째 데이터셋만 표시
-          return context.datasetIndex === 0
-        },
-        color: '#3b82f6',
-        backgroundColor: 'white',
-        borderRadius: 4,
-        padding: 4,
-        font: {
-          weight: 'bold' as const,
-          size: 10
-        },
-        align: 'end' as const,
-        offset: 10,
-        formatter: function (value: any) {
-          if (value === 0) return 'Net\nZero'
-          return value.toLocaleString()
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(0, 0, 0, 0.05)'
-        },
-        ticks: {
-          callback: function (value: any) {
-            return value.toLocaleString()
-          },
-          font: {
-            size: 10
-          }
-        }
-      },
-      x: {
-        grid: {
-          display: false
-        },
-        ticks: {
-          font: {
-            size: 10,
-            weight: 'bold' as const
-          }
-        }
-      }
-    }
-  }
-
   // Framer Motion 애니메이션 설정
   const containerVariants = {
     hidden: {opacity: 0},
@@ -436,12 +305,12 @@ export default function Home() {
     }
   }
 
-  // 퍼센트 표시 컴포넌트
-  const PercentageDisplay = ({value}: {value: number}) => (
-    <div className="absolute text-center transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-      <p className="text-4xl font-bold">{value}%</p>
-    </div>
-  )
+  // 애니메이션 효과로 현재 날짜 표시
+  const currentDate = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 
   return (
     <div className="flex flex-col w-full h-full p-4 md:p-8 bg-gray-50">
@@ -449,178 +318,167 @@ export default function Home() {
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.5}}
-        className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">ESG 공시 대시보드</h1>
-        <p className="text-gray-500">지속가능경영 보고서 및 기후 관련 정보 공시 현황</p>
+        className="flex flex-col items-start justify-between mb-6 md:flex-row md:items-center">
+        <div>
+          <h1 className="text-2xl tracking-tight text-gray-800 font-gmBold">
+            ESG 공시 대시보드
+          </h1>
+          <p className="text-gray-500">
+            {currentDate} 기준 지속가능경영 보고서 및 기후 관련 정보 공시 현황
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          className="flex items-center gap-1 mt-2 text-gray-500 hover:text-gray-700 md:mt-0">
+          <RefreshCcw className="w-4 h-4" />
+          데이터 새로고침
+        </Button>
       </motion.div>
-
       {/* 상단 두 개 카드 */}
       <motion.div
         className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2"
         variants={containerVariants}
         initial="hidden"
         animate="visible">
-        {/* GRI 섹션 */}
-        <motion.div variants={itemVariants}>
-          <Card className="overflow-hidden h-[320px]">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl text-customG">GRI 작성 현황</CardTitle>
-                <Badge
-                  variant="outline"
-                  className="font-medium bg-customGLight text-customG border-customGLight">
-                  50% 완료
-                </Badge>
-              </div>
-              <CardDescription>
-                Global Reporting Initiative 지표 작성 현황
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between h-[220px]">
-                <div className="relative w-48 h-48 mx-auto">
-                  {mounted && <Pie data={griData} options={griOptions} />}
-                  <PercentageDisplay value={50} />
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 mr-2 bg-green-400 rounded-full"></div>
-                    <span className="mr-2 text-sm">작성 완료</span>
-                    <span className="text-sm font-bold">50.0%</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 mr-2 bg-green-600 rounded-full"></div>
-                    <span className="mr-2 text-sm">작성중</span>
-                    <span className="text-sm font-bold">30.0%</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 mr-2 bg-green-100 rounded-full"></div>
-                    <span className="mr-2 text-sm">미완료</span>
-                    <span className="text-sm font-bold">20.0%</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
         {/* IFRS S2 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="overflow-hidden h-[320px]">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl text-indigo-600">
-                  IFRS S2 (TCFD) 현황
-                </CardTitle>
-                <Badge
-                  variant="outline"
-                  className="font-medium text-indigo-600 border-indigo-200 bg-indigo-50">
-                  50% 완료
-                </Badge>
-              </div>
-              <CardDescription>기후 관련 공시(TCFD) 작성 현황</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between h-[220px]">
-                <div className="relative w-48 h-48 mx-auto">
-                  {mounted && <Pie data={ifrsData} options={griOptions} />}
-                  <PercentageDisplay value={50} />
+          <Link href="/governance">
+            <Card className="overflow-hidden h-[320px] hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <CloudSun className="w-5 h-5 text-indigo-600" />
+                    <span className="text-xl text-indigo-800">IFRS S2 (TCFD) 현황</span>
+                  </CardTitle>
+                  <Badge variant="outline" className="text-indigo-700 bg-indigo-50">
+                    실시간 데이터
+                  </Badge>
                 </div>
+                <CardDescription>기후 관련 공시(TCFD) 작성 현황</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between h-[220px]">
+                  {mounted && <IfrsChart refreshTrigger={refreshTrigger} />}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </motion.div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 mr-2 bg-indigo-600 rounded-full"></div>
-                    <span className="mr-2 text-sm">작성 완료</span>
-                    <span className="text-sm font-bold">50.0%</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 mr-2 bg-blue-600 rounded-full"></div>
-                    <span className="mr-2 text-sm">작성중</span>
-                    <span className="text-sm font-bold">20.0%</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 mr-2 bg-blue-100 rounded-full"></div>
-                    <span className="mr-2 text-sm">미완료</span>
-                    <span className="text-sm font-bold">30.0%</span>
-                  </div>
+        {/* GRI 섹션 */}
+        <motion.div variants={itemVariants}>
+          <Link href="/GRI">
+            <Card className="overflow-hidden h-[320px] hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-green-600" />
+                    <span className="text-xl text-green-800">GRI 작성 현황</span>
+                  </CardTitle>
+                  <Badge variant="outline" className="text-green-700 bg-green-50">
+                    실시간 데이터
+                  </Badge>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+                <CardDescription>
+                  Global Reporting Initiative 지표 작성 현황
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between h-[220px]">
+                  {mounted && <GriChart refreshTrigger={refreshTrigger} />}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
       </motion.div>
-
       {/* 하단 세 개 카드 */}
       <motion.div
         className="grid grid-cols-1 gap-6 md:grid-cols-3"
         variants={containerVariants}
         initial="hidden"
         animate="visible">
+        {/* Net Zero 섹션 */}
+        <motion.div variants={itemVariants}>
+          <Link href="/goal">
+            <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg text-[#4bc0c0]">
+                  <Leaf className="w-5 h-5 mr-2 text-[#4bc0c0]" />
+                  Net Zero 달성 경로
+                  <span className="ml-2 text-xs font-normal">(단위:tCO₂e)</span>
+                </CardTitle>
+                <CardDescription className="text-gray-500">
+                  탄소 중립 목표 및 감축 경로
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="h-[320px]">
+                {mounted && <NetZeroChart refreshTrigger={refreshTrigger} />}
+              </CardContent>
+            </Card>
+          </Link>
+        </motion.div>
         {/* 협력사 ESG 정보 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="h-[360px] overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg text-rose-800">
-                <Zap className="w-5 h-5 mr-2" />
-                협력사 ESG 정보 수집 현황
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="relative w-32 h-32 mx-auto mb-6">
-                {mounted && <Pie data={supplierData} options={griOptions} />}
-                <PercentageDisplay value={80} />
-              </div>
+          <Link href="/financialRisk">
+            <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg text-rose-800">
+                  <Zap className="w-5 h-5 mr-2 text-rose-600" />
+                  협력사 ESG 정보 수집 현황
+                </CardTitle>
+                <CardDescription className="text-gray-500">
+                  주요 협력사 ESG 정보 수집 진행률
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="relative mx-auto mb-8 w-36 h-36">
+                  {mounted && <Pie data={supplierData} options={chartOptions} />}
+                  <div className="absolute text-center transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+                    <p className="text-2xl font-gmBold text-rose-800">80%</p>
+                  </div>
+                </div>
 
-              <div className="h-[120px]">
-                {mounted && <Bar data={companyData} options={companyOptions} />}
-              </div>
-            </CardContent>
-          </Card>
+                <div className="h-[150px]">
+                  {mounted && <Bar data={companyData} options={companyOptions} />}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
-
         {/* ESG Rating 섹션 */}
         <motion.div variants={itemVariants}>
-          <Card className="h-[360px] overflow-hidden">
+          <Card className="h-full overflow-hidden transition-shadow">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg">
+              <CardTitle className="flex items-center text-lg text-purple-800">
                 <Award className="w-5 h-5 mr-2 text-purple-600" />
                 ESG Rating (MSCI)
               </CardTitle>
+              <CardDescription className="text-gray-500">
+                ESG 등급 및 개선 목표
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-5xl font-bold text-gray-500">A</div>
-                <ArrowRight className="w-10 h-10 mx-4 text-gray-400" />
-                <div className="text-5xl font-bold text-indigo-600">AA</div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-5xl text-gray-500 font-gmBold">A</div>
+                <ArrowRight className="w-12 h-12 mx-4 text-gray-400" />
+                <div className="text-5xl text-purple-600 font-gmBold">AA</div>
               </div>
 
-              <div className="mb-2 text-center">
-                <Badge className="bg-indigo-500 hover:bg-indigo-600">
-                  <ChevronUp className="w-3 h-3 mr-1" />
-                  36.7점 상승 필요
-                </Badge>
+              <div className="flex justify-center mb-6 text-center">
+                <div className="flex flex-row px-3 py-1.5 bg-purple-500 rounded-lg items-center">
+                  <ChevronUp className="w-3 h-3 mr-1 text-white" />
+                  <span className="text-sm text-white">36.7점 상승 필요</span>
+                </div>
               </div>
 
-              <div className="grid place-items-center h-[190px]">
+              <Separator className="my-4" />
+
+              <div className="grid place-items-center h-[200px]">
                 {mounted && <PolarArea data={esgScoreData} options={esgScoreOptions} />}
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Net Zero 섹션 */}
-        <motion.div variants={itemVariants}>
-          <Card className="h-[360px] overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg">
-                <Leaf className="w-5 h-5 mr-2 text-blue-600" />
-                Net Zero 달성 경로{' '}
-                <span className="ml-2 text-xs font-normal">(단위:tCO₂e)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="h-[290px]">
-              {mounted && <Line data={netZeroData} options={netZeroOptions} />}
             </CardContent>
           </Card>
         </motion.div>

@@ -132,15 +132,15 @@ export default function GRI200() {
   }
 
   // GRI 번호와 카테고리 매핑
-  const codeToCategory = {
-    '201': '경제 성과',
-    '202': '시장 지위',
-    '203': '간접 경제 효과',
-    '204': '구매 관행',
-    '205': '반부패',
-    '206': '반경쟁 행위',
-    '207': '세금'
-  }
+  // const codeToCategory = {
+  //   '201': '경제 성과',
+  //   '202': '시장 지위',
+  //   '203': '간접 경제 효과',
+  //   '204': '구매 관행',
+  //   '205': '반부패',
+  //   '206': '반경쟁 행위',
+  //   '207': '세금'
+  // }
 
   // 항목 아이콘 설정
   const getCategoryIcon = (category: string) => {
@@ -199,7 +199,7 @@ export default function GRI200() {
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-2">
             <DollarSign className="w-6 h-6 text-customG" />
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-2xl text-gray-800 font-gmBold">
               GRI 200: 경제
             </CardTitle>
           </div>

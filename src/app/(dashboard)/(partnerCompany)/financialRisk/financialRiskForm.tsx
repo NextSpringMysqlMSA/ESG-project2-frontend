@@ -1,8 +1,7 @@
 'use client'
 
 import {useState} from 'react'
-import {Label} from '@/components/ui/label'
-import {Check} from 'lucide-react'
+import {Check, ChevronRight, FileEdit, FileText, Home} from 'lucide-react'
 import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
 import {
@@ -15,7 +14,6 @@ import {
 } from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Card, CardContent} from '@/components/ui/card'
-import DashButton from '@/components/tools/dashButton'
 import {
   Dialog,
   DialogContent,
@@ -23,14 +21,8 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb'
+import {BreadcrumbLink} from '@/components/ui/breadcrumb'
+import {PageHeader} from '@/components/layout/PageHeader'
 
 const partners = ['협력사 A', '협력사 B', '협력사 C', '협력사 D', '협력사 E']
 
@@ -126,27 +118,24 @@ export default function FinancialRiskForm() {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null)
 
   return (
-    <div className="flex flex-col w-full h-full px-8 py-6 space-y-2 bg-[#F9FBFF]">
-      <div className="flex flex-row px-2 mb-4 text-sm text-gray-700">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/partnerCompany">협력사 관리</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>재무제표 리스크 관리</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
+      <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
+        <Home className="w-4 h-4 mr-1" />
+        <span>대시보드</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span>협력사 관리</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="text-customG">재무제표 리스크 관리</span>
       </div>
-      <div className="flex justify-center w-full py-4 bg-white border rounded shadow-sm">
-        <h2 className="text-2xl font-semibold">재무제표 리스크 관리</h2>
-      </div>
+
+      <PageHeader
+        icon={<FileText className="w-6 h-6" />}
+        title="재무제표 리스크 관리"
+        module="GRI"></PageHeader>
 
       {selectedPartner && (
         <p
-          className={`text-base font-bold text-center ${
+          className={`text-base font-gmBold text-center ${
             getStatusLabel(partnerQuestionMap[selectedPartner].length).color
           }`}>
           {selectedPartner}는 항목 총 {partnerQuestionMap[selectedPartner].length}개 :{' '}
@@ -154,10 +143,7 @@ export default function FinancialRiskForm() {
         </p>
       )}
 
-      <div className="flex flex-col space-y-1 w-[240px]">
-        <Label htmlFor="partner" className="mb-1">
-          협력사명
-        </Label>
+      <div className="flex w-[240px] mb-4">
         <PartnerCombobox
           options={partners}
           value={selectedPartner}
@@ -166,15 +152,13 @@ export default function FinancialRiskForm() {
       </div>
 
       {selectedPartner ? (
-        <Card className="bg-white border rounded shadow">
-          <CardContent className="p-4">
+        <Card className="bg-white border rounded-lg shadow-sm">
+          <CardContent className="p-6">
             <table className="w-full text-sm border-collapse table-fixed">
-              <thead>
-                <tr className="text-left bg-gray-100">
-                  <th className="p-3 text-sm font-medium text-gray-700 bg-gray-100 border">
-                    항목
-                  </th>
-                  <th className="w-24 p-3 text-sm font-medium text-center text-gray-700 bg-gray-100 border whitespace-nowrap">
+              <thead className="px-4 py-3 text-base bg-customGLight">
+                <tr className="text-left">
+                  <th className="p-3 text-sm text-black border">항목</th>
+                  <th className="w-24 p-3 text-sm text-center text-black border whitespace-nowrap">
                     해당 여부
                   </th>
                 </tr>
@@ -197,24 +181,36 @@ export default function FinancialRiskForm() {
           </CardContent>
         </Card>
       ) : (
-        <div className="flex items-center justify-center h-64 text-base text-gray-500 bg-white border rounded shadow">
-          협력사를 선택해주세요.
+        <div className="flex items-center justify-center h-64 text-base text-gray-500 bg-white border rounded-lg shadow-sm">
+          <div className="flex flex-col items-center justify-center h-48 p-6 text-center rounded-lg">
+            <div className="flex items-center justify-center w-16 h-16 mb-4 bg-gray-100 rounded-full">
+              <FileEdit className="w-8 h-8 text-gray-300" />
+            </div>
+            <h3 className="mb-1 text-base font-medium text-gray-600">
+              데이터가 없습니다
+            </h3>
+            <p className="mb-4 text-sm text-gray-500">
+              선택된 협력사가 없습니다. 협력사를 선택해보세요.
+            </p>
+          </div>
         </div>
       )}
 
       {selectedPartner && (
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-4">
           <Dialog>
             <DialogTrigger asChild>
-              <DashButton width="w-40">재무제표 상세 확인</DashButton>
+              <Button className="w-40 bg-white border border-customG text-customG hover:bg-customG hover:text-white">
+                재무제표 상세 확인
+              </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-5xl h-[90vh] overflow-hidden">
+            <DialogContent className="max-w-5xl h-[80vh] overflow-hidden">
               <DialogHeader>
                 <DialogTitle>재무제표 상세</DialogTitle>
               </DialogHeader>
               <iframe
                 src="https://www.sfvc.co.kr/files/data/2022%EB%85%84%EC%9E%AC%EB%AC%B4%EC%83%81%ED%83%9C%ED%91%9C.pdf"
-                className="w-full h-[80vh] rounded border"
+                className="w-full h-[70vh] rounded-lg border"
                 allowFullScreen
               />
             </DialogContent>

@@ -31,6 +31,7 @@ export const fetchGriDisclosures = async (): Promise<GriDisclosure[]> => {
     const response = await api.get<GriDisclosure[]>(API_URL)
     return response.data
   } catch (error) {
+    console.error('Error fetching GRI disclosures:', error)
     return []
   }
 }
@@ -45,6 +46,7 @@ export const fetchGriDisclosure = async (id: number): Promise<GriDisclosure | nu
     const response = await api.get<GriDisclosure>(`${API_URL}/${id}`)
     return response.data
   } catch (error) {
+    console.error('Error fetching GRI disclosure:', error)
     return null
   }
 }
@@ -64,6 +66,7 @@ export const fetchGriDisclosureByCode = async (
     }
     return null
   } catch (error) {
+    console.error('Error fetching GRI disclosure by code:', error)
     return null
   }
 }
@@ -110,6 +113,7 @@ export const deleteGriDisclosure = async (id: number): Promise<boolean> => {
     await api.delete(`${API_URL}/${id}`)
     return true
   } catch (error) {
+    console.error('Error deleting GRI disclosure:', error)
     return false
   }
 }

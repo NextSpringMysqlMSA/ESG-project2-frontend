@@ -81,7 +81,8 @@ export default function Sidebar() {
       if (
         pathname.startsWith('/governance') ||
         pathname.startsWith('/strategy') ||
-        pathname.startsWith('/goal')
+        pathname.startsWith('/goal') ||
+        pathname === '/GRI'
       ) {
         setOpenParent(true)
         setOpenESGChild(true)
@@ -97,7 +98,8 @@ export default function Sidebar() {
   const isESGActive =
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
-    pathname.startsWith('/goal')
+    pathname.startsWith('/goal') ||
+    pathname === '/GRI'
   const isESGChildActive =
     pathname.startsWith('/governance') ||
     pathname.startsWith('/strategy') ||
@@ -306,18 +308,18 @@ export default function Sidebar() {
         </div>
 
         {/* 메인 네비게이션 영역 */}
-        <nav className="flex-grow px-2 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-grow py-4 space-y-1 overflow-y-auto">
           {/* 대시보드 메뉴 항목 */}
           <MenuItem href="/home" icon={Home} text="대시보드" isActive={isHomeActive} />
 
           {/* ESG 관리 섹션 */}
           <div className="mt-2 mb-2">
             {/* 섹션 제목 - 사이드바 확장시에만 표시 */}
-            {hovered && (
+            {/* {hovered && (
               <div className="px-4 py-1 mb-1">
                 <span className="text-xs font-medium text-gray-400">ESG 관리</span>
               </div>
-            )}
+            )} */}
 
             {/* ESG 공시 메뉴 - 하위메뉴 포함 */}
             <MenuItem
@@ -397,8 +399,9 @@ export default function Sidebar() {
                       className={cn(
                         'px-2 py-1.5 text-sm rounded-md w-full',
                         pathname === '/GRI'
-                          ? 'text-customGDark font-medium'
-                          : 'text-gray-600 hover:text-customGDark'
+                          ? 'bg-customGLight text-customGDark'
+                          : 'text-gray-600 hover:bg-gray-100',
+                        hovered ? 'justify-start' : 'justify-center'
                       )}>
                       <motion.span variants={itemVariants}>GRI</motion.span>
                     </Link>
@@ -450,7 +453,7 @@ export default function Sidebar() {
               exit="hidden"
               variants={menuVariants}
               className="overflow-hidden">
-              <div className="pl-4 mt-1 space-y-1">
+              <div className="mt-1 space-y-1 ">
                 <SubMenuItem
                   href="/managePartner"
                   text="파트너사 관리"

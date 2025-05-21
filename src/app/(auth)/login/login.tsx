@@ -78,12 +78,8 @@ export default function Login() {
     }
   }
 
-  // 커스텀 입력 필드 스타일 클래스
-  const inputStyle =
-    'w-full py-3 pl-10 pr-4 text-gray-700 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-customGRing focus:border-transparent'
-
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gradient-to-br from-customGEnd to-gray-50">
+    <div className="flex flex-col items-center justify-center flex-1 w-full p-4">
       <motion.div
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
@@ -94,7 +90,7 @@ export default function Login() {
             <Leaf className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-bold tracking-tight text-customGTextLight">
+            <span className="text-2xl tracking-tight font-gmBold text-customGTextLight">
               NSMM
             </span>
             <span className="text-sm font-medium text-customG">Dashboard</span>
@@ -112,7 +108,7 @@ export default function Login() {
         }}
         className="flex flex-col w-full max-w-md p-8 space-y-6 bg-white border border-gray-100 shadow-xl rounded-2xl">
         <motion.div variants={itemVariants} className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800">로그인</h1>
+          <h1 className="text-2xl text-gray-800 font-gmBold">로그인</h1>
           <p className="mt-2 text-sm text-gray-500">
             NSMM 대시보드에 오신 것을 환영합니다
           </p>
@@ -125,14 +121,12 @@ export default function Login() {
               className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2"
             />
             {/* className prop 대신 스타일이 적용된 부모 div로 감싸기 */}
-            <div className={inputStyle}>
-              <AuthInputBox
-                type="email"
-                placeholder="이메일"
-                value={email}
-                onChange={setEmail}
-              />
-            </div>
+            <AuthInputBox
+              type="email"
+              placeholder="이메일"
+              value={email}
+              onChange={setEmail}
+            />
           </div>
 
           <div className="relative">
@@ -141,14 +135,12 @@ export default function Login() {
               className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2"
             />
             {/* className prop 대신 스타일이 적용된 부모 div로 감싸기 */}
-            <div className={inputStyle}>
-              <AuthInputBox
-                type="password"
-                placeholder="비밀번호"
-                value={password}
-                onChange={setPassword}
-              />
-            </div>
+            <AuthInputBox
+              type="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={setPassword}
+            />
           </div>
         </motion.div>
 

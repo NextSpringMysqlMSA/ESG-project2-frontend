@@ -1,7 +1,7 @@
 'use client'
 
 import {useState} from 'react'
-import {Check, Database, ChevronRight, ArrowRight, Home, BookOpen} from 'lucide-react'
+import {Check, Database, ChevronRight, Home, BookOpen} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -41,7 +41,7 @@ const dueDiligenceOptions = [
     description: '환경 실사 지침 요구사항 이행 자가진단',
     icon: '🌱',
     color: 'from-customGLight to-green-50',
-    borderColor: 'border-customGLight',
+    borderColor: 'border-customGBorder200',
     categories: '환경경영, 온실가스, 물 관리, 오염물질, 폐기물',
     path: '/CSDDD/edd/result'
   }
@@ -51,26 +51,22 @@ export default function CSDDD() {
   const router = useRouter()
 
   return (
-    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8 bg-[#F9FBFF]">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span
-          className="cursor-pointer hover:text-customG"
-          onClick={() => router.push('/dashboard')}>
-          대시보드
-        </span>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">공급망 실사</span>
       </div>
 
       {/* 제목 및 설명 */}
       <div className="flex items-center w-full gap-3 px-4 mb-6">
-        <div className="p-2 rounded-full bg-gradient-to-r from-customG/20 to-blue-100">
+        <div className="p-2 rounded-full bg-gradient-to-r from-green-100 to-green-50">
           <BookOpen className="w-6 h-6 text-customG" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">공급망 실사</h1>
+          <h1 className="text-2xl text-gray-800 font-gmBold">공급망 실사</h1>
           <p className="mt-1 text-gray-500">
             공급망 실사 지침에 따른 인권 및 환경 실사 자가진단
           </p>

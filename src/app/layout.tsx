@@ -9,9 +9,9 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
   const isMainPage = pathname === '/' || pathname === '/main'
 
   return (
-    <html lang="ko">
+    <html lang="ko" className="overflow-y-scroll">
       <body
-        className={`flex flex-col w-full h-full overflow-y-scroll font-custom -z-50 ${
+        className={`flex flex-col w-full min-h-screen font-gm ${
           isMainPage ? '' : 'bg-[#F9FBFF]'
         }`}>
         {children}
