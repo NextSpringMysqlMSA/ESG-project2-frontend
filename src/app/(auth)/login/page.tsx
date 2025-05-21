@@ -1,12 +1,18 @@
 import {Suspense} from 'react'
 import Login from './login'
 
+export const metadata = {
+  title: '로그인',
+  description: 'NSMM login page',
+  icons: {
+    icon: '/icons/leaf.svg'
+  }
+}
+
 export default function LoginPage() {
   return (
-    <div className="h-full">
-      <Suspense fallback={<div>Loading...</div>}>
-        <Login />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Login />
+    </Suspense>
   )
 }

@@ -8,7 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        custom: ['gmarket']
+        gm: ['gmNormal'],
+        gmBold: ['gmBold']
       },
       borderRadius: {
         lg: 'var(--radius)',

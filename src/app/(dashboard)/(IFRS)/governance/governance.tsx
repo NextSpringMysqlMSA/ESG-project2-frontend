@@ -37,7 +37,6 @@ import {
 } from '@/components/ui/card'
 import {Badge} from '@/components/ui/badge'
 import {Skeleton} from '@/components/ui/skeleton'
-import {StatCard} from '@/components/ui/stat-card'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {LoadingState} from '@/components/ui/loading-state'
 
@@ -65,7 +64,7 @@ export default function Governance() {
   const [error, setError] = useState<string | null>(null)
 
   // 탭 상태 관리
-  const [activeTab, setActiveTab] = useState('all')
+  // const [activeTab, setActiveTab] = useState('all')
 
   // 데이터 스토어
   const {data: committeeData, setData} = useCommitteeStore()
@@ -135,47 +134,31 @@ export default function Governance() {
   const educationHeader = ['교육 일자', '참석자 수', '교육 제목', '교육 주요 내용']
 
   return (
-    <div className="flex flex-col w-full h-full p-4 md:p-8 bg-slate-50">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          ESG 공시
-        </BreadcrumbLink>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <BreadcrumbLink href="/official" className="hover:text-customG">
-          IFRS S2
-        </BreadcrumbLink>
+        <span>ESG 공시</span>
         <ChevronRight className="w-4 h-4 mx-2" />
-        <span className="font-medium text-customG">거버넌스</span>
+        <span>IFRS S2</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="text-customG">거버넌스</span>
       </div>
-
       {/* 헤더 섹션 - PageHeader 컴포넌트 사용 */}
       <PageHeader
         icon={<Landmark className="w-6 h-6" />}
         title="거버넌스"
         description="IFRS S2/TCFD 기반 기후 거버넌스 체계 관리"
         module="IFRS"
-        submodule="governance">
-        <Badge
-          variant="outline"
-          className="bg-blue-50 text-blue-700 border-blue-200 pl-1.5">
-          <Landmark className="w-3.5 h-3.5 mr-1" />
-          IFRS S2
-        </Badge>
-        <Badge
-          variant="outline"
-          className="bg-amber-50 text-amber-700 border-amber-200 pl-1.5">
-          <Landmark className="w-3.5 h-3.5 mr-1" />
-          TCFD
-        </Badge>
-      </PageHeader>
-
-      {/* LoadingState 컴포넌트 활용 */}
+        submodule="governance"></PageHeader>
+      {/* LoadingState 컴포넌트 활용 - 빈 상태일 때도 폼을 표시하도록 수정 */}
       <LoadingState
         isLoading={loading}
         error={error}
         isEmpty={stats.total === 0}
+        showFormWhenEmpty={true}
         emptyMessage="거버넌스 데이터가 없습니다. 첫 번째 항목을 추가해 보세요."
         emptyAction={{
           label: '데이터 추가하기',
@@ -189,36 +172,66 @@ export default function Governance() {
           animate={{opacity: 1}}
           transition={{duration: 0.4, delay: 0.1}}
           className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="위원회"
-            count={stats.committees}
-            icon={<Users className="w-5 h-5 text-blue-600" />}
-            color="blue"
-            description="기후 관련 위원회"
-          />{' '}
-          <StatCard
-            title="회의"
-            count={stats.meetings}
-            icon={<CalendarDays className="w-5 h-5 text-customG" />}
-            color="emerald"
-            description="거버넌스 회의"
-          />
-          <StatCard
-            title="KPI"
-            count={stats.kpis}
-            icon={<BarChart className="w-5 h-5 text-purple-600" />}
-            color="purple"
-            description="경영진 성과지표"
-          />
-          <StatCard
-            title="교육"
-            count={stats.educations}
-            icon={<GraduationCap className="w-5 h-5 text-amber-600" />}
-            color="amber"
-            description="환경 교육"
-          />
-        </motion.div>
+          <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-blue-100 rounded-full">
+                <Users className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">위원회</p>
+                <h3 className="text-2xl font-gmBold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.committees}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card className="border-emerald-100 bg-gradient-to-br from-emerald-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 rounded-full bg-emerald-100">
+                <CalendarDays className="w-5 h-5 text-customG" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">회의</p>
+                <h3 className="text-2xl font-gmBold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.meetings}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 bg-purple-100 rounded-full">
+                <BarChart className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">KPI</p>
+                <h3 className="text-2xl font-gmBold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.kpis}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-amber-100 bg-gradient-to-br from-amber-50 to-white">
+            <CardContent className="flex items-center p-4">
+              <div className="p-2 mr-3 rounded-full bg-amber-100">
+                <GraduationCap className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">교육</p>
+                <h3 className="text-2xl font-gmBold">
+                  {loading ? <Skeleton className="w-8 h-8" /> : stats.educations}
+                  <span className="ml-1 text-sm font-normal text-gray-500">개</span>
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         {/* 메인 콘텐츠 */}
         <motion.div
           initial={{opacity: 0, y: 20}}
@@ -238,16 +251,7 @@ export default function Governance() {
 
             <CardContent className="p-0">
               <div className="bg-white rounded-b-lg">
-                <Accordion
-                  type="multiple"
-                  defaultValue={
-                    activeTab === 'all'
-                      ? ['item-1', 'item-2', 'item-3', 'item-4']
-                      : activeTab === 'committee'
-                      ? ['item-1']
-                      : []
-                  }
-                  className="p-4">
+                <Accordion type="multiple" defaultValue={[]} className="p-4">
                   <AccordionItem
                     value="item-1"
                     className="mb-3 overflow-hidden border rounded-md shadow-sm">
@@ -291,7 +295,7 @@ export default function Governance() {
                         회의 관리
                         <Badge
                           variant="outline"
-                          className="ml-2 bg-customGLight border-customGLight">
+                          className="ml-2 bg-customGLight border-customGBorder">
                           {meetingData.length}
                         </Badge>
                       </div>
@@ -311,7 +315,7 @@ export default function Governance() {
                             item.agenda ?? ''
                           ]
                         }))}
-                        formContent={({onClose, row, rowId, mode}) => (
+                        formContent={({onClose, rowId, mode}) => (
                           <Meeting onClose={onClose} rowId={rowId} mode={mode} />
                         )}
                       />
@@ -346,7 +350,7 @@ export default function Governance() {
                             item.achievedValue ?? ''
                           ]
                         }))}
-                        formContent={({onClose, row, rowId, mode}) => (
+                        formContent={({onClose, rowId, mode}) => (
                           <KPI onClose={onClose} rowId={rowId} mode={mode} />
                         )}
                       />
@@ -383,7 +387,7 @@ export default function Governance() {
                             item.content ?? ''
                           ]
                         }))}
-                        formContent={({onClose, row, rowId, mode}) => (
+                        formContent={({onClose, rowId, mode}) => (
                           <Education onClose={onClose} rowId={rowId} mode={mode} />
                         )}
                       />

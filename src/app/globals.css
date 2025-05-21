@@ -3,10 +3,13 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'gmarket';
+  font-family: 'gmNormal';
   src: url('/fonts/GmarketSansTTFMedium.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+}
+
+@font-face {
+  font-family: 'gmBold';
+  src: url('/fonts/GmarketSansTTFBold.ttf') format('truetype');
 }
 
 @layer base {
@@ -72,4 +75,40 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* globals.css 또는 tailwind.css */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-125%);
+  }
+}
+
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+}
+
+.custom-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: #b0b0b0 transparent; /* thumb track */
+}
+
+/* Webkit 기반 브라우저 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* 트랙 배경 투명 */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #b0b0b0; /* 손잡이 */
+  border-radius: 4px;
 }

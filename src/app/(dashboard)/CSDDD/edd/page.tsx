@@ -1,5 +1,13 @@
-import EDDForm from './eddForm'
+import EddForm from './eddForm'
 
-export default function EDDPage() {
-  return <EDDForm />
+export const metadata = {
+  title: '환경 실사 : 공급망 실사',
+  description: 'NSMM edd page',
+  icons: {
+    icon: '/icons/leaf.svg'
+  }
+}
+
+export default function Edd() {
+  return <EddForm />
 }

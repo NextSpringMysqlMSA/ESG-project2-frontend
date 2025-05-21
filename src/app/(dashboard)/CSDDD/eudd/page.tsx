@@ -1,5 +1,13 @@
-import EUDDForm from './euddForm'
+import EuddForm from './euddForm'
 
-export default function EUDDPage() {
-  return <EUDDForm />
+export const metadata = {
+  title: 'EU 공급망 실사 : 공급망 실사',
+  description: 'NSMM eudd page',
+  icons: {
+    icon: '/icons/leaf.svg'
+  }
+}
+
+export default function Eudd() {
+  return <EuddForm />
 }

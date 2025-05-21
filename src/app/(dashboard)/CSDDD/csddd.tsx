@@ -1,7 +1,7 @@
 'use client'
 
 import {useState} from 'react'
-import {Check, Database, ChevronRight, ArrowRight, Home, BookOpen} from 'lucide-react'
+import {Check, Database, ChevronRight, Home, BookOpen} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -23,7 +23,7 @@ const dueDiligenceOptions = [
     color: 'from-blue-50 to-purple-50',
     borderColor: 'border-blue-200',
     categories: '기업 정책, 위험 평가, 시정 조치, 커뮤니케이션',
-    path: '/CSDDD/eudd/result' // ✅ 여기만 수정
+    path: '/CSDDD/eudd/result'
   },
   {
     key: 'hrdd',
@@ -33,7 +33,7 @@ const dueDiligenceOptions = [
     color: 'from-rose-50 to-pink-50',
     borderColor: 'border-rose-200',
     categories: '생명과 안전, 차별 금지, 근로 조건, 결사의 자유',
-    path: '/CSDDD/hrdd/result' // ✅ 수정
+    path: '/CSDDD/hrdd/result'
   },
   {
     key: 'edd',
@@ -41,9 +41,9 @@ const dueDiligenceOptions = [
     description: '환경 실사 지침 요구사항 이행 자가진단',
     icon: '🌱',
     color: 'from-customGLight to-green-50',
-    borderColor: 'border-customGLight',
+    borderColor: 'border-customGBorder200',
     categories: '환경경영, 온실가스, 물 관리, 오염물질, 폐기물',
-    path: '/CSDDD/edd/result' // ✅ 수정
+    path: '/CSDDD/edd/result'
   }
 ]
 export default function CSDDD() {
@@ -51,24 +51,24 @@ export default function CSDDD() {
   const router = useRouter()
 
   return (
-    <div className="flex flex-col w-full h-full px-4 py-6 md:px-8 bg-[#F9FBFF]">
+    <div className="flex flex-col w-full h-full p-4 md:p-8">
       {/* 상단 네비게이션 */}
       <div className="flex flex-row items-center px-4 py-2 mb-4 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         <Home className="w-4 h-4 mr-1" />
-        <span className="cursor-pointer hover:text-customG">대시보드</span>
+        <span>대시보드</span>
         <ChevronRight className="w-4 h-4 mx-2" />
         <span className="font-medium text-customG">공급망 실사</span>
       </div>
 
       {/* 제목 및 설명 */}
       <div className="flex items-center w-full gap-3 px-4 mb-6">
-        <div className="p-2 rounded-full bg-gradient-to-r from-customG/20 to-blue-100">
+        <div className="p-2 rounded-full bg-gradient-to-r from-green-100 to-green-50">
           <BookOpen className="w-6 h-6 text-customG" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">공급망 실사</h1>
+          <h1 className="text-2xl text-gray-800 font-gmBold">공급망 실사</h1>
           <p className="mt-1 text-gray-500">
-            EU 공급망 실사 지침에 따른 인권 및 환경 실사 자가진단
+            공급망 실사 지침에 따른 인권 및 환경 실사 자가진단
           </p>
         </div>
       </div>
@@ -116,19 +116,34 @@ export default function CSDDD() {
                       {option.categories}
                     </div>
                   </CardContent>
+                  {/* CardFooter 수정 */}
                   <CardFooter className="pt-2 border-t">
-                    <Button
-                      variant={selectedOption === option.key ? 'default' : 'outline'}
-                      size="sm"
-                      className={
-                        selectedOption === option.key
-                          ? 'w-full bg-customG hover:bg-customG/90'
-                          : 'w-full'
-                      }
-                      onClick={() => router.push(option.path)}>
-                      {selectedOption === option.key ? '시작하기' : '자가진단 시작'}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                    <div className="flex w-full gap-2">
+                      <Button
+                        variant={selectedOption === option.key ? 'default' : 'outline'}
+                        size="sm"
+                        className={
+                          selectedOption === option.key
+                            ? 'flex-1 bg-customG hover:bg-customG/90'
+                            : 'flex-1'
+                        }
+                        onClick={() => router.push(`/CSDDD/${option.key}`)}>
+                        {' '}
+                        {/* 경로 소문자로 수정 */}
+                        <Check className="w-4 h-4 mr-1" />
+                        자가진단 시작
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-gray-600 hover:text-customG"
+                        onClick={() => router.push(`/CSDDD/${option.key}/result`)}>
+                        {' '}
+                        {/* 경로 소문자로 수정 */}
+                        결과 보기
+                        <Database className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               </motion.div>

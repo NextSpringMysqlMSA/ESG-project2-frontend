@@ -1,7 +1,7 @@
 'use client'
 
 import {ReactNode} from 'react'
-import {Loader2, AlertCircle, CheckCircle, Info} from 'lucide-react'
+import {AlertCircle, Info} from 'lucide-react'
 import {motion} from 'framer-motion'
 import {Card, CardContent} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
@@ -9,7 +9,7 @@ import {Button} from '@/components/ui/button'
 type LoadingStateProps = {
   isLoading: boolean
   error: string | null
-  isEmpty?: boolean
+  isEmpty?: boolean // 데이터가 없는 상태
   emptyMessage?: string
   emptyIcon?: ReactNode
   emptyAction?: {
@@ -19,13 +19,18 @@ type LoadingStateProps = {
   }
   retryAction?: () => void
   children: ReactNode
+  // 빈 상태일 때 폼을 표시할지 여부
+  showFormWhenEmpty?: boolean
+  // 빈 상태일 때 표시할 폼 컴포넌트
+  emptyStateForm?: ReactNode
 }
 
 /**
  * LoadingState 컴포넌트
  *
- * 데이터 로딩, 오류, 빈 상태를 처리하는 컨테이너 컴포넌트입니다.
+ * 데이터 로딩, 오류 상태를 처리하는 컨테이너 컴포넌트입니다.
  * 각 상태에 맞는 UI를 자동으로 표시합니다.
+ * 수정: 데이터가 없을 때는 기본적으로 자식 컴포넌트(폼)를 그대로 표시합니다.
  */
 export function LoadingState({
   isLoading,
@@ -35,7 +40,9 @@ export function LoadingState({
   emptyIcon = <Info className="w-16 h-16" />,
   emptyAction,
   retryAction,
-  children
+  children,
+  showFormWhenEmpty = true, // 기본값을 true로 설정
+  emptyStateForm
 }: LoadingStateProps) {
   // 로딩 중 UI
   if (isLoading) {
@@ -69,8 +76,9 @@ export function LoadingState({
     )
   }
 
-  // 빈 상태 UI
-  if (isEmpty) {
+  // 빈 상태일 때 폼을 표시할지 여부에 따라 처리
+  if (isEmpty && !showFormWhenEmpty) {
+    // 빈 상태 UI (기존 코드 - 이제는 선택적으로만 사용)
     return (
       <Card className="border-blue-100 shadow-sm">
         <CardContent className="flex flex-col items-center justify-center py-12">
@@ -99,6 +107,12 @@ export function LoadingState({
         </CardContent>
       </Card>
     )
+  }
+
+  // 빈 상태이지만 폼을 표시해야 하는 경우
+  if (isEmpty && showFormWhenEmpty) {
+    // 제공된 emptyStateForm이 있으면 표시, 없으면 일반 children 표시
+    return <>{emptyStateForm || children}</>
   }
 
   // 데이터가 있는 정상 상태

@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect, useCallback} from 'react'
-import TextModal from './TextModal'
+import TextModal from './textModal'
 import {cn} from '@/lib/utils'
 import {Edit2, CheckCircle2, Save, RefreshCw, Trash2, AlertCircle} from 'lucide-react'
 import {useToast} from '@/util/toast'

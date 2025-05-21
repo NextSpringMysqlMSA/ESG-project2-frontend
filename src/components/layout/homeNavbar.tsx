@@ -14,17 +14,8 @@ import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hov
 import {useProfileStore} from '@/stores/profileStore'
 import {useAuthStore} from '@/stores/authStore'
 import {useRouter} from 'next/navigation'
-import {
-  Bell,
-  ChevronDown,
-  Settings,
-  LogOut,
-  User,
-  MessageSquare,
-  Leaf
-} from 'lucide-react'
+import {ChevronDown, LogOut, User, Leaf} from 'lucide-react'
 import {motion} from 'framer-motion'
-import {Badge} from '@/components/ui/badge'
 
 /**
  * 상단 네비게이션 바 컴포넌트
@@ -70,7 +61,7 @@ export default function HomeNavbar() {
               animate={{opacity: 1}}
               transition={{delay: 0.2}}
               className="hidden md:flex md:flex-col">
-              <span className="text-xl font-bold tracking-tight text-customGTextLight">
+              <span className="text-xl tracking-tight font-gmBold text-customGTextLight">
                 NSMM
               </span>
               <span className="-mt-1 text-xs font-medium text-customG">Dashboard</span>
@@ -90,7 +81,7 @@ export default function HomeNavbar() {
                 <Avatar className="border-2 w-9 h-9 border-customGBorder">
                   {profile?.profileImageUrl ? (
                     <AvatarImage
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
+                      src={profile.profileImageUrl}
                       alt={fullName}
                       className="object-cover"
                     />
@@ -107,7 +98,7 @@ export default function HomeNavbar() {
                 <Avatar className="w-16 h-16 border-2 border-customGBorder">
                   {profile?.profileImageUrl ? (
                     <AvatarImage
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${profile.profileImageUrl}`}
+                      src={profile.profileImageUrl}
                       alt={fullName}
                       className="object-cover"
                     />

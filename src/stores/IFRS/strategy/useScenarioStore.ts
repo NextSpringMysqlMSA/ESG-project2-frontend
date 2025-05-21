@@ -18,18 +18,6 @@ export interface ScenarioFields {
 
 export type ScenarioItem = ScenarioFields
 
-interface ScenarioStore extends ScenarioFields {
-  data: ScenarioItem[]
-  setField: (key: keyof ScenarioFields, value: string | number) => void
-  resetFields: () => void
-  initFromStorage: () => void
-  persistToStorage: () => void
-  initFromApi: (id: number) => Promise<void>
-  addItem: (item: ScenarioItem) => void
-  clearList: () => void
-  setData: (items: ScenarioItem[]) => void
-}
-
 const DEFAULT_FIELDS: ScenarioFields = {
   id: -1,
   regions: '',
@@ -42,6 +30,18 @@ const DEFAULT_FIELDS: ScenarioFields = {
   climate: '',
   assetType: '',
   estimatedDamage: 0
+}
+
+interface ScenarioStore extends ScenarioFields {
+  data: ScenarioItem[]
+  setField: (key: keyof ScenarioFields, value: string | number) => void
+  resetFields: () => void
+  initFromStorage: () => void
+  persistToStorage: () => void
+  initFromApi: (id: number) => Promise<void>
+  addItem: (item: ScenarioItem) => void
+  clearList: () => void
+  setData: (items: ScenarioItem[]) => void
 }
 
 export const useScenarioStore = create<ScenarioStore>((set, get) => ({
