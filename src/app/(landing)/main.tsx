@@ -74,7 +74,7 @@ export default function Main() {
               <h3>- 협력사별 추이 비교 및 이슈 이력 관리 기능</h3>
             </div>
             <Image
-              src="/images/dashboard.gif"
+              src="/images/partner.gif"
               alt="대시보드"
               width={500}
               height={300}
