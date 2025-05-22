@@ -362,6 +362,13 @@ export default function ManagePartnerPage() {
 
   return (
     <div className="flex flex-col w-full h-full p-4 md:p-8">
+      <div className="flex flex-row items-center p-2 px-2 mb-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
+        <Home className="w-4 h-4 mr-1" />
+        <span>협력사 관리</span>
+        <ChevronRight className="w-4 h-4 mx-2" />
+        <span className="text-customG">파트너사 관리</span>
+      </div>
+
       <PageHeader
         icon={<Building2 className="h-8 w-8" />}
         title="파트너사 관리"
@@ -584,7 +591,6 @@ export default function ManagePartnerPage() {
                   <TableHead className="w-[15%]">DART 코드</TableHead>
                   <TableHead className="w-[15%]">상장 정보</TableHead>
                   <TableHead className="w-[15%]">계약 시작일</TableHead>
-                  <TableHead className="w-[15%]">상태</TableHead>
                   <TableHead className="text-right w-[15%]">관리</TableHead>
                 </TableRow>
               </TableHeader>
@@ -603,18 +609,6 @@ export default function ManagePartnerPage() {
                       )}
                     </TableCell>
                     <TableCell className="py-3">{partner.contract_start_date ? new Date(partner.contract_start_date).toLocaleDateString() : '-'}</TableCell>
-                    <TableCell className="py-3">
-                      <Badge
-                        variant={partner.status === 'ACTIVE' ? 'default' : (partner.status === 'INACTIVE' ? 'destructive' : 'outline')}
-                        className={
-                          partner.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border-green-300' 
-                          : partner.status === 'INACTIVE' ? 'bg-red-100 text-red-700 border-red-300' 
-                          : 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                        }
-                      >
-                        {partner.status === 'ACTIVE' ? '활성' : (partner.status === 'INACTIVE' ? '비활성' : (partner.status || '정보없음'))}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-right py-2.5">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
