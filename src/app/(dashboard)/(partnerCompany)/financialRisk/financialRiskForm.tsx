@@ -1,9 +1,28 @@
 'use client'
 
-import {useState} from 'react'
-import {Check, ChevronRight, FileEdit, FileText, Home} from 'lucide-react'
-import {cn} from '@/lib/utils'
+import {useState, useEffect} from 'react'
+import {
+  ChevronRight,
+  Home,
+  Building2,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  ChevronsDown,
+  ChevronsUp,
+  FileSearch,
+  Check,
+  ChevronsUpDown
+} from 'lucide-react'
 import {Button} from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from '@/components/ui/card'
+import {PageHeader} from '@/components/layout/PageHeader'
 import {
   Command,
   CommandEmpty,
@@ -13,64 +32,76 @@ import {
   CommandList
 } from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {Card, CardContent} from '@/components/ui/card'
+import {cn} from '@/lib/utils'
+import {useToast} from '@/hooks/use-toast'
+import {LoadingState} from '@/components/ui/loading-state'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import {BreadcrumbLink} from '@/components/ui/breadcrumb'
-import {PageHeader} from '@/components/layout/PageHeader'
+  fetchUniquePartnerCompanyNames,
+  fetchFinancialRiskAssessment,
+  type FinancialRiskAssessment
+} from '@/services/partnerCompany'
 
-const partners = ['협력사 A', '협력사 B', '협력사 C', '협력사 D', '협력사 E']
+// API 응답 타입 정의
+interface RiskItem {
+  description: string
+  actualValue: string
+  threshold: string
+  notes: string | null
+  itemNumber: number
+  atRisk: boolean
+}
 
-const questions = [
-  '매출이 지난 해 같은 기간 대비 30% 이상 감소하였는가?',
-  '영업이익(흑자)이 지난 해 같은 기간 대비 30% 이상 감소하였는가?',
-  '매출채권회전율이 3회 이하이며 매출채권이 과대하게 쌓였는가?',
-  '매출액 대비 매출채권 비율이 50% 이상으로 과다한가?',
-  '매출액 대비 재고자산 비율이 30% 이상이며 미래재무구가 과다한가?',
-  '영업손실(적자)이 발생하였는가?',
-  '불충족자본비율산정 영업활동 후의 현금흐름에 적자가 발생하였는가?',
-  '차입금이 지난 해 같은 기간 대비 30% 이상 증가하였는가?',
-  '차입금의 Volume이 전체 자산의 50% 이상 차지할 정도로 과다한가?',
-  '전체 사업의 총 단기차입금의 규모가 90%이상으로 과다한가?',
-  '재무비율이 200% 이상으로 과다한가?',
-  '납입자본금의 잠식이 발생하였는가?'
+interface FinancialRiskData {
+  partnerCompanyId: string
+  partnerCompanyName: string
+  assessmentYear: string
+  reportCode: string
+  riskItems: RiskItem[]
+}
+
+// 협력사 데이터 구조 변경 (이름과 DART 코드 포함)
+// 실제 운영 환경에서는 이 목록을 API로부터 받아오거나, 다른 방식으로 관리해야 합니다.
+const partners = [
+  {name: '협력사 A', code: '00126380'},
+  {name: '협력사 B', code: '00123456'},
+  {name: '협력사 C', code: '00789012'},
+  {name: '협력사 D', code: '00345678'},
+  {name: '협력사 E', code: '00901234'}
 ]
 
-const partnerQuestionMap: {[key: string]: number[]} = {
-  '협력사 A': [],
-  '협력사 B': [1, 5, 10],
-  '협력사 C': [0, 2, 3, 4, 6, 8, 9, 11],
-  '협력사 D': [1],
-  '협력사 E': [2, 4, 5, 8]
+// 상태 레이블 유틸리티 함수
+function getStatusLabel(atRiskCount: number) {
+  if (atRiskCount === 0) {
+    return {
+      label: '안전',
+      color: 'text-emerald-600',
+      icon: <CheckCircle className="w-5 h-5 text-emerald-500" />
+    }
+  }
+  if (atRiskCount <= 2) {
+    return {
+      label: '주의',
+      color: 'text-amber-600',
+      icon: <Info className="w-5 h-5 text-amber-500" />
+    }
+  }
+  return {
+    label: '위험',
+    color: 'text-red-600',
+    icon: <AlertTriangle className="w-5 h-5 text-red-500" />
+  }
 }
 
-function getStatusLabel(count: number) {
-  if (count === 0)
-    return {text: '✅ 기업 재무 상태 부실화 양호 ✅', color: 'text-green-600'}
-  if (count === 1)
-    return {text: '🔵 기업 재무 상태 부실화 관심 🔵', color: 'text-blue-600'}
-  if (count >= 2 && count <= 3)
-    return {text: '⚠️ 기업 재무 상태 부실화 주의 ⚠️', color: 'text-yellow-600'}
-  if (count >= 4 && count <= 5)
-    return {text: '‼️ 기업 재무 상태 부실화 경계 ‼️', color: 'text-orange-600'}
-  return {text: '🚨 기업 재무 상태 부실화 심각 🚨', color: 'text-red-600'}
+// PartnerCombobox의 props 타입 수정
+interface PartnerComboboxProps {
+  options: Array<{name: string; code: string}>
+  value: string | null // 선택된 협력사의 DART 코드
+  onChange: (code: string) => void
 }
 
-function PartnerCombobox({
-  options,
-  value,
-  onChange
-}: {
-  options: string[]
-  value: string | null
-  onChange: (value: string) => void
-}) {
+function PartnerCombobox({options, value, onChange}: PartnerComboboxProps) {
   const [open, setOpen] = useState(false)
+  const selectedOption = options.find(option => option.code === value)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -79,20 +110,24 @@ function PartnerCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between">
-          {value || '협력사 선택'}
+          className="w-full justify-between" // 너비를 full로 변경하거나 적절한 값으로 조절
+        >
+          {selectedOption ? selectedOption.name : '협력사 선택...'}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0 mt-2">
+      <PopoverContent
+        className="w-full p-0"
+        style={{minWidth: 'var(--radix-popover-trigger-width)'}}>
         <Command>
           <CommandInput placeholder="협력사 검색..." />
           <CommandList>
-            <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
+            <CommandEmpty>해당하는 협력사가 없습니다.</CommandEmpty>
             <CommandGroup>
-              {options.map(partner => (
+              {options.map(option => (
                 <CommandItem
-                  key={partner}
-                  value={partner}
+                  key={option.code}
+                  value={option.code}
                   onSelect={currentValue => {
                     onChange(currentValue === value ? '' : currentValue)
                     setOpen(false)
@@ -100,10 +135,10 @@ function PartnerCombobox({
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
-                      value === partner ? 'opacity-100' : 'opacity-0'
+                      value === option.code ? 'opacity-100' : 'opacity-0'
                     )}
                   />
-                  {partner}
+                  {option.name}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -115,7 +150,116 @@ function PartnerCombobox({
 }
 
 export default function FinancialRiskForm() {
-  const [selectedPartner, setSelectedPartner] = useState<string | null>(null)
+  const {toast} = useToast()
+
+  // 상태 관리
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [partnerOptions, setPartnerOptions] = useState<
+    Array<{name: string; code: string}>
+  >([])
+  const [selectedPartnerCode, setSelectedPartnerCode] = useState<string | null>(null)
+  const [selectedPartnerName, setSelectedPartnerName] = useState<string | null>(null)
+  const [riskData, setRiskData] = useState<FinancialRiskAssessment | null>(null)
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
+
+  // 확장/축소 토글 함수
+  const toggleExpand = (itemNumber: number) => {
+    setExpandedItems(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemNumber)) {
+        newSet.delete(itemNumber)
+      } else {
+        newSet.add(itemNumber)
+      }
+      return newSet
+    })
+  }
+
+  // 모든 항목 확장/축소 함수
+  const toggleAllExpanded = (expand: boolean) => {
+    if (riskData?.riskItems) {
+      if (expand) {
+        const allNumbers = new Set(riskData.riskItems.map(item => item.itemNumber))
+        setExpandedItems(allNumbers)
+      } else {
+        setExpandedItems(new Set())
+      }
+    }
+  }
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    loadPartnerOptions()
+  }, [])
+
+  // 파트너사 옵션 로드
+  const loadPartnerOptions = async () => {
+    try {
+      setIsLoading(true)
+
+      // 먼저 고유 파트너사명 목록을 가져옵니다.
+      const partnerNames = await fetchUniquePartnerCompanyNames()
+      console.log('Loaded partner names:', partnerNames)
+
+      // 목록은 문자열 배열이므로 옵션 형식으로 변환합니다.
+      // API가 아직 코드를 제공하지 않는 경우 임시 처리
+      const options = partnerNames.map(name => ({
+        name,
+        code: name // 임시로 이름을 코드로 사용
+      }))
+
+      setPartnerOptions(options)
+    } catch (err) {
+      console.error('Failed to load partner options:', err)
+      setError('파트너사 목록을 불러오는데 실패했습니다.')
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '파트너사 목록을 불러오는데 실패했습니다.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // 파트너사 선택 시 핸들러
+  const handlePartnerSelect = async (code: string) => {
+    setSelectedPartnerCode(code)
+
+    // 선택된 파트너사의 이름 찾기
+    const selectedOption = partnerOptions.find(opt => opt.code === code)
+    if (selectedOption) {
+      setSelectedPartnerName(selectedOption.name)
+    }
+
+    try {
+      setIsLoading(true)
+      setError(null)
+      setRiskData(null)
+
+      // 재무 위험 분석 데이터 가져오기
+      const data = await fetchFinancialRiskAssessment(code, selectedOption?.name)
+      setRiskData(data)
+
+      // 항목 확장 상태 초기화
+      setExpandedItems(new Set())
+    } catch (err) {
+      console.error('Failed to load financial risk data:', err)
+      setError('재무 위험 데이터를 불러오는데 실패했습니다.')
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '재무 위험 데이터를 불러오는데 실패했습니다.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // 위험 항목 수 계산
+  const atRiskCount = riskData?.riskItems?.filter(item => item.atRisk).length || 0
+  const statusInfo = getStatusLabel(atRiskCount)
 
   return (
     <div className="flex flex-col w-full h-full p-4 md:p-8">
@@ -127,94 +271,147 @@ export default function FinancialRiskForm() {
       </div>
 
       <PageHeader
-        icon={<FileText className="w-6 h-6" />}
-        title="재무제표 리스크 관리"
-        module="GRI"></PageHeader>
+        icon={<Building2 className="h-8 w-8" />}
+        title="파트너사 재무 위험 분석"
+        description="파트너사의 재무 건전성과 위험을 분석합니다."
+        module="CSDD"
+      />
 
-      {selectedPartner && (
-        <p
-          className={`text-base font-gmBold text-center ${
-            getStatusLabel(partnerQuestionMap[selectedPartner].length).color
-          }`}>
-          {selectedPartner}는 항목 총 {partnerQuestionMap[selectedPartner].length}개 :{' '}
-          <b>{getStatusLabel(partnerQuestionMap[selectedPartner].length).text}</b>
-        </p>
-      )}
-
-      <div className="flex w-[240px] mb-4">
-        <PartnerCombobox
-          options={partners}
-          value={selectedPartner}
-          onChange={setSelectedPartner}
-        />
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-3">
+          <PartnerCombobox
+            options={partnerOptions}
+            value={selectedPartnerCode}
+            onChange={handlePartnerSelect}
+          />
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => loadPartnerOptions()}
+          disabled={isLoading}>
+          파트너사 새로고침
+        </Button>
       </div>
 
-      {selectedPartner ? (
-        <Card className="bg-white border rounded-lg shadow-sm">
-          <CardContent className="p-6">
-            <table className="w-full text-sm border-collapse table-fixed">
-              <thead className="px-4 py-3 text-base bg-customGLight">
-                <tr className="text-left">
-                  <th className="p-3 text-sm text-black border">항목</th>
-                  <th className="w-24 p-3 text-sm text-center text-black border whitespace-nowrap">
-                    해당 여부
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {questions.map((q, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="p-3 text-left text-gray-800 align-top border">{`${
-                      i + 1
-                    }. ${q}`}</td>
-                    <td className="w-24 p-3 text-center align-middle border">
-                      {partnerQuestionMap[selectedPartner]?.includes(i) ? (
-                        <Check className="w-5 h-5 mx-auto text-black-600" />
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="flex items-center justify-center h-64 text-base text-gray-500 bg-white border rounded-lg shadow-sm">
-          <div className="flex flex-col items-center justify-center h-48 p-6 text-center rounded-lg">
-            <div className="flex items-center justify-center w-16 h-16 mb-4 bg-gray-100 rounded-full">
-              <FileEdit className="w-8 h-8 text-gray-300" />
-            </div>
-            <h3 className="mb-1 text-base font-medium text-gray-600">
-              데이터가 없습니다
-            </h3>
-            <p className="mb-4 text-sm text-gray-500">
-              선택된 협력사가 없습니다. 협력사를 선택해보세요.
-            </p>
-          </div>
-        </div>
-      )}
+      <LoadingState isLoading={isLoading} error={error} isEmpty={!riskData}>
+        {riskData && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">파트너사</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{riskData.partnerCompanyName}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    사업자번호: {riskData.partnerCompanyId}
+                  </p>
+                </CardContent>
+              </Card>
 
-      {selectedPartner && (
-        <div className="flex justify-end mt-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="w-40 bg-white border border-customG text-customG hover:bg-customG hover:text-white">
-                재무제표 상세 확인
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">기준 정보</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{riskData.assessmentYear}년</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    보고서 코드: {riskData.reportCode}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">재무 위험 상태</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <div className="text-2xl font-bold">{statusInfo.label}</div>
+                    {statusInfo.icon}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    위험 항목: {atRiskCount} / {riskData.riskItems.length} 항목
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleAllExpanded(true)}
+                className="text-xs">
+                <ChevronsDown className="mr-1 h-4 w-4" />
+                모두 펼치기
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-5xl h-[80vh] overflow-hidden">
-              <DialogHeader>
-                <DialogTitle>재무제표 상세</DialogTitle>
-              </DialogHeader>
-              <iframe
-                src="https://www.sfvc.co.kr/files/data/2022%EB%85%84%EC%9E%AC%EB%AC%B4%EC%83%81%ED%83%9C%ED%91%9C.pdf"
-                className="w-full h-[70vh] rounded-lg border"
-                allowFullScreen
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleAllExpanded(false)}
+                className="text-xs">
+                <ChevronsUp className="mr-1 h-4 w-4" />
+                모두 접기
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {riskData.riskItems.map(item => (
+                <Card
+                  key={item.itemNumber}
+                  className={item.atRisk ? 'border-red-200' : ''}>
+                  <CardHeader
+                    className="pb-2 cursor-pointer"
+                    onClick={() => toggleExpand(item.itemNumber)}>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base font-medium flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-sm">
+                          {item.itemNumber}
+                        </span>
+                        {item.description}
+                        {item.atRisk && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-100">
+                            위험
+                          </span>
+                        )}
+                      </CardTitle>
+                      {expandedItems.has(item.itemNumber) ? (
+                        <ChevronsUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronsDown className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <CardDescription>
+                      실제값:{' '}
+                      <span className={item.atRisk ? 'text-red-600 font-medium' : ''}>
+                        {item.actualValue}
+                      </span>{' '}
+                      / 기준값: {item.threshold}
+                    </CardDescription>
+                  </CardHeader>
+
+                  {expandedItems.has(item.itemNumber) && (
+                    <CardContent>
+                      <div className="bg-slate-50 p-3 rounded-md text-sm">
+                        <div className="flex items-start gap-2">
+                          <FileSearch className="h-5 w-5 text-slate-400 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-slate-700">상세 정보</p>
+                            <p className="text-slate-600 mt-1">
+                              {item.notes || '추가 정보가 없습니다.'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </LoadingState>
     </div>
   )
 }
