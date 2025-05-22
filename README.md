@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌱 NSMM - ESG 데이터 기반 협력사 리스크 대응 플랫폼
 
-## Getting Started
+ESG 데이터를 통합적으로 수집, 관리, 분석하여 기업의 지속가능 경영과 리스크 대응을 지원하는 웹 플랫폼입니다.  
+본 프로젝트는 **Next.js 기반 프론트엔드**로, TCFD, GRI, 공급망 실사 등 ESG 주요 영역을 시각화하고 기업 맞춤형 리포트를 제공합니다.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🧩 주요 기능 (프론트엔드 중심)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### ✅ 공통 기능
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 로그인 / 회원가입 (기업 사용자 전용)
+- 사용자 인증 기반 데이터 관리 (JWT + 상태관리)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📊 ESG 대시보드
 
-## Learn More
+- TCFD, GRI, 공급망 실사 현황 종합 시각화
+- 협력사별 비교 / 이슈 알림
+- Chart.js / Recharts 기반 ESG 지표 시각화
 
-To learn more about Next.js, take a look at the following resources:
+### 🧠 TCFD 관리
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **거버넌스**: 위원회, 회의, 경영진 KPI, 교육 데이터 관리
+- **전략**: SSP 시나리오 기반 기후 리스크 분석
+- **목표 및 지표**: 넷제로 로드맵 시뮬레이션 + KPI
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🌐 GRI 관리
 
-## Deploy on Vercel
+- GRI 2~400 시리즈 항목별 입력 및 검토 UI
+- 작성 현황 및 검토 상태 표시
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🔍 공급망 실사
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- EU 공급망 / 인권 / 환경 자가 실사
+- 실사 상태에 따른 법령 자동 매핑
+
+### 🤝 협력사 관리
+
+- ESG 데이터 실시간 취합 및 알림
+- 협력사별 이슈 이력 관리 및 추이 비교
+
+---
+
+## 🛠️ 기술 스택 (프론트엔드)
+
+| 구분      | 기술                                    |
+| --------- | --------------------------------------- |
+| Framework | **Next.js (App Router)**                |
+| Styling   | Tailwind CSS / Shadcn UI                |
+| Chart     | Chart.js, Recharts                      |
+| API 통신  | Axios                                   |
+| 상태관리  | Zustand                                 |
+| 인증      | JWT + 쿠키 저장, `X-MEMBER-ID` 헤더     |
+| CI/CD     | GitHub Actions + EKS 배포 (백엔드 연동) |
+
+---
+
+## 🗂️ 화면 구성
+
+- `/login` - 로그인
+- `/dashboard` - ESG 통합 대시보드
+- `/governance` - TCFD 거버넌스 입력
+- `/strategy` - TCFD 전략 (시나리오, 리스크)
+- `/goal` - TCFD 목표 및 넷제로
+- `/gri` - GRI 기준 입력/검토
+- `/csddd` - 공급망 실사 입력
+- `/partners` - 협력사 현황 모니터링
+
+---
+
+## 🛠️ 협업 및 역할
+
+- **프론트엔드 전체 개발 및 구조 설계**
+- Zustand 기반 상태 분리 / 재사용 최적화
+- TCFD 전략 시나리오 / 넷제로 계산 로직 설계 및 반영
+- GRI 입력, 공급망 실사, 협력사 이슈 UI 개발
+- 백엔드 API 연동 및 토큰 인증 흐름 구현
+
+---
