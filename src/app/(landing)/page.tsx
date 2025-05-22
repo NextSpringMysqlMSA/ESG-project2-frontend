@@ -10,7 +10,7 @@ export default function Page() {
 
   return (
     <div className="w-full ">
-      {/* 헤더 ------------------------------------------------------------------------------------------------ */}
+      {/* 헤더 ----------------------------------------------------------------------------------------------------- */}
       <div className="min-h-[calc(100vh-64px)]">
         <Header
           onArrowClick={() => mainRef.current?.scrollIntoView({behavior: 'smooth'})}
