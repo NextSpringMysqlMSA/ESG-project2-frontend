@@ -12,7 +12,8 @@ import {
   ChevronsUp,
   FileSearch,
   Check,
-  ChevronsUpDown
+  ChevronsUpDown,
+  RefreshCcw
 } from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
@@ -110,10 +111,10 @@ function PartnerCombobox({options, value, onChange}: PartnerComboboxProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between" // 너비를 full로 변경하거나 적절한 값으로 조절
+          className="justify-between w-full" // 너비를 full로 변경하거나 적절한 값으로 조절
         >
           {selectedOption ? selectedOption.name : '협력사 선택...'}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="w-4 h-4 ml-2 opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -287,9 +288,15 @@ export default function FinancialRiskForm() {
         </div>
         <Button
           variant="outline"
-          onClick={() => loadPartnerOptions()}
-          disabled={isLoading}>
-          파트너사 새로고침
+          size="sm"
+          onClick={() => {
+            setIsLoading(true)
+            loadPartnerOptions().finally(() => setIsLoading(false))
+          }}
+          disabled={isLoading}
+          className="flex items-center gap-1 mt-2 text-gray-500 hover:text-gray-700 md:mt-0">
+          <RefreshCcw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          데이터 새로고침
         </Button>
       </div>
 
@@ -303,7 +310,7 @@ export default function FinancialRiskForm() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{riskData.partnerCompanyName}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     사업자번호: {riskData.partnerCompanyId}
                   </p>
                 </CardContent>
@@ -315,7 +322,7 @@ export default function FinancialRiskForm() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{riskData.assessmentYear}년</div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     보고서 코드: {riskData.reportCode}
                   </p>
                 </CardContent>
@@ -330,7 +337,7 @@ export default function FinancialRiskForm() {
                     <div className="text-2xl font-bold">{statusInfo.label}</div>
                     {statusInfo.icon}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     위험 항목: {atRiskCount} / {riskData.riskItems.length} 항목
                   </p>
                 </CardContent>
@@ -343,7 +350,7 @@ export default function FinancialRiskForm() {
                 size="sm"
                 onClick={() => toggleAllExpanded(true)}
                 className="text-xs">
-                <ChevronsDown className="mr-1 h-4 w-4" />
+                <ChevronsDown className="w-4 h-4 mr-1" />
                 모두 펼치기
               </Button>
               <Button
@@ -351,7 +358,7 @@ export default function FinancialRiskForm() {
                 size="sm"
                 onClick={() => toggleAllExpanded(false)}
                 className="text-xs">
-                <ChevronsUp className="mr-1 h-4 w-4" />
+                <ChevronsUp className="w-4 h-4 mr-1" />
                 모두 접기
               </Button>
             </div>
@@ -364,9 +371,9 @@ export default function FinancialRiskForm() {
                   <CardHeader
                     className="pb-2 cursor-pointer"
                     onClick={() => toggleExpand(item.itemNumber)}>
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-base font-medium flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-sm">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2 text-base font-medium">
+                        <span className="inline-flex items-center justify-center w-6 h-6 text-sm rounded-full bg-slate-100">
                           {item.itemNumber}
                         </span>
                         {item.description}
@@ -377,9 +384,9 @@ export default function FinancialRiskForm() {
                         )}
                       </CardTitle>
                       {expandedItems.has(item.itemNumber) ? (
-                        <ChevronsUp className="h-5 w-5 text-muted-foreground" />
+                        <ChevronsUp className="w-5 h-5 text-muted-foreground" />
                       ) : (
-                        <ChevronsDown className="h-5 w-5 text-muted-foreground" />
+                        <ChevronsDown className="w-5 h-5 text-muted-foreground" />
                       )}
                     </div>
                     <CardDescription>
@@ -393,12 +400,12 @@ export default function FinancialRiskForm() {
 
                   {expandedItems.has(item.itemNumber) && (
                     <CardContent>
-                      <div className="bg-slate-50 p-3 rounded-md text-sm">
+                      <div className="p-3 text-sm rounded-md bg-slate-50">
                         <div className="flex items-start gap-2">
                           <FileSearch className="h-5 w-5 text-slate-400 mt-0.5" />
                           <div>
                             <p className="font-medium text-slate-700">상세 정보</p>
-                            <p className="text-slate-600 mt-1">
+                            <p className="mt-1 text-slate-600">
                               {item.notes || '추가 정보가 없습니다.'}
                             </p>
                           </div>
