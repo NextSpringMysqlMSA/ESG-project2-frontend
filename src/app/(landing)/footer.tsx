@@ -28,6 +28,7 @@ export default function Footer() {
             02-1234-1234
           </p>
           <p>대표자 : 지희연 | 청소년보호책임자 : 지희연</p>
+          <p>버전 : 2.0</p>
           <p className="mt-4">
             ⓒ 2025 NSMM. 무단 전재 및 재배포 금지. Contact: nsmm@project.com
           </p>
