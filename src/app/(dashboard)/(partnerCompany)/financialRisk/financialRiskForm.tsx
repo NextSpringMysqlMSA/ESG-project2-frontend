@@ -272,7 +272,7 @@ export default function FinancialRiskForm() {
       </div>
 
       <PageHeader
-        icon={<Building2 className="h-8 w-8" />}
+        icon={<Building2 className="w-8 h-8" />}
         title="협력사 재무 위험 분석"
         description="사의 재무 건전성과 위험을 분석합니다."
         module="CSDD"
@@ -302,8 +302,8 @@ export default function FinancialRiskForm() {
 
       <LoadingState isLoading={isLoading} error={error} isEmpty={!riskData}>
         {riskData && (
-          <div className="space-y-6 mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="mt-6 space-y-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">파트너사</CardTitle>
