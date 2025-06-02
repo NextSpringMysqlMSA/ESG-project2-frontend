@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-service
+  template:
+    metadata:
+      labels:
+        app: frontend-service
+    spec:
+      tolerations:
+      - key: "eks.amazonaws.com/compute-type"
+        operator: "Equal"
+        value: "fargate"
+        effect: "NoSchedule"
+      containers:
+      - name: frontend-service
+        image: kdonghwan/frontend-service:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        # 게이트웨이 API URL - 클러스터 내부용
+        - name: NEXT_PUBLIC_SPRING_API_URL
+          value: "http://gateway-service" # 빈 값으로 유지 - axios.ts의 로직으로 동적 URL 처리
+        # auth 경로 설정
+        - name: NEXT_PUBLIC_AUTH_PATH
+          value: "/auth"
+        # API 베이스 URL
+        - name: NEXT_PUBLIC_API_BASE_URL
+          value: "http://gateway-service"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

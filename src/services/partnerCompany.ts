@@ -1,116 +1,54 @@
-/**
- * 파트너사(협력사) 정보 타입
- */
-export interface PartnerCompany {
-	id?: string; // 파트너사 고유 ID
-	status?: "ACTIVE" | "INACTIVE" | "PENDING"; // 파트너사 상태
-	industry?: string; // 산업군
-	country?: string; // 국가
-	address?: string; // 주소
-	corp_code: string; // DART corp_code
-	corp_name: string; // 회사명 (API 응답 필드)
-	stock_code?: string; // 주식 코드
-	contract_start_date?: string; // 계약 시작일 (API 응답 필드 - YYYY-MM-DD 문자열)
-	modify_date?: string; // 수정일
-	// 프론트엔드에서 사용할 필드 (API 응답을 변환하여 채움)
-	companyName: string;
-	contractStartDate: Date;
-}
+import axios from 'axios'
+import api from '@/lib/axios'
+import {useAuthStore} from '@/stores/authStore'
+import {
+  DartApiResponse,
+  PartnerCompany,
+  PartnerCompanyResponse,
+  SearchCorpParams
+} from '@/types/IFRS/partnerCompany'
 
 /**
- * 파트너사 목록 API 응답 타입 (페이지네이션 포함)
- */
-export interface PartnerCompanyResponse {
-	data: PartnerCompany[];
-	total: number;
-	page: number;
-	pageSize: number;
-}
-
-/**
- * DART API 기업 정보 타입
- */
-export interface DartCorpInfo {
-	corp_code: string; // 기업 고유 코드
-	corp_name: string; // 기업명
-	stock_code?: string; // 주식 코드 (상장사만 존재)
-	modify_date: string; // 최종 수정일
-}
-
-/**
- * DART API 페이지네이션 응답 타입
- */
-export interface DartApiResponse {
-	data: DartCorpInfo[]; // 기업 정보 목록
-	total: number; // 전체 항목 수
-	page: number; // 현재 페이지 번호
-	pageSize: number; // 페이지 당 항목 수
-	totalPages: number; // 전체 페이지 수
-	hasNextPage: boolean; // 다음 페이지 존재 여부
-}
-
-/**
- * 기업 검색 파라미터 타입
- */
-export interface SearchCorpParams {
-	page?: number;
-	pageSize?: number;
-	listedOnly?: boolean;
-	corpNameFilter?: string;
-}
-
-const API_BASE_URL = process.env.NEXT_DART_API_URL || "/api"; // 환경 변수 또는 기본값 사용
-
-import { useAuthStore } from '@/stores/authStore';
-
-// 파트너사 API 엔드포인트
-const PARTNER_COMPANIES_BASE_PATH = '/api/v1/partners/partner-companies';
-const UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT = `${API_BASE_URL}/api/v1/partners/unique-partner-companies`;
-const DART_CORP_CODES_ENDPOINT = `${API_BASE_URL}/api/v1/dart/corp-codes`;
-
-/**
- * 파트너사 목록을 조회합니다. (페이지네이션 지원)
+ * 파트너사 목록을 조회합니다.... (페이지네이션 지원)
  * @param page 페이지 번호 (기본값: 1)
  * @param pageSize 페이지당 항목 수 (기본값: 10)
  * @param companyNameFilter 회사명 필터 (선택사항)
  * @returns 파트너사 목록 응답
  */
 export async function fetchPartnerCompanies(
-	page = 1,
-	pageSize = 10,
-	companyNameFilter?: string,
+  page = 1,
+  pageSize = 10,
+  companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
-	try {
-		const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`);
-		url.searchParams.append('page', page.toString());
-		url.searchParams.append('pageSize', pageSize.toString());
+  try {
+    const params: Record<string, string | number> = {
+      page,
+      pageSize
+    }
 
-		if (companyNameFilter) {
-			url.searchParams.append('companyName', companyNameFilter);
-		}
+    if (companyNameFilter) {
+      params.companyName = companyNameFilter
+    }
 
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-		}
+    console.log('파트너사 목록 요청 URL:', '/api/v1/partners/partner-companies')
+    console.log('파트너사 목록 요청 파라미터:', params)
 
-		const response = await fetch(url.toString(), {
-			method: 'GET',
-			headers
-		});
+    // X-Member-Id 헤더 추가 (필수 헤더)
+    const token = useAuthStore.getState().accessToken
+    const headers = token ? {'X-Member-Id': token} : {}
 
-		if (!response.ok) {
-			throw new Error(`파트너사 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`);
-		}
+    console.log('요청 헤더:', headers)
 
-		return await response.json();
-	} catch (error) {
-		console.error('파트너사 목록을 가져오는 중 오류:', error);
-		throw error;
-	}
+    const response = await api.get('/api/v1/partners/partner-companies', {
+      params,
+      headers
+    })
+    console.log('파트너사 목록 응답:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('파트너사 목록을 가져오는 중 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -119,36 +57,18 @@ export async function fetchPartnerCompanies(
  * @returns 파트너사 정보
  */
 export async function fetchPartnerCompanyById(
-	id: string,
+  id: string
 ): Promise<PartnerCompany | null> {
-	try {
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
-
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-		}
-
-		const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
-			method: 'GET',
-			headers,
-		});
-
-		if (response.status === 404) {
-			return null;
-		}
-
-		if (!response.ok) {
-			throw new Error(`파트너사 정보를 가져오는데 실패했습니다: ${response.status}`);
-		}
-
-		return await response.json();
-	} catch (error) {
-		console.error('파트너사 정보 조회 오류:', error);
-		throw error;
-	}
+  try {
+    const response = await api.get(`/api/v1/partners/partner-companies/${id}`)
+    return response.data
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null
+    }
+    console.error('파트너사 정보 조회 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -156,38 +76,24 @@ export async function fetchPartnerCompanyById(
  * @param partnerInput 등록할 파트너사 정보
  * @returns 등록된 파트너사 정보
  */
-export async function createPartnerCompany(
-	partnerInput: { companyName: string; corpCode: string; contractStartDate: string },
-): Promise<PartnerCompany> {
-	try {
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
+export async function createPartnerCompany(partnerInput: {
+  companyName: string
+  corpCode: string
+  contractStartDate: string
+}): Promise<PartnerCompany> {
+  try {
+    // X-Member-Id 헤더 추가
+    const token = useAuthStore.getState().accessToken
+    const headers = token ? {'X-Member-Id': token} : {}
 
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-			headers['X-Member-Id'] = token; // 또는 토큰에서 추출한 사용자 ID
-		}
-
-		const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`, {
-			method: 'POST',
-			headers,
-			body: JSON.stringify(partnerInput),
-		});
-
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => null);
-			throw new Error(
-				`파트너사 등록에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-			);
-		}
-
-		return await response.json();
-	} catch (error) {
-		console.error('파트너사 등록 오류:', error);
-		throw error;
-	}
+    const response = await api.post('/api/v1/partners/partner-companies', partnerInput, {
+      headers
+    })
+    return response.data
+  } catch (error) {
+    console.error('파트너사 등록 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -197,51 +103,33 @@ export async function createPartnerCompany(
  * @returns 수정된 파트너사 정보
  */
 export async function updatePartnerCompany(
-	id: string,
-	partnerData: Partial<Omit<PartnerCompany, "id">>,
+  id: string,
+  partnerData: Partial<Omit<PartnerCompany, 'id'>>
 ): Promise<PartnerCompany | null> {
-	try {
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
+  try {
+    // API 문서에 맞게 요청 데이터 변환
+    const requestData = {
+      companyName: partnerData.companyName,
+      corpCode: partnerData.corp_code,
+      contractStartDate:
+        partnerData.contractStartDate instanceof Date
+          ? partnerData.contractStartDate.toISOString().split('T')[0]
+          : partnerData.contractStartDate,
+      status: partnerData.status
+    }
 
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-		}
-
-		// API 문서에 맞게 요청 데이터 변환
-		const requestData = {
-			companyName: partnerData.companyName,
-			corpCode: partnerData.corp_code,
-			contractStartDate: partnerData.contractStartDate instanceof Date
-				? partnerData.contractStartDate.toISOString().split('T')[0]
-				: partnerData.contractStartDate,
-			status: partnerData.status
-		};
-
-		const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
-			method: 'PATCH',
-			headers,
-			body: JSON.stringify(requestData),
-		});
-
-		if (response.status === 404) {
-			return null;
-		}
-
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => null);
-			throw new Error(
-				`파트너사 정보 수정에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-			);
-		}
-
-		return await response.json();
-	} catch (error) {
-		console.error('파트너사 수정 오류:', error);
-		throw error;
-	}
+    const response = await api.patch(
+      `/api/v1/partners/partner-companies/${id}`,
+      requestData
+    )
+    return response.data
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null
+    }
+    console.error('파트너사 수정 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -249,31 +137,12 @@ export async function updatePartnerCompany(
  * @param id 파트너사 ID (UUID)
  */
 export async function deletePartnerCompany(id: string): Promise<void> {
-	try {
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
-
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-		}
-
-		const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
-			method: 'DELETE',
-			headers,
-		});
-
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => null);
-			throw new Error(
-				`파트너사 삭제에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-			);
-		}
-	} catch (error) {
-		console.error('파트너사 삭제 오류:', error);
-		throw error;
-	}
+  try {
+    await api.delete(`/api/v1/partners/partner-companies/${id}`)
+  } catch (error) {
+    console.error('파트너사 삭제 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -282,69 +151,81 @@ export async function deletePartnerCompany(id: string): Promise<void> {
  * @returns DART API 응답
  */
 export async function searchCompaniesFromDart(
-	params: SearchCorpParams,
+  params: SearchCorpParams
 ): Promise<DartApiResponse> {
-	try {
-		const url = new URL(DART_CORP_CODES_ENDPOINT);
+  try {
+    console.log('DART 검색 요청 파라미터:', params) // 검색 파라미터 로깅
 
-		if (params.page !== undefined) {
-			url.searchParams.append('page', params.page.toString());
-		}
+    const queryParams: Record<string, string | number | boolean | undefined> = {
+      page: params.page,
+      pageSize: params.pageSize,
+      listedOnly: params.listedOnly,
+      corpNameFilter: params.corpNameFilter
+    }
 
-		if (params.pageSize !== undefined) {
-			url.searchParams.append('pageSize', params.pageSize.toString());
-		}
+    console.log('DART 요청 쿼리 파라미터:', queryParams) // 쿼리 파라미터 로깅
 
-		if (params.listedOnly !== undefined) {
-			url.searchParams.append('listedOnly', params.listedOnly.toString());
-		}
+    // DART API 키 헤더 추가 (필요한 경우)
+    const headers: Record<string, string> = {}
+    const apiKey = process.env.NEXT_PUBLIC_DART_API_KEY
+    if (apiKey) {
+      headers['X-API-KEY'] = apiKey
+    }
 
-		if (params.corpNameFilter) {
-			url.searchParams.append('corpNameFilter', params.corpNameFilter);
-		}
+    // 백엔드 컨트롤러는 /dart/corp-codes 경로에 매핑되어 있음
+    const apiUrl = '/api/v1/dart/corp-codes'
+    console.log('DART API 요청 URL:', apiUrl) // API URL 로깅
+    console.log('DART API 요청 baseURL:', api.defaults.baseURL) // baseURL 로깅
+    console.log('DART API 요청 헤더:', headers)
 
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
+    const response = await api.get(apiUrl, {
+      params: queryParams,
+      headers
+    })
 
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-			// API 키 헤더 추가
-			headers['X-API-KEY'] = process.env.NEXT_PUBLIC_DART_API_KEY || '';
-		}
+    console.log('DART API 응답 데이터:', response.data) // 응답 데이터 로깅
 
-		const response = await fetch(url.toString(), {
-			method: 'GET',
-			headers,
-		});
+    // 응답 데이터 구조 상세 분석
+    if (response.data) {
+      console.log('DART API 응답 필드 목록:', Object.keys(response.data))
+      if (
+        response.data.data &&
+        Array.isArray(response.data.data) &&
+        response.data.data.length > 0
+      ) {
+        console.log(
+          'DART API 응답 데이터 배열 첫번째 항목 필드:',
+          Object.keys(response.data.data[0])
+        )
+      }
+    }
 
-		if (!response.ok) {
-			throw new Error(`DART 기업 검색에 실패했습니다: ${response.status}`);
-		}
-
-		return await response.json();
-	} catch (error) {
-		console.error('DART 기업 검색 오류:', error);
-		throw error;
-	}
+    return response.data
+  } catch (error) {
+    console.error('DART 기업 검색 오류:', error)
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('DART API 응답 상태:', error.response.status)
+      console.error('DART API 응답 데이터:', error.response.data)
+    }
+    throw error
+  }
 }
 
 export interface FinancialRiskItem {
-	description: string;
-	actualValue: string;
-	threshold: string;
-	notes: string | null;
-	itemNumber: number;
-	atRisk: boolean;
+  description: string
+  actualValue: string
+  threshold: string
+  notes: string | null
+  itemNumber: number
+  atRisk: boolean
 }
 
 export interface FinancialRiskAssessment {
-	partnerCompanyId: string;
-	partnerCompanyName: string;
-	assessmentYear: string;
-	reportCode: string;
-	riskItems: FinancialRiskItem[];
+  partnerCompanyId: string
+  partnerCompanyName: string
+  assessmentYear: string
+  reportCode: string
+  riskItems: FinancialRiskItem[]
 }
 
 /**
@@ -354,39 +235,24 @@ export interface FinancialRiskAssessment {
  * @returns 재무 위험 분석 결과
  */
 export async function fetchFinancialRiskAssessment(
-	corpCode: string,
-	partnerName?: string
+  corpCode: string,
+  partnerName?: string
 ): Promise<FinancialRiskAssessment> {
-	try {
-		const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`);
+  try {
+    const params: Record<string, string> = {}
+    if (partnerName) {
+      params.partnerName = partnerName
+    }
 
-		if (partnerName) {
-			url.searchParams.append('partnerName', partnerName);
-		}
-
-		// 인증 토큰 및 기타 필요한 헤더 설정 (필요시)
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
-		if (token) {
-			// headers['Authorization'] = `Bearer ${token}`; // 이 API는 인증이 필요 없는 것으로 보임
-		}
-
-		const response = await fetch(url.toString(), {
-			method: 'GET',
-			headers: headers,
-		});
-
-		if (!response.ok) {
-			throw new Error(`재무 위험 정보를 가져오는데 실패했습니다: ${response.status}`);
-		}
-
-		return await response.json();
-	} catch (error) {
-		console.error('재무 위험 정보 조회 오류:', error);
-		throw error;
-	}
+    const response = await api.get(
+      `/api/v1/partners/partner-companies/${corpCode}/financial-risk`,
+      {params}
+    )
+    return response.data
+  } catch (error) {
+    console.error('재무 위험 정보 조회 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -394,32 +260,13 @@ export async function fetchFinancialRiskAssessment(
  * @returns 파트너사 이름 목록
  */
 export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
-	try {
-		const url = new URL(UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT);
-
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-		}
-
-		const response = await fetch(url.toString(), {
-			method: 'GET',
-			headers
-		});
-
-		if (!response.ok) {
-			throw new Error(`파트너사 이름 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`);
-		}
-
-		const data = await response.json();
-		return data.companyNames || [];
-	} catch (error) {
-		console.error('파트너사 이름 목록을 가져오는 중 오류:', error);
-		throw error;
-	}
+  try {
+    const response = await api.get('/api/v1/partners/unique-partner-companies')
+    return response.data.companyNames || []
+  } catch (error) {
+    console.error('파트너사 이름 목록을 가져오는 중 오류:', error)
+    throw error
+  }
 }
 
 /**
@@ -427,31 +274,14 @@ export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
  * @param partnerId 파트너사 ID
  * @returns 파트너사 상세 정보
  */
-export async function fetchPartnerCompanyDetail(partnerId: string): Promise<PartnerCompany> {
-	try {
-		const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`);
-
-		const token = useAuthStore.getState().accessToken;
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-		};
-		if (token) {
-			headers.Authorization = `Bearer ${token}`;
-		}
-
-		const response = await fetch(url.toString(), {
-			method: 'GET',
-			headers
-		});
-
-		if (!response.ok) {
-			throw new Error(`파트너사 상세 정보를 가져오는 중 오류가 발생했습니다: ${response.status}`);
-		}
-
-		const data = await response.json();
-		return data;
-	} catch (error) {
-		console.error('파트너사 상세 정보를 가져오는 중 오류:', error);
-		throw error;
-	}
+export async function fetchPartnerCompanyDetail(
+  partnerId: string
+): Promise<PartnerCompany> {
+  try {
+    const response = await api.get(`/api/v1/partners/partner-companies/${partnerId}`)
+    return response.data
+  } catch (error) {
+    console.error('파트너사 상세 정보를 가져오는 중 오류:', error)
+    throw error
+  }
 }
