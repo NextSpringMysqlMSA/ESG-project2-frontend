@@ -44,23 +44,54 @@ export async function fetchPartnerCompanies(
       url.searchParams.append('companyName', companyNameFilter)
     }
 
+    // 인증 토큰 가져오기 및 토큰 형식 검증
     const token = useAuthStore.getState().accessToken
+    // 저장된 토큰이 이미 'Bearer '로 시작하는지 확인
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
     }
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+
+    if (authToken) {
+      headers.Authorization = authToken
+      console.log('인증 토큰 확인:', authToken.substring(0, 15) + '...')
+    } else {
+      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
     }
+
+    console.log('API 요청 URL:', url.toString())
+    console.log('API 요청 헤더:', JSON.stringify(headers, null, 2))
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers
+      headers,
+      credentials: 'include' // 쿠키 포함 (필요한 경우)
     })
 
     if (!response.ok) {
-      throw new Error(
-        `파트너사 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`
-      )
+      const errorText = await response.text().catch(() => '응답 텍스트를 가져올 수 없음')
+      console.error('API 에러 응답:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
+
+      let errorMessage = `파트너사 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`
+
+      // 401 오류 발생 시 토큰 관련 문제일 가능성이 높음
+      if (response.status === 401) {
+        errorMessage +=
+          ' - 인증 오류가 발생했습니다. 로그인이 필요하거나 세션이 만료되었을 수 있습니다.'
+      } else if (errorText) {
+        errorMessage += ` - ${errorText}`
+      }
+
+      throw new Error(errorMessage)
     }
 
     return await response.json()
@@ -101,11 +132,17 @@ export async function fetchPartnerCompanyById(
 
     if (authToken) {
       headers.Authorization = authToken
+      console.log('파트너사 상세 조회 요청 인증:', authToken.substring(0, 15) + '...')
+    } else {
+      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
     }
+
+    console.log('파트너사 상세 조회 요청 URL:', apiUrl)
 
     const response = await fetch(apiUrl, {
       method: 'GET',
-      headers
+      headers,
+      credentials: 'include'
     })
 
     if (response.status === 404) {
@@ -139,14 +176,29 @@ export async function createPartnerCompany(partnerInput: {
       'Content-Type': 'application/json'
     }
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-      headers['X-Member-Id'] = token // 또는 토큰에서 추출한 사용자 ID
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
+    if (authToken) {
+      headers.Authorization = authToken
+      // 토큰에서 사용자 ID 추출 (필요한 경우)
+      // headers['X-Member-Id'] = extractMemberId(token)
+      console.log('파트너사 생성 요청 인증:', authToken.substring(0, 15) + '...')
+    } else {
+      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
     }
 
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`, {
+    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
+    console.log('파트너사 생성 요청 URL:', apiUrl)
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: JSON.stringify(partnerInput)
     })
 
@@ -180,8 +232,18 @@ export async function updatePartnerCompany(
       'Content-Type': 'application/json'
     }
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
+    if (authToken) {
+      headers.Authorization = authToken
+      console.log('파트너사 수정 요청 인증:', authToken.substring(0, 15) + '...')
+    } else {
+      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
     }
 
     // API 문서에 맞게 요청 데이터 변환
@@ -195,9 +257,13 @@ export async function updatePartnerCompany(
       status: partnerData.status
     }
 
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
+    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
+    console.log('파트너사 수정 요청 URL:', apiUrl)
+
+    const response = await fetch(apiUrl, {
       method: 'PATCH',
       headers,
+      credentials: 'include',
       body: JSON.stringify(requestData)
     })
 
@@ -232,13 +298,27 @@ export async function deletePartnerCompany(id: string): Promise<void> {
       'Content-Type': 'application/json'
     }
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
+    if (authToken) {
+      headers.Authorization = authToken
+      console.log('파트너사 삭제 요청 인증:', authToken.substring(0, 15) + '...')
+    } else {
+      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
     }
 
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
+    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
+    console.log('파트너사 삭제 요청 URL:', apiUrl)
+
+    const response = await fetch(apiUrl, {
       method: 'DELETE',
-      headers
+      headers,
+      credentials: 'include'
     })
 
     if (!response.ok) {
@@ -389,18 +469,31 @@ export async function fetchFinancialRiskAssessment(
       url.searchParams.append('partnerName', partnerName)
     }
 
-    // 인증 토큰 및 기타 필요한 헤더 설정 (필요시)
+    // 인증 토큰 및 기타 필요한 헤더 설정
     const token = useAuthStore.getState().accessToken
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
     }
-    if (token) {
-      // headers['Authorization'] = `Bearer ${token}`; // 이 API는 인증이 필요 없는 것으로 보임
+
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
+    // 서버 문서에 따라 이 API가 인증이 필요한지 여부 확인
+    if (authToken) {
+      headers.Authorization = authToken
+      console.log('재무 위험 정보 요청 인증:', authToken.substring(0, 15) + '...')
     }
+
+    console.log('재무 위험 정보 요청 URL:', url.toString())
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: headers
+      headers,
+      credentials: 'include'
     })
 
     if (!response.ok) {
@@ -426,13 +519,25 @@ export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
     }
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
+    if (authToken) {
+      headers.Authorization = authToken
+      console.log('파트너사 이름 목록 요청 인증:', authToken.substring(0, 15) + '...')
     }
+
+    console.log('파트너사 이름 목록 요청 URL:', url.toString())
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers
+      headers,
+      credentials: 'include'
     })
 
     if (!response.ok) {
@@ -464,13 +569,27 @@ export async function fetchPartnerCompanyDetail(
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
     }
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
+    if (authToken) {
+      headers.Authorization = authToken
+      console.log('파트너사 상세 정보 요청 인증:', authToken.substring(0, 15) + '...')
+    } else {
+      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
     }
+
+    console.log('파트너사 상세 정보 요청 URL:', url.toString())
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers
+      headers,
+      credentials: 'include'
     })
 
     if (!response.ok) {
