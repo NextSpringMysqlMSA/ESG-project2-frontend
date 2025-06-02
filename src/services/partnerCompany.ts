@@ -33,15 +33,10 @@ export async function fetchPartnerCompanies(
     console.log('파트너사 목록 요청 URL:', '/api/v1/partners/partner-companies')
     console.log('파트너사 목록 요청 파라미터:', params)
 
-    // X-Member-Id 헤더 추가 (필수 헤더)
-    const token = useAuthStore.getState().accessToken
-    const headers = token ? {'X-Member-Id': token} : {}
-
-    console.log('요청 헤더:', headers)
+    // 인증 헤더는 axios 인터셉터에서 처리하므로 별도 헤더 설정 불필요
 
     const response = await api.get('/api/v1/partners/partner-companies', {
-      params,
-      headers
+      params
     })
     console.log('파트너사 목록 응답:', response.data)
     return response.data
@@ -82,13 +77,8 @@ export async function createPartnerCompany(partnerInput: {
   contractStartDate: string
 }): Promise<PartnerCompany> {
   try {
-    // X-Member-Id 헤더 추가
-    const token = useAuthStore.getState().accessToken
-    const headers = token ? {'X-Member-Id': token} : {}
-
-    const response = await api.post('/api/v1/partners/partner-companies', partnerInput, {
-      headers
-    })
+    // 인증 헤더는 axios 인터셉터에서 처리하므로 별도 헤더 설정 불필요
+    const response = await api.post('/api/v1/partners/partner-companies', partnerInput)
     return response.data
   } catch (error) {
     console.error('파트너사 등록 오류:', error)
