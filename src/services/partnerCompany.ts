@@ -181,7 +181,7 @@ export async function createPartnerCompany(partnerInput: {
 
     if (token) {
       headers.Authorization = `Bearer ${token}`
-      headers['X-Member-ID'] = token // 또는 토큰에서 추출한 사용자 ID
+      headers['X-MEMBER-ID'] = token // 또는 토큰에서 추출한 사용자 ID
     }
 
     const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`, {
