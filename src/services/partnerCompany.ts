@@ -238,10 +238,17 @@ export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
   try {
-    // 현재 환경에 따른 적절한 기본 URL 생성
-    const baseUrl =
-      typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
-    const url = new URL(DART_CORP_CODES_ENDPOINT, baseUrl)
+    // API 엔드포인트 직접 구성
+    // 상대 경로로 지정된 경우 절대 경로로 변환
+    let apiUrl = DART_CORP_CODES_ENDPOINT
+    if (apiUrl.startsWith('/')) {
+      const baseUrl =
+        typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
+      apiUrl = new URL(apiUrl, baseUrl).toString()
+    }
+
+    console.log('DART API 엔드포인트:', apiUrl)
+    const url = new URL(apiUrl)
 
     if (params.page !== undefined) {
       url.searchParams.append('page', params.page.toString())
@@ -264,11 +271,19 @@ export async function searchCompaniesFromDart(
       'Content-Type': 'application/json'
     }
 
+    // DART API 키는 항상 헤더에 추가
+    const dartApiKey = process.env.NEXT_PUBLIC_DART_API_KEY || ''
+    if (dartApiKey) {
+      headers['X-API-KEY'] = dartApiKey
+    }
+
+    // 인증 토큰이 있으면 추가
     if (token) {
       headers.Authorization = `Bearer ${token}`
-      // API 키 헤더 추가
-      headers['X-API-KEY'] = process.env.NEXT_PUBLIC_DART_API_KEY || ''
     }
+
+    console.log('DART API 요청 URL:', url.toString())
+    console.log('DART API 요청 헤더:', JSON.stringify(headers, null, 2))
 
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -276,7 +291,13 @@ export async function searchCompaniesFromDart(
     })
 
     if (!response.ok) {
-      throw new Error(`DART 기업 검색에 실패했습니다: ${response.status}`)
+      const errorText = await response.text().catch(() => '응답 텍스트를 가져올 수 없음')
+      console.error('DART API 에러 응답:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
+      throw new Error(`DART 기업 검색에 실패했습니다: ${response.status} - ${errorText}`)
     }
 
     return await response.json()
