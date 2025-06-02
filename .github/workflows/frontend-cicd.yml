@@ -4,54 +4,58 @@ on:
   push:
     branches: [ main ]
     paths:
-      - '**'
-      - '.github/workflows/frontend-cicd.yml'
+    - '**'
+    - '.github/workflows/frontend-cicd.yml'
 
 jobs:
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image to DockerHub
-        run: |
-          docker buildx build \
-            --platform linux/amd64 \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest \
-            --push .
+    - name: Build and Push Docker Image to DockerHub
+      run: |
+        docker buildx build \
+          --platform linux/amd64 \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest \
+          --push .
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
 
-      - name: Update kubeconfig for EKS
-        run: |
-          aws eks update-kubeconfig \
-            --region ap-northeast-2 \
-            --name nsmm-eks
+    - name: Update kubeconfig for EKS
+      run: |
+        aws eks update-kubeconfig \
+          --region ap-northeast-2 \
+          --name nsmm-eks
 
-      - name: Replace Image Tag in deployment.yaml
-        run: |
-          sed -i "s|image: .*frontend-service.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest|g" deployment.yaml
+    - name: Replace Image Tag in deployment.yaml
+      run: |
+        sed -i "s|image: .*frontend-service.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest|g" deployment.yaml
 
-      - name: Deploy to EKS
-        run: |
-          kubectl apply -f deployment.yaml
+    - name: Deploy to EKS
+      run: |
+        kubectl apply -f deployment.yaml
 
-      - name: Verify Deployment
-        run: |
-          kubectl rollout status deployment/frontend-service
+    - name: Force Restart Deployment
+      run: |
+        kubectl rollout restart deployment/frontend-service
+
+    - name: Verify Deployment
+      run: |
+        kubectl rollout status deployment/frontend-service
