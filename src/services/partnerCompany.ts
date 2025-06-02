@@ -7,7 +7,10 @@ import {
 } from '@/types/IFRS/partnerCompany'
 
 // API 기본 URL
-const API_BASE_URL = process.env.NEXT_DART_API_URL || '/api' // 환경 변수 또는 기본값 사용
+const API_BASE_URL =
+  process.env.NEXT_DART_API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  'http://localhost:8080' // 환경 변수 또는 기본값 사용
 
 // 파트너사 API 엔드포인트 - API_BASE_URL에 이미 /api가 포함될 수 있으므로 중복 방지
 const API_V1_PREFIX = API_BASE_URL.endsWith('/api') ? '/v1' : '/api/v1'
@@ -28,13 +31,8 @@ export async function fetchPartnerCompanies(
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
   try {
-    // URL이 상대 경로인 경우 절대 경로로 변환
-    let apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
-    if (apiUrl.startsWith('/')) {
-      const baseUrl =
-        typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
-      apiUrl = new URL(apiUrl, baseUrl).toString()
-    }
+    // API URL 직접 구성
+    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
 
     const url = new URL(apiUrl)
     url.searchParams.append('page', page.toString())
@@ -110,13 +108,8 @@ export async function fetchPartnerCompanyById(
   id: string
 ): Promise<PartnerCompany | null> {
   try {
-    // URL이 상대 경로인 경우 절대 경로로 변환
-    let apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
-    if (apiUrl.startsWith('/')) {
-      const baseUrl =
-        typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
-      apiUrl = new URL(apiUrl, baseUrl).toString()
-    }
+    // API URL 직접 구성
+    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
 
     // 인증 토큰 가져오기 및 토큰 형식 검증
     const token = useAuthStore.getState().accessToken
@@ -342,17 +335,8 @@ export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
   try {
-    // 상대 경로를 절대 URL로 변환
-    let apiUrl = DART_CORP_CODES_ENDPOINT
-
-    // 이미 http로 시작하는 절대 URL인지 확인
-    if (!apiUrl.startsWith('http') && typeof window !== 'undefined') {
-      const baseUrl = window.location.origin
-      apiUrl = new URL(apiUrl.startsWith('/') ? apiUrl : `/${apiUrl}`, baseUrl).toString()
-    } else if (!apiUrl.startsWith('http')) {
-      // 서버 사이드에서 실행될 때는 기본 URL 사용
-      apiUrl = `http://localhost${apiUrl.startsWith('/') ? apiUrl : `/${apiUrl}`}`
-    }
+    // API URL 직접 구성
+    const apiUrl = DART_CORP_CODES_ENDPOINT
 
     console.log('DART API 엔드포인트:', apiUrl)
     const url = new URL(apiUrl)
@@ -370,7 +354,10 @@ export async function searchCompaniesFromDart(
     }
 
     if (params.corpNameFilter) {
+      // 한글 인코딩 문제 해결을 위해 명시적으로 인코딩
+      console.log('원본 검색어:', params.corpNameFilter)
       url.searchParams.append('corpNameFilter', params.corpNameFilter)
+      console.log('인코딩된 URL:', url.toString())
     }
 
     // 인증 토큰 가져오기 및 토큰 형식 검증
@@ -383,7 +370,8 @@ export async function searchCompaniesFromDart(
       : null
 
     const headers: HeadersInit = {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json; charset=utf-8',
+      Accept: 'application/json'
     }
 
     // DART API 키는 항상 헤더에 추가
@@ -399,6 +387,12 @@ export async function searchCompaniesFromDart(
 
     console.log('DART API 요청 URL:', url.toString())
     console.log('DART API 요청 헤더:', JSON.stringify(headers, null, 2))
+
+    // URL 인코딩 상태 확인
+    if (params.corpNameFilter) {
+      console.log('URL searchParams 확인:', url.searchParams.toString())
+      console.log('개별 파라미터 확인:', url.searchParams.get('corpNameFilter'))
+    }
 
     const response = await fetch(url.toString(), {
       method: 'GET',
