@@ -1,3 +1,6 @@
+import {useAuthStore} from '@/stores/authStore'
+import api from '@/lib/axios'
+
 /**
  * 파트너사(협력사) 정보 타입
  */
@@ -12,7 +15,7 @@ export interface PartnerCompany {
   stock_code?: string // 주식 코드
   contract_start_date?: string // 계약 시작일 (API 응답 필드 - YYYY-MM-DD 문자열)
   modify_date?: string // 수정일
-  // 프론트엔드에서 사용할 필드 (API 응답을 변환하여 채움)...............
+  // 프론트엔드에서 사용할 필드 (API 응답을 변환하여 채움)
   companyName: string
   contractStartDate: Date
 }
@@ -59,14 +62,10 @@ export interface SearchCorpParams {
   corpNameFilter?: string
 }
 
-const API_BASE_URL = process.env.NEXT_DART_API_URL || '/api' // 환경 변수 또는 기본값 사용
-
-import {useAuthStore} from '@/stores/authStore'
-
-// 파트너사 API 엔드포인트
-const PARTNER_COMPANIES_BASE_PATH = '/api/v1/partners/partner-companies'
-const UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT = `${API_BASE_URL}/api/v1/partners/unique-partner-companies`
-const DART_CORP_CODES_ENDPOINT = `${API_BASE_URL}/api/v1/dart/corp-codes`
+// API 엔드포인트 (상대 경로로 지정 - Axios 인스턴스의 baseURL에 맞춰짐)
+const PARTNER_COMPANIES_PATH = '/api/v1/partners/partner-companies'
+const UNIQUE_PARTNER_COMPANY_NAMES_PATH = '/api/v1/partners/unique-partner-companies'
+const DART_CORP_CODES_PATH = '/api/v1/dart/corp-codes'
 
 /**
  * 파트너사 목록을 조회합니다. (페이지네이션 지원)
@@ -81,44 +80,17 @@ export async function fetchPartnerCompanies(
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
   try {
-    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
-    const baseUrl =
-      typeof window !== 'undefined'
-        ? window.location.origin // 브라우저 환경에서는 현재 도메인 사용
-        : 'http://localhost:3000' // SSR 환경에서는 기본값으로 localhost 사용
-
-    const url = new URL(
-      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`.startsWith('http')
-        ? `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
-        : `${baseUrl}${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
-    )
-    url.searchParams.append('page', page.toString())
-    url.searchParams.append('pageSize', pageSize.toString())
+    const params: Record<string, any> = {
+      page,
+      pageSize
+    }
 
     if (companyNameFilter) {
-      url.searchParams.append('companyName', companyNameFilter)
+      params.companyName = companyNameFilter
     }
 
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `파트너사 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`
-      )
-    }
-
-    return await response.json()
+    const response = await api.get(PARTNER_COMPANIES_PATH, {params})
+    return response.data
   } catch (error) {
     console.error('파트너사 목록을 가져오는 중 오류:', error)
     throw error
@@ -134,30 +106,12 @@ export async function fetchPartnerCompanyById(
   id: string
 ): Promise<PartnerCompany | null> {
   try {
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
-      method: 'GET',
-      headers
-    })
-
-    if (response.status === 404) {
+    const response = await api.get(`${PARTNER_COMPANIES_PATH}/${id}`)
+    return response.data
+  } catch (error: any) {
+    if (error.response?.status === 404) {
       return null
     }
-
-    if (!response.ok) {
-      throw new Error(`파트너사 정보를 가져오는데 실패했습니다: ${response.status}`)
-    }
-
-    return await response.json()
-  } catch (error) {
     console.error('파트너사 정보 조회 오류:', error)
     throw error
   }
@@ -174,30 +128,16 @@ export async function createPartnerCompany(partnerInput: {
   contractStartDate: string
 }): Promise<PartnerCompany> {
   try {
+    // 회원 ID 헤더 추가 (필요시)
     const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    const headers: Record<string, string> = {}
 
     if (token) {
-      headers.Authorization = `Bearer ${token}`
-      headers['X-MEMBER-ID'] = token // 또는 토큰에서 추출한 사용자 ID
+      headers['X-MEMBER-ID'] = token
     }
 
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(partnerInput)
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null)
-      throw new Error(
-        `파트너사 등록에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-      )
-    }
-
-    return await response.json()
+    const response = await api.post(PARTNER_COMPANIES_PATH, partnerInput, {headers})
+    return response.data
   } catch (error) {
     console.error('파트너사 등록 오류:', error)
     throw error
@@ -212,22 +152,18 @@ export async function createPartnerCompany(partnerInput: {
  */
 export async function updatePartnerCompany(
   id: string,
-  partnerData: Partial<Omit<PartnerCompany, 'id'>>
+  partnerData: Partial<{
+    companyName: string
+    corpCode: string
+    contractStartDate: string | Date
+    status: 'ACTIVE' | 'INACTIVE' | 'PENDING'
+  }>
 ): Promise<PartnerCompany | null> {
   try {
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
     // API 문서에 맞게 요청 데이터 변환
     const requestData = {
       companyName: partnerData.companyName,
-      corpCode: partnerData.corp_code,
+      corpCode: partnerData.corpCode,
       contractStartDate:
         partnerData.contractStartDate instanceof Date
           ? partnerData.contractStartDate.toISOString().split('T')[0]
@@ -235,27 +171,12 @@ export async function updatePartnerCompany(
       status: partnerData.status
     }
 
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify(requestData)
-    })
-
-    if (response.status === 404) {
+    const response = await api.patch(`${PARTNER_COMPANIES_PATH}/${id}`, requestData)
+    return response.data
+  } catch (error: any) {
+    if (error.response?.status === 404) {
       return null
     }
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null)
-      throw new Error(
-        `파트너사 정보 수정에 실패했습니다: ${response.status} ${
-          errorData?.message || ''
-        }`
-      )
-    }
-
-    return await response.json()
-  } catch (error) {
     console.error('파트너사 수정 오류:', error)
     throw error
   }
@@ -267,26 +188,7 @@ export async function updatePartnerCompany(
  */
 export async function deletePartnerCompany(id: string): Promise<void> {
   try {
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
-      method: 'DELETE',
-      headers
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null)
-      throw new Error(
-        `파트너사 삭제에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-      )
-    }
+    await api.delete(`${PARTNER_COMPANIES_PATH}/${id}`)
   } catch (error) {
     console.error('파트너사 삭제 오류:', error)
     throw error
@@ -302,55 +204,19 @@ export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
   try {
-    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
-    const baseUrl =
-      typeof window !== 'undefined'
-        ? window.location.origin // 브라우저 환경에서는 현재 도메인 사용
-        : 'http://localhost:3000' // SSR 환경에서는 기본값으로 localhost 사용
-
-    const fullUrl = new URL(
-      DART_CORP_CODES_ENDPOINT.startsWith('http')
-        ? DART_CORP_CODES_ENDPOINT
-        : `${baseUrl}${DART_CORP_CODES_ENDPOINT}`
-    )
-
-    if (params.page !== undefined) {
-      fullUrl.searchParams.append('page', params.page.toString())
+    // DART API 키 헤더 추가 (필요한 경우)
+    const headers: Record<string, string> = {}
+    const dartApiKey = process.env.NEXT_PUBLIC_DART_API_KEY
+    if (dartApiKey) {
+      headers['X-API-KEY'] = dartApiKey
     }
 
-    if (params.pageSize !== undefined) {
-      fullUrl.searchParams.append('pageSize', params.pageSize.toString())
-    }
-
-    if (params.listedOnly !== undefined) {
-      fullUrl.searchParams.append('listedOnly', params.listedOnly.toString())
-    }
-
-    if (params.corpNameFilter) {
-      fullUrl.searchParams.append('corpNameFilter', params.corpNameFilter)
-    }
-
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-      // API 키 헤더 추가
-      headers['X-API-KEY'] = process.env.NEXT_PUBLIC_DART_API_KEY || ''
-    }
-
-    const response = await fetch(fullUrl.toString(), {
-      method: 'GET',
+    const response = await api.get(DART_CORP_CODES_PATH, {
+      params,
       headers
     })
 
-    if (!response.ok) {
-      throw new Error(`DART 기업 검색에 실패했습니다: ${response.status}`)
-    }
-
-    return await response.json()
+    return response.data
   } catch (error) {
     console.error('DART 기업 검색 오류:', error)
     throw error
@@ -385,41 +251,20 @@ export async function fetchFinancialRiskAssessment(
   partnerName?: string
 ): Promise<FinancialRiskAssessment> {
   try {
-    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
-    const baseUrl =
-      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-
-    const url = new URL(
-      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`.startsWith(
-        'http'
-      )
-        ? `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`
-        : `${baseUrl}${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`
-    )
+    const params: Record<string, string> = {}
 
     if (partnerName) {
-      url.searchParams.append('partnerName', partnerName)
+      params.partnerName = partnerName
     }
 
-    // 인증 토큰 및 기타 필요한 헤더 설정 (필요시)
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-    if (token) {
-      // headers['Authorization'] = `Bearer ${token}`; // 이 API는 인증이 필요 없는 것으로 보임
-    }
+    const response = await api.get(
+      `${PARTNER_COMPANIES_PATH}/${corpCode}/financial-risk`,
+      {
+        params
+      }
+    )
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: headers
-    })
-
-    if (!response.ok) {
-      throw new Error(`재무 위험 정보를 가져오는데 실패했습니다: ${response.status}`)
-    }
-
-    return await response.json()
+    return response.data
   } catch (error) {
     console.error('재무 위험 정보 조회 오류:', error)
     throw error
@@ -432,37 +277,8 @@ export async function fetchFinancialRiskAssessment(
  */
 export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
   try {
-    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
-    const baseUrl =
-      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-
-    const url = new URL(
-      UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT.startsWith('http')
-        ? UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT
-        : `${baseUrl}${UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT}`
-    )
-
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `파트너사 이름 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`
-      )
-    }
-
-    const data = await response.json()
-    return data.companyNames || []
+    const response = await api.get(UNIQUE_PARTNER_COMPANY_NAMES_PATH)
+    return response.data.companyNames || []
   } catch (error) {
     console.error('파트너사 이름 목록을 가져오는 중 오류:', error)
     throw error
@@ -478,37 +294,8 @@ export async function fetchPartnerCompanyDetail(
   partnerId: string
 ): Promise<PartnerCompany> {
   try {
-    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
-    const baseUrl =
-      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-
-    const url = new URL(
-      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`.startsWith('http')
-        ? `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`
-        : `${baseUrl}${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`
-    )
-
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `파트너사 상세 정보를 가져오는 중 오류가 발생했습니다: ${response.status}`
-      )
-    }
-
-    const data = await response.json()
-    return data
+    const response = await api.get(`${PARTNER_COMPANIES_PATH}/${partnerId}`)
+    return response.data
   } catch (error) {
     console.error('파트너사 상세 정보를 가져오는 중 오류:', error)
     throw error
