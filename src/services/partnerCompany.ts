@@ -9,7 +9,7 @@ import {
 } from '@/types/IFRS/partnerCompany'
 
 /**
- * 파트너사 목록을 조회합니다. (페이지네이션 지원)
+ * 파트너사 목록을 조회합니다.... (페이지네이션 지원)
  * @param page 페이지 번호 (기본값: 1)
  * @param pageSize 페이지당 항목 수 (기본값: 10)
  * @param companyNameFilter 회사명 필터 (선택사항)
