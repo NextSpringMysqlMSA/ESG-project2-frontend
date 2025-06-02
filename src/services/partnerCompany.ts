@@ -81,7 +81,17 @@ export async function fetchPartnerCompanies(
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
   try {
-    const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`)
+    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
+    const baseUrl =
+      typeof window !== 'undefined'
+        ? window.location.origin // 브라우저 환경에서는 현재 도메인 사용
+        : 'http://localhost:3000' // SSR 환경에서는 기본값으로 localhost 사용
+
+    const url = new URL(
+      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`.startsWith('http')
+        ? `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
+        : `${baseUrl}${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
+    )
     url.searchParams.append('page', page.toString())
     url.searchParams.append('pageSize', pageSize.toString())
 
@@ -292,22 +302,32 @@ export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
   try {
-    const url = new URL(DART_CORP_CODES_ENDPOINT)
+    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
+    const baseUrl =
+      typeof window !== 'undefined'
+        ? window.location.origin // 브라우저 환경에서는 현재 도메인 사용
+        : 'http://localhost:3000' // SSR 환경에서는 기본값으로 localhost 사용
+
+    const fullUrl = new URL(
+      DART_CORP_CODES_ENDPOINT.startsWith('http')
+        ? DART_CORP_CODES_ENDPOINT
+        : `${baseUrl}${DART_CORP_CODES_ENDPOINT}`
+    )
 
     if (params.page !== undefined) {
-      url.searchParams.append('page', params.page.toString())
+      fullUrl.searchParams.append('page', params.page.toString())
     }
 
     if (params.pageSize !== undefined) {
-      url.searchParams.append('pageSize', params.pageSize.toString())
+      fullUrl.searchParams.append('pageSize', params.pageSize.toString())
     }
 
     if (params.listedOnly !== undefined) {
-      url.searchParams.append('listedOnly', params.listedOnly.toString())
+      fullUrl.searchParams.append('listedOnly', params.listedOnly.toString())
     }
 
     if (params.corpNameFilter) {
-      url.searchParams.append('corpNameFilter', params.corpNameFilter)
+      fullUrl.searchParams.append('corpNameFilter', params.corpNameFilter)
     }
 
     const token = useAuthStore.getState().accessToken
@@ -321,7 +341,7 @@ export async function searchCompaniesFromDart(
       headers['X-API-KEY'] = process.env.NEXT_PUBLIC_DART_API_KEY || ''
     }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(fullUrl.toString(), {
       method: 'GET',
       headers
     })
@@ -365,8 +385,16 @@ export async function fetchFinancialRiskAssessment(
   partnerName?: string
 ): Promise<FinancialRiskAssessment> {
   try {
+    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
+    const baseUrl =
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+
     const url = new URL(
-      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`
+      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`.startsWith(
+        'http'
+      )
+        ? `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`
+        : `${baseUrl}${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`
     )
 
     if (partnerName) {
@@ -404,7 +432,15 @@ export async function fetchFinancialRiskAssessment(
  */
 export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
   try {
-    const url = new URL(UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT)
+    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
+    const baseUrl =
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+
+    const url = new URL(
+      UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT.startsWith('http')
+        ? UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT
+        : `${baseUrl}${UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT}`
+    )
 
     const token = useAuthStore.getState().accessToken
     const headers: HeadersInit = {
@@ -442,7 +478,15 @@ export async function fetchPartnerCompanyDetail(
   partnerId: string
 ): Promise<PartnerCompany> {
   try {
-    const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`)
+    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성
+    const baseUrl =
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+
+    const url = new URL(
+      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`.startsWith('http')
+        ? `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`
+        : `${baseUrl}${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`
+    )
 
     const token = useAuthStore.getState().accessToken
     const headers: HeadersInit = {
