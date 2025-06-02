@@ -55,11 +55,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import {useToast} from '@/hooks/use-toast'
-import type {
-  PartnerCompany,
-  DartCorpInfo,
-  PartnerCompanyResponse
-} from '@/services/partnerCompany'
+
 import {
   fetchPartnerCompanies,
   createPartnerCompany,
@@ -67,6 +63,7 @@ import {
   updatePartnerCompany,
   searchCompaniesFromDart
 } from '@/services/partnerCompany'
+import {DartCorpInfo, PartnerCompany} from '@/types/IFRS/partnerCompany'
 
 // 디바운스 훅
 function useDebounce<T>(value: T, delay: number): T {
@@ -134,23 +131,16 @@ export default function ManagePartnerPage() {
       setIsPageLoading(false) // 실제 로딩 시작 시 페이지 로딩 상태 false
       try {
         const response = await fetchPartnerCompanies(page, pageSize, companyNameFilter)
-        // API 응답 데이터를 프론트엔드 PartnerCompany 타입에 맞게 변환
-        const transformedData = response.data.map(p => {
-          // API가 아직 snake_case를 사용하는 경우를 대비한 변환 처리
-          const item = p as any
-          return {
-            ...p,
-            companyName: item.companyName || item.corp_name || '',
-            corpCode: item.corpCode || item.corp_code || '',
-            stockCode: item.stockCode || item.stock_code,
-            contractStartDate:
-              item.contractStartDate ||
-              (item.contract_start_date && typeof item.contract_start_date === 'string'
-                ? new Date(item.contract_start_date)
-                : new Date()),
-            modifyDate: item.modifyDate || item.modify_date || ''
-          } as PartnerCompany
-        })
+        // API 응답의 contract_start_date (string)를 프론트엔드 PartnerCompany 타입의 contractStartDate (Date)로 변환
+        const transformedData = response.data.map(p => ({
+          ...p,
+          companyName: p.corp_name, // API 응답 corp_name을 companyName으로 매핑
+          // contract_start_date가 있고 유효한 문자열일 때만 Date 객체로 변환
+          contractStartDate:
+            p.contract_start_date && typeof p.contract_start_date === 'string'
+              ? new Date(p.contract_start_date)
+              : new Date() // 혹은 적절한 기본값 또는 null 처리
+        }))
         setPartners(transformedData)
         setCurrentPage(response.page)
         setTotalPages(Math.ceil(response.total / response.pageSize))
@@ -233,8 +223,8 @@ export default function ManagePartnerPage() {
     setSelectedDartCompany(company) // 선택된 DART 회사 정보 저장
     setFormData(prev => ({
       ...prev,
-      companyName: company.companyName,
-      corpCode: company.corpCode,
+      companyName: company.corp_name,
+      corpCode: company.corp_code,
       // 계약 시작일은 DART 회사 선택 시점의 오늘 날짜로 설정
       contractStartDate: new Date().toISOString().split('T')[0]
     }))
@@ -280,8 +270,9 @@ export default function ManagePartnerPage() {
         // 수정 모드
         await updatePartnerCompany(selectedPartner.id, {
           companyName: formData.companyName,
-          corpCode: formData.corpCode,
-          contractStartDate: formData.contractStartDate,
+          corp_name: formData.companyName,
+          corp_code: formData.corpCode,
+          contract_start_date: formData.contractStartDate,
           status: formData.status
         })
         toast({title: '성공', description: '파트너사가 수정되었습니다.'})
@@ -382,35 +373,23 @@ export default function ManagePartnerPage() {
       finalStatus = partner.status
     }
 
-    // API가 아직 snake_case를 사용하는 경우를 대비한 변환 처리
-    const companyName = partner.companyName || (partner as any).corp_name || ''
-    const corpCode = partner.corpCode || (partner as any).corp_code || ''
-    const contractStartDate = partner.contractStartDate
-      ? typeof partner.contractStartDate === 'string'
-        ? partner.contractStartDate.split('T')[0]
-        : partner.contractStartDate.toISOString().split('T')[0]
-      : (partner as any).contract_start_date
-      ? (partner as any).contract_start_date.split('T')[0]
-      : new Date().toISOString().split('T')[0]
-
     setFormData({
       id: partner.id || '',
-      companyName,
-      corpCode,
-      contractStartDate,
+      companyName: partner.corp_name || partner.companyName,
+      corpCode: partner.corp_code,
+      contractStartDate: partner.contract_start_date
+        ? partner.contract_start_date.split('T')[0]
+        : new Date().toISOString().split('T')[0],
       status: finalStatus
     })
-
-    setCompanySearchQuery(companyName)
-
+    setCompanySearchQuery(partner.corp_name || partner.companyName)
     setSelectedDartCompany({
       // 선택된 DART 회사 정보도 설정 (수정 시 DART 재검색 불필요하게 안 하도록)
-      corpCode,
-      companyName,
-      stockCode: partner.stockCode || (partner as any).stock_code,
-      modifyDate: partner.modifyDate || (partner as any).modify_date || ''
+      corp_code: partner.corp_code,
+      corp_name: partner.corp_name || partner.companyName,
+      stock_code: partner.stock_code,
+      modify_date: partner.modify_date || ''
     })
-
     setIsEditDialogOpen(true)
   }
 
@@ -508,23 +487,25 @@ export default function ManagePartnerPage() {
                   <div className="mt-2 overflow-y-auto border rounded-md max-h-48">
                     {dartSearchResults.map(company => (
                       <button
-                        key={company.corpCode}
+                        key={company.corp_code}
                         type="button"
                         className={`w-full p-2.5 hover:bg-slate-100 cursor-pointer flex justify-between items-center text-left ${
-                          selectedDartCompany?.corpCode === company.corpCode
+                          selectedDartCompany?.corp_code === company.corp_code
                             ? 'bg-slate-100'
                             : ''
                         }`}
                         onClick={() => handleSelectDartCompany(company)}
                         disabled={isSubmitting}>
                         <div>
-                          <p className="text-sm font-medium">{company.companyName}</p>
+                          <p className="text-sm font-medium">{company.corp_name}</p>
                           <p className="text-xs text-muted-foreground">
-                            DART 코드: {company.corpCode}{' '}
-                            {company.stockCode ? `(주식코드: ${company.stockCode})` : ''}
+                            DART 코드: {company.corp_code}{' '}
+                            {company.stock_code
+                              ? `(주식코드: ${company.stock_code})`
+                              : ''}
                           </p>
                         </div>
-                        {selectedDartCompany?.corpCode === company.corpCode && (
+                        {selectedDartCompany?.corp_code === company.corp_code && (
                           <Check className="flex-shrink-0 w-4 h-4 text-customG" />
                         )}
                       </button>
@@ -701,67 +682,55 @@ export default function ManagePartnerPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {partners.map(partner => {
-                  // API가 아직 snake_case를 사용하는 경우를 대비한 처리
-                  const partnerAny = partner as any
-                  const companyName = partner.companyName || partnerAny.corp_name
-                  const corpCode = partner.corpCode || partnerAny.corp_code
-                  const stockCode = partner.stockCode || partnerAny.stock_code
-                  const contractStartDate =
-                    partner.contractStartDate || partnerAny.contract_start_date
-
-                  return (
-                    <TableRow key={partner.id} className="hover:bg-slate-50">
-                      <TableCell className="py-3 font-medium">{companyName}</TableCell>
-                      <TableCell className="py-3">{corpCode}</TableCell>
-                      <TableCell className="py-3">
-                        {stockCode ? (
-                          <Badge
-                            variant="outline"
-                            className="border-sky-300 text-sky-700 bg-sky-50">
-                            {stockCode} (상장)
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">비상장</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="py-3">
-                        {contractStartDate
-                          ? typeof contractStartDate === 'string'
-                            ? new Date(contractStartDate).toLocaleDateString()
-                            : contractStartDate instanceof Date
-                            ? contractStartDate.toLocaleDateString()
-                            : '-'
-                          : '-'}
-                      </TableCell>
-                      <TableCell className="text-right py-2.5">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="w-8 h-8">
-                              <MoreHorizontal className="w-4 h-4" />
-                              <span className="sr-only">메뉴 열기</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditDialog(partner)}>
-                              <Edit3 className="w-4 h-4 mr-2" />
-                              수정
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedPartner(partner)
-                                setIsDeleteDialogOpen(true)
-                              }}
-                              className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                              <Trash className="w-4 h-4 mr-2" />
-                              삭제
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                {partners.map(partner => (
+                  <TableRow key={partner.id} className="hover:bg-slate-50">
+                    <TableCell className="py-3 font-medium">
+                      {partner.corp_name || partner.companyName}
+                    </TableCell>
+                    <TableCell className="py-3">{partner.corp_code}</TableCell>
+                    <TableCell className="py-3">
+                      {partner.stock_code ? (
+                        <Badge
+                          variant="outline"
+                          className="border-sky-300 text-sky-700 bg-sky-50">
+                          {partner.stock_code} (상장)
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">비상장</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {partner.contract_start_date
+                        ? new Date(partner.contract_start_date).toLocaleDateString()
+                        : '-'}
+                    </TableCell>
+                    <TableCell className="text-right py-2.5">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="w-8 h-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                            <span className="sr-only">메뉴 열기</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(partner)}>
+                            <Edit3 className="w-4 h-4 mr-2" />
+                            수정
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPartner(partner)
+                              setIsDeleteDialogOpen(true)
+                            }}
+                            className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                            <Trash className="w-4 h-4 mr-2" />
+                            삭제
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
@@ -811,7 +780,10 @@ export default function ManagePartnerPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>파트너사 삭제 확인</AlertDialogTitle>
             <AlertDialogDescription>
-              정말로 <span className="font-semibold">{selectedPartner?.companyName}</span>{' '}
+              정말로{' '}
+              <span className="font-semibold">
+                {selectedPartner?.corp_name || selectedPartner?.companyName}
+              </span>{' '}
               파트너사를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
