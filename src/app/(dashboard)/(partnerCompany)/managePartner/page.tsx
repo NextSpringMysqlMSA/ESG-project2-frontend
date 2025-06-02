@@ -273,9 +273,8 @@ export default function ManagePartnerPage() {
         // 수정 모드
         await updatePartnerCompany(selectedPartner.id, {
           companyName: formData.companyName,
-          corp_name: formData.companyName,
-          corp_code: formData.corpCode,
-          contract_start_date: formData.contractStartDate,
+          corpCode: formData.corpCode,
+          contractStartDate: formData.contractStartDate,
           status: formData.status
         })
         toast({title: '성공', description: '파트너사가 수정되었습니다.'})
