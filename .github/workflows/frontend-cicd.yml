@@ -4,8 +4,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend.yml'
+      - '**'
+      - '.github/workflows/frontend-cicd.yml'
 
 jobs:
   build-and-deploy-frontend:
@@ -44,13 +44,13 @@ jobs:
             --region ap-northeast-2 \
             --name nsmm-eks
 
-      - name: Replace Image Tag in frontend/deployment.yaml
+      - name: Replace Image Tag in deployment.yaml
         run: |
-          sed -i "s|image: .*frontend-service.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest|g" frontend/deployment.yaml
+          sed -i "s|image: .*frontend-service.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest|g" deployment.yaml
 
-      - name: Deploy frontend to EKS
+      - name: Deploy to EKS
         run: |
-          kubectl apply -f frontend/deployment.yaml
+          kubectl apply -f deployment.yaml
 
       - name: Verify Deployment
         run: |
