@@ -12,11 +12,6 @@ spec:
       labels:
         app: frontend-service
     spec:
-      tolerations:
-      - key: "eks.amazonaws.com/compute-type"
-        operator: "Equal"
-        value: "fargate"
-        effect: "NoSchedule"
       containers:
       - name: frontend-service
         image: kdonghwan/frontend-service:latest
