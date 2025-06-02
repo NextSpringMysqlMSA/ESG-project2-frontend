@@ -2,7 +2,7 @@ name: Build and Deploy Frontend to EKS
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
     paths:
     - '**'
     - '.github/workflows/frontend-cicd.yml'
