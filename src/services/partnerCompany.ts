@@ -12,7 +12,7 @@ export interface PartnerCompany {
   stock_code?: string // 주식 코드
   contract_start_date?: string // 계약 시작일 (API 응답 필드 - YYYY-MM-DD 문자열)
   modify_date?: string // 수정일
-  // 프론트엔드에서 사용할 필드 (API 응답을 변환하여 채움)
+  // 프론트엔드에서 사용할 필드 (API 응답을 변환하여 채움)...............
   companyName: string
   contractStartDate: Date
 }
