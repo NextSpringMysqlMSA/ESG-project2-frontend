@@ -59,11 +59,6 @@ export interface SearchCorpParams {
   corpNameFilter?: string
 }
 
-// API 엔드포인트 (상대 경로로 지정 - Axios 인스턴스의 baseURL에 맞춰짐)
-const PARTNER_COMPANIES_PATH = '/api/v1/partners/partner-companies'
-const UNIQUE_PARTNER_COMPANY_NAMES_PATH = '/api/v1/partners/unique-partner-companies'
-const DART_CORP_CODES_PATH = '/api/v1/dart/corp-codes'
-
 /**
  * 파트너사 목록을 조회합니다. (페이지네이션 지원)
  * @param page 페이지 번호 (기본값: 1)
@@ -76,6 +71,11 @@ export async function fetchPartnerCompanies(
   pageSize = 10,
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
+  console.log(
+    `[fetchPartnerCompanies] 호출: page=${page}, pageSize=${pageSize}, companyNameFilter=${
+      companyNameFilter || '없음'
+    }`
+  )
   try {
     const params: Record<string, any> = {
       page,
@@ -86,10 +86,11 @@ export async function fetchPartnerCompanies(
       params.companyName = companyNameFilter
     }
 
-    const response = await api.get(PARTNER_COMPANIES_PATH, {params})
+    const response = await api.get('/api/v1/partners/partner-companies', {params})
+    console.log(`[fetchPartnerCompanies] 성공: ${response.data.data.length}개 항목 반환`)
     return response.data
   } catch (error) {
-    console.error('파트너사 목록을 가져오는 중 오류:', error)
+    console.error('[fetchPartnerCompanies] 파트너사 목록을 가져오는 중 오류:', error)
     throw error
   }
 }
@@ -102,14 +103,17 @@ export async function fetchPartnerCompanies(
 export async function fetchPartnerCompanyById(
   id: string
 ): Promise<PartnerCompany | null> {
+  console.log(`[fetchPartnerCompanyById] 호출: id=${id}`)
   try {
-    const response = await api.get(`${PARTNER_COMPANIES_PATH}/${id}`)
+    const response = await api.get(`/api/v1/partners/partner-companies/${id}`)
+    console.log(`[fetchPartnerCompanyById] 성공: 파트너사 ID=${id} 정보 반환`)
     return response.data
   } catch (error: any) {
     if (error.response?.status === 404) {
+      console.log(`[fetchPartnerCompanyById] 파트너사 ID=${id} 찾을 수 없음`)
       return null
     }
-    console.error('파트너사 정보 조회 오류:', error)
+    console.error('[fetchPartnerCompanyById] 파트너사 정보 조회 오류:', error)
     throw error
   }
 }
@@ -124,6 +128,9 @@ export async function createPartnerCompany(partnerInput: {
   corpCode: string
   contractStartDate: string
 }): Promise<PartnerCompany> {
+  console.log(
+    `[createPartnerCompany] 호출: companyName=${partnerInput.companyName}, corpCode=${partnerInput.corpCode}`
+  )
   try {
     // 회원 ID 헤더 추가 (필요시)
     const token = useAuthStore.getState().accessToken
@@ -131,12 +138,16 @@ export async function createPartnerCompany(partnerInput: {
 
     if (token) {
       headers['X-MEMBER-ID'] = token
+      console.log('[createPartnerCompany] X-MEMBER-ID 토큰 추가됨')
     }
 
-    const response = await api.post(PARTNER_COMPANIES_PATH, partnerInput, {headers})
+    const response = await api.post('/api/v1/partners/partner-companies', partnerInput, {
+      headers
+    })
+    console.log(`[createPartnerCompany] 성공: 파트너사 ID=${response.data.id} 생성됨`)
     return response.data
   } catch (error) {
-    console.error('파트너사 등록 오류:', error)
+    console.error('[createPartnerCompany] 파트너사 등록 오류:', error)
     throw error
   }
 }
@@ -156,6 +167,7 @@ export async function updatePartnerCompany(
     status: 'ACTIVE' | 'INACTIVE' | 'PENDING'
   }>
 ): Promise<PartnerCompany | null> {
+  console.log(`[updatePartnerCompany] 호출: id=${id}, data=`, partnerData)
   try {
     // API 문서에 맞게 요청 데이터 변환
     const requestData = {
@@ -168,13 +180,18 @@ export async function updatePartnerCompany(
       status: partnerData.status
     }
 
-    const response = await api.patch(`${PARTNER_COMPANIES_PATH}/${id}`, requestData)
+    const response = await api.patch(
+      `/api/v1/partners/partner-companies/${id}`,
+      requestData
+    )
+    console.log(`[updatePartnerCompany] 성공: 파트너사 ID=${id} 업데이트됨`)
     return response.data
   } catch (error: any) {
     if (error.response?.status === 404) {
+      console.log(`[updatePartnerCompany] 파트너사 ID=${id} 찾을 수 없음`)
       return null
     }
-    console.error('파트너사 수정 오류:', error)
+    console.error('[updatePartnerCompany] 파트너사 수정 오류:', error)
     throw error
   }
 }
@@ -184,10 +201,12 @@ export async function updatePartnerCompany(
  * @param id 파트너사 ID (UUID)
  */
 export async function deletePartnerCompany(id: string): Promise<void> {
+  console.log(`[deletePartnerCompany] 호출: id=${id}`)
   try {
-    await api.delete(`${PARTNER_COMPANIES_PATH}/${id}`)
+    await api.delete(`/api/v1/partners/partner-companies/${id}`)
+    console.log(`[deletePartnerCompany] 성공: 파트너사 ID=${id} 삭제됨`)
   } catch (error) {
-    console.error('파트너사 삭제 오류:', error)
+    console.error('[deletePartnerCompany] 파트너사 삭제 오류:', error)
     throw error
   }
 }
@@ -200,21 +219,26 @@ export async function deletePartnerCompany(id: string): Promise<void> {
 export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
+  console.log(`[searchCompaniesFromDart] 호출: params=`, params)
   try {
     // DART API 키 헤더 추가 (필요한 경우)
     const headers: Record<string, string> = {}
     const dartApiKey = process.env.NEXT_PUBLIC_DART_API_KEY
     if (dartApiKey) {
       headers['X-API-KEY'] = dartApiKey
+      console.log('[searchCompaniesFromDart] X-API-KEY 추가됨')
     }
 
-    const response = await api.get(DART_CORP_CODES_PATH, {
+    const response = await api.get('/api/v1/dart/corp-codes', {
       params,
       headers
     })
 
     // 서버 응답이 아직 snake_case를 사용하는 경우 camelCase로 변환
     if (response.data && response.data.data) {
+      console.log(
+        `[searchCompaniesFromDart] 원본 결과: ${response.data.data.length}개 회사 찾음`
+      )
       response.data.data = response.data.data.map((company: any) => ({
         corpCode: company.corpCode || company.corp_code,
         companyName: company.companyName || company.corp_name,
@@ -223,9 +247,14 @@ export async function searchCompaniesFromDart(
       }))
     }
 
+    console.log(
+      `[searchCompaniesFromDart] 성공: ${
+        response.data.data?.length || 0
+      }개 회사 반환, 페이지=${response.data.page || 1}/${response.data.totalPages || 1}`
+    )
     return response.data
   } catch (error) {
-    console.error('DART 기업 검색 오류:', error)
+    console.error('[searchCompaniesFromDart] DART 기업 검색 오류:', error)
     throw error
   }
 }
@@ -257,6 +286,11 @@ export async function fetchFinancialRiskAssessment(
   corpCode: string,
   partnerName?: string
 ): Promise<FinancialRiskAssessment> {
+  console.log(
+    `[fetchFinancialRiskAssessment] 호출: corpCode=${corpCode}, partnerName=${
+      partnerName || '없음'
+    }`
+  )
   try {
     const params: Record<string, string> = {}
 
@@ -265,15 +299,20 @@ export async function fetchFinancialRiskAssessment(
     }
 
     const response = await api.get(
-      `${PARTNER_COMPANIES_PATH}/${corpCode}/financial-risk`,
+      `/api/v1/partners/partner-companies/${corpCode}/financial-risk`,
       {
         params
       }
     )
 
+    console.log(
+      `[fetchFinancialRiskAssessment] 성공: ${
+        response.data.riskItems?.length || 0
+      }개 위험 항목 발견`
+    )
     return response.data
   } catch (error) {
-    console.error('재무 위험 정보 조회 오류:', error)
+    console.error('[fetchFinancialRiskAssessment] 재무 위험 정보 조회 오류:', error)
     throw error
   }
 }
@@ -283,11 +322,20 @@ export async function fetchFinancialRiskAssessment(
  * @returns 파트너사 이름 목록
  */
 export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
+  console.log('[fetchUniquePartnerCompanyNames] 호출')
   try {
-    const response = await api.get(UNIQUE_PARTNER_COMPANY_NAMES_PATH)
+    const response = await api.get('/api/v1/partners/unique-partner-companies')
+    console.log(
+      `[fetchUniquePartnerCompanyNames] 성공: ${
+        response.data.companyNames?.length || 0
+      }개 회사명 반환`
+    )
     return response.data.companyNames || []
   } catch (error) {
-    console.error('파트너사 이름 목록을 가져오는 중 오류:', error)
+    console.error(
+      '[fetchUniquePartnerCompanyNames] 파트너사 이름 목록을 가져오는 중 오류:',
+      error
+    )
     throw error
   }
 }
@@ -300,11 +348,18 @@ export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
 export async function fetchPartnerCompanyDetail(
   partnerId: string
 ): Promise<PartnerCompany> {
+  console.log(`[fetchPartnerCompanyDetail] 호출: partnerId=${partnerId}`)
   try {
-    const response = await api.get(`${PARTNER_COMPANIES_PATH}/${partnerId}`)
+    const response = await api.get(`/api/v1/partners/partner-companies/${partnerId}`)
+    console.log(
+      `[fetchPartnerCompanyDetail] 성공: 파트너사 ID=${partnerId} 상세 정보 반환`
+    )
     return response.data
   } catch (error) {
-    console.error('파트너사 상세 정보를 가져오는 중 오류:', error)
+    console.error(
+      '[fetchPartnerCompanyDetail] 파트너사 상세 정보를 가져오는 중 오류:',
+      error
+    )
     throw error
   }
 }
