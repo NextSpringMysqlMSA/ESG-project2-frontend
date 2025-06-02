@@ -81,7 +81,6 @@ export async function fetchPartnerCompanies(
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
   try {
-    // 상대 경로일 경우 현재 창의 origin을 기준으로 URL 생성..
     const baseUrl =
       typeof window !== 'undefined'
         ? window.location.origin // 브라우저 환경에서는 현재 도메인 사용
