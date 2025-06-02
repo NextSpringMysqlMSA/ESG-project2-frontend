@@ -10,14 +10,11 @@ export interface PartnerCompany {
   industry?: string // 산업군
   country?: string // 국가
   address?: string // 주소
-  corp_code: string // DART corp_code
-  corp_name: string // 회사명 (API 응답 필드)
-  stock_code?: string // 주식 코드
-  contract_start_date?: string // 계약 시작일 (API 응답 필드 - YYYY-MM-DD 문자열)
-  modify_date?: string // 수정일
-  // 프론트엔드에서 사용할 필드 (API 응답을 변환하여 채움)
-  companyName: string
-  contractStartDate: Date
+  corpCode: string // DART corpCode (기존 corp_code)
+  companyName: string // 회사명 (API 응답 필드 및 프론트엔드에서 사용, 기존 corp_name과 companyName 통합)
+  stockCode?: string // 주식 코드 (기존 stock_code)
+  contractStartDate?: string | Date // 계약 시작일 (API 응답 필드 - YYYY-MM-DD 문자열 또는 Date 객체)
+  modifyDate?: string // 수정일 (기존 modify_date)
 }
 
 /**
@@ -34,10 +31,10 @@ export interface PartnerCompanyResponse {
  * DART API 기업 정보 타입
  */
 export interface DartCorpInfo {
-  corp_code: string // 기업 고유 코드
-  corp_name: string // 기업명
-  stock_code?: string // 주식 코드 (상장사만 존재)
-  modify_date: string // 최종 수정일
+  corpCode: string // 기업 고유 코드 (기존 corp_code)
+  companyName: string // 기업명 (기존 corp_name)
+  stockCode?: string // 주식 코드 (상장사만 존재, 기존 stock_code)
+  modifyDate: string // 최종 수정일 (기존 modify_date)
 }
 
 /**
@@ -215,6 +212,16 @@ export async function searchCompaniesFromDart(
       params,
       headers
     })
+
+    // 서버 응답이 아직 snake_case를 사용하는 경우 camelCase로 변환
+    if (response.data && response.data.data) {
+      response.data.data = response.data.data.map((company: any) => ({
+        corpCode: company.corpCode || company.corp_code,
+        companyName: company.companyName || company.corp_name,
+        stockCode: company.stockCode || company.stock_code,
+        modifyDate: company.modifyDate || company.modify_date
+      }))
+    }
 
     return response.data
   } catch (error) {
