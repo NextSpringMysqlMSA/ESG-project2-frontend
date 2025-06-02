@@ -5,7 +5,6 @@ on:
     branches: [ main ]
     paths:
       - 'frontend/**'
-      - 'deployment.yaml'
       - '.github/workflows/frontend-cicd.yml'
 
 jobs:
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
@@ -25,12 +24,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Docker Image to DockerHub
         run: |
           docker buildx build \
             --platform linux/amd64 \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest \
-            --push .
+            --push ./frontend
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -45,10 +44,14 @@ jobs:
             --region ap-northeast-2 \
             --name nsmm-eks
 
-      - name: Replace image tag in deployment.yaml
+      - name: Replace Image Tag in frontend/deployment.yaml
         run: |
-          sed -i "s|image: .*frontend-service.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest|g" deployment.yaml
+          sed -i "s|image: .*frontend-service.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend-service:latest|g" frontend/deployment.yaml
 
-      - name: Deploy to EKS
+      - name: Deploy frontend to EKS
         run: |
-          kubectl apply -f deployment.yaml
+          kubectl apply -f frontend/deployment.yaml
+
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment/frontend-service
