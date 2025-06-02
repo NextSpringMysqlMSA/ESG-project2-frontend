@@ -9,10 +9,11 @@ import {
 // API 기본 URL
 const API_BASE_URL = process.env.NEXT_DART_API_URL || '/api' // 환경 변수 또는 기본값 사용
 
-// 파트너사 API 엔드포인트
-const PARTNER_COMPANIES_BASE_PATH = '/api/v1/partners/partner-companies'
-const UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT = `${API_BASE_URL}/api/v1/partners/unique-partner-companies`
-const DART_CORP_CODES_ENDPOINT = `${API_BASE_URL}/api/v1/dart/corp-codes`
+// 파트너사 API 엔드포인트 - API_BASE_URL에 이미 /api가 포함될 수 있으므로 중복 방지
+const API_V1_PREFIX = API_BASE_URL.endsWith('/api') ? '/v1' : '/api/v1'
+const PARTNER_COMPANIES_BASE_PATH = `${API_V1_PREFIX}/partners/partner-companies`
+const UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT = `${API_BASE_URL}${API_V1_PREFIX}/partners/unique-partner-companies`
+const DART_CORP_CODES_ENDPOINT = `${API_BASE_URL}${API_V1_PREFIX}/dart/corp-codes`
 
 /**
  * 파트너사 목록을 조회합니다. (페이지네이션 지원)
@@ -27,7 +28,15 @@ export async function fetchPartnerCompanies(
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
   try {
-    const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`)
+    // URL이 상대 경로인 경우 절대 경로로 변환
+    let apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
+    if (apiUrl.startsWith('/')) {
+      const baseUrl =
+        typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
+      apiUrl = new URL(apiUrl, baseUrl).toString()
+    }
+
+    const url = new URL(apiUrl)
     url.searchParams.append('page', page.toString())
     url.searchParams.append('pageSize', pageSize.toString())
 
@@ -70,16 +79,31 @@ export async function fetchPartnerCompanyById(
   id: string
 ): Promise<PartnerCompany | null> {
   try {
+    // URL이 상대 경로인 경우 절대 경로로 변환
+    let apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
+    if (apiUrl.startsWith('/')) {
+      const baseUrl =
+        typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
+      apiUrl = new URL(apiUrl, baseUrl).toString()
+    }
+
+    // 인증 토큰 가져오기 및 토큰 형식 검증
     const token = useAuthStore.getState().accessToken
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
     }
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+    if (authToken) {
+      headers.Authorization = authToken
     }
 
-    const response = await fetch(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`, {
+    const response = await fetch(apiUrl, {
       method: 'GET',
       headers
     })
@@ -238,13 +262,16 @@ export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
   try {
-    // API 엔드포인트 직접 구성
-    // 상대 경로로 지정된 경우 절대 경로로 변환
+    // 상대 경로를 절대 URL로 변환
     let apiUrl = DART_CORP_CODES_ENDPOINT
-    if (apiUrl.startsWith('/')) {
-      const baseUrl =
-        typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
-      apiUrl = new URL(apiUrl, baseUrl).toString()
+
+    // 이미 http로 시작하는 절대 URL인지 확인
+    if (!apiUrl.startsWith('http') && typeof window !== 'undefined') {
+      const baseUrl = window.location.origin
+      apiUrl = new URL(apiUrl.startsWith('/') ? apiUrl : `/${apiUrl}`, baseUrl).toString()
+    } else if (!apiUrl.startsWith('http')) {
+      // 서버 사이드에서 실행될 때는 기본 URL 사용
+      apiUrl = `http://localhost${apiUrl.startsWith('/') ? apiUrl : `/${apiUrl}`}`
     }
 
     console.log('DART API 엔드포인트:', apiUrl)
@@ -266,7 +293,15 @@ export async function searchCompaniesFromDart(
       url.searchParams.append('corpNameFilter', params.corpNameFilter)
     }
 
+    // 인증 토큰 가져오기 및 토큰 형식 검증
     const token = useAuthStore.getState().accessToken
+    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
+    const authToken = token
+      ? token.startsWith('Bearer ')
+        ? token
+        : `Bearer ${token}`
+      : null
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
     }
@@ -278,8 +313,8 @@ export async function searchCompaniesFromDart(
     }
 
     // 인증 토큰이 있으면 추가
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
+    if (authToken) {
+      headers.Authorization = authToken
     }
 
     console.log('DART API 요청 URL:', url.toString())
@@ -297,7 +332,18 @@ export async function searchCompaniesFromDart(
         statusText: response.statusText,
         body: errorText
       })
-      throw new Error(`DART 기업 검색에 실패했습니다: ${response.status} - ${errorText}`)
+
+      let errorMessage = `DART 기업 검색에 실패했습니다: ${response.status}`
+
+      // 401 오류 발생 시 토큰 관련 문제일 가능성이 높음
+      if (response.status === 401) {
+        errorMessage +=
+          ' - 인증 오류가 발생했습니다. 로그인이 필요하거나 세션이 만료되었을 수 있습니다.'
+      } else if (errorText) {
+        errorMessage += ` - ${errorText}`
+      }
+
+      throw new Error(errorMessage)
     }
 
     return await response.json()
