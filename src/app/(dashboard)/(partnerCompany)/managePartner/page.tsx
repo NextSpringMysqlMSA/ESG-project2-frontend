@@ -55,13 +55,17 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import {useToast} from '@/hooks/use-toast'
-import {DartCorpInfo, PartnerCompany} from '@/types/IFRS/partnerCompany'
+import type {
+  PartnerCompany,
+  DartCorpInfo,
+  PartnerCompanyResponse
+} from '@/services/partnerCompany'
 import {
-  searchCompaniesFromDart,
+  fetchPartnerCompanies,
   createPartnerCompany,
   deletePartnerCompany,
-  fetchPartnerCompanies,
-  updatePartnerCompany
+  updatePartnerCompany,
+  searchCompaniesFromDart
 } from '@/services/partnerCompany'
 
 // 디바운스 훅
@@ -184,13 +188,6 @@ export default function ManagePartnerPage() {
     setDialogError(null)
     setDartSearchResults([])
     try {
-      console.log('DART 검색 요청 파라미터 (페이지):', {
-        page: 1,
-        pageSize: 5,
-        listedOnly: true,
-        corpNameFilter: debouncedDartSearchQuery
-      })
-
       const response = await searchCompaniesFromDart({
         page: 1, // origin/develop 에서는 페이지 없었으나, API 스펙에 따라 추가/조정 가능
         pageSize: 5, // origin/develop 에서는 10, HEAD 에서는 5. 일단 5로 통일
@@ -198,13 +195,8 @@ export default function ManagePartnerPage() {
         corpNameFilter: debouncedDartSearchQuery
       })
 
-      console.log('DART 검색 응답 전체:', response)
-
       setDartSearchResults(response.data || []) // API 응답이 data 배열을 포함한다고 가정
-      console.log('DART 검색 결과 설정:', response.data || [])
-
       if ((response.data || []).length === 0) {
-        console.log('DART 검색 결과 없음')
         setDialogError(`'${debouncedDartSearchQuery}'에 대한 검색 결과가 없습니다.`)
       }
     } catch (error) {
