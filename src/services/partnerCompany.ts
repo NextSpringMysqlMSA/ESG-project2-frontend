@@ -1,19 +1,15 @@
-import {useAuthStore} from '@/stores/authStore'
+import api from '@/lib/axios'
 import {
   DartApiResponse,
+  DartCorpInfo,
+  FinancialRiskAssessment,
   PartnerCompany,
+  PartnerCompanyRaw,
   PartnerCompanyResponse,
-  SearchCorpParams
+  PartnerCompanyResponseRaw,
+  SearchCorpParams,
+  mapPartnerCompanies
 } from '@/types/IFRS/partnerCompany'
-
-// API 기본 URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080' // 환경 변수 또는 기본값 사용
-
-// 파트너사 API 엔드포인트 - API_BASE_URL에 이미 /api가 포함될 수 있으므로 중복 방지
-const API_V1_PREFIX = API_BASE_URL.endsWith('/api') ? '/v1' : '/api/v1'
-const PARTNER_COMPANIES_BASE_PATH = `${API_V1_PREFIX}/partners/partner-companies`
-const UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT = `${API_BASE_URL}${API_V1_PREFIX}/partners/unique-partner-companies`
-const DART_CORP_CODES_ENDPOINT = `${API_BASE_URL}${API_V1_PREFIX}/dart/corp-codes`
 
 /**
  * 파트너사 목록을 조회합니다. (페이지네이션 지원)
@@ -28,71 +24,227 @@ export async function fetchPartnerCompanies(
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
   try {
-    // API URL 직접 구성
-    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
+    // 최종 방어 로직 - 모든 가능한 에지 케이스 차단
+    console.log('🔍 fetchPartnerCompanies 호출됨:', {page, pageSize, companyNameFilter})
 
-    const url = new URL(apiUrl)
-    url.searchParams.append('page', page.toString())
-    url.searchParams.append('pageSize', pageSize.toString())
+    // 안전한 페이지 값 계산
+    let safePage = 1
+    let safePageSize = 10
 
-    if (companyNameFilter) {
-      url.searchParams.append('companyName', companyNameFilter)
-    }
-
-    // 인증 토큰 가져오기 및 토큰 형식 검증
-    const token = useAuthStore.getState().accessToken
-    // 저장된 토큰이 이미 'Bearer '로 시작하는지 확인
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
-
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('인증 토큰 확인:', authToken.substring(0, 15) + '...')
+    // page 파라미터 검증
+    const pageNum = Number(page)
+    if (!isNaN(pageNum) && isFinite(pageNum) && pageNum >= 1) {
+      safePage = Math.floor(pageNum)
     } else {
-      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
+      console.warn('⚠️ 잘못된 page 값:', page, '-> 1로 설정')
     }
 
-    console.log('API 요청 URL:', url.toString())
-    console.log('API 요청 헤더:', JSON.stringify(headers, null, 2))
+    // pageSize 파라미터 검증
+    const pageSizeNum = Number(pageSize)
+    if (!isNaN(pageSizeNum) && isFinite(pageSizeNum) && pageSizeNum >= 1) {
+      safePageSize = Math.min(100, Math.floor(pageSizeNum))
+    } else {
+      console.warn('⚠️ 잘못된 pageSize 값:', pageSize, '-> 10으로 설정')
+    }
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers,
-      credentials: 'include' // 쿠키 포함 (필요한 경우)
+    // Spring Data 페이지 인덱스 계산 (0-based) - 음수 절대 불가
+    const springPageIndex = Math.max(0, safePage - 1)
+
+    console.log('✅ 최종 검증된 값:', {
+      원본: {page, pageSize},
+      변환됨: {safePage, safePageSize},
+      SpringData인덱스: springPageIndex
     })
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '응답 텍스트를 가져올 수 없음')
-      console.error('API 에러 응답:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText
-      })
-
-      let errorMessage = `파트너사 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`
-
-      // 401 오류 발생 시 토큰 관련 문제일 가능성이 높음
-      if (response.status === 401) {
-        errorMessage +=
-          ' - 인증 오류가 발생했습니다. 로그인이 필요하거나 세션이 만료되었을 수 있습니다.'
-      } else if (errorText) {
-        errorMessage += ` - ${errorText}`
-      }
-
-      throw new Error(errorMessage)
+    const params: Record<string, string | number> = {
+      page: springPageIndex,
+      size: safePageSize
     }
 
-    return await response.json()
-  } catch (error) {
-    console.error('파트너사 목록을 가져오는 중 오류:', error)
-    throw error
+    if (
+      companyNameFilter &&
+      typeof companyNameFilter === 'string' &&
+      companyNameFilter.trim()
+    ) {
+      params.companyNameFilter = companyNameFilter.trim()
+    }
+
+    console.log('📡 API 요청 시작:', {url: '/api/v1/partners/partner-companies', params})
+
+    const response = await api.get<unknown>('/api/v1/partners/partner-companies', {
+      params
+    })
+
+    console.log('📡 API 응답 받음:', {
+      status: response.status,
+      headers: response.headers,
+      dataType: typeof response.data,
+      dataKeys:
+        response.data && typeof response.data === 'object'
+          ? Object.keys(response.data)
+          : 'not object'
+    })
+
+    // 서버 응답 구조를 유연하게 처리
+    let content: PartnerCompanyRaw[] = []
+    let totalElements = 0
+    let totalPages = 0
+    let size = pageSize
+    let number = 0
+    let numberOfElements = 0
+    let first = true
+    let last = true
+    let empty = true
+
+    const data = response.data as unknown // 타입 안전한 unknown 사용
+
+    // 타입 가드 함수들
+    function isPageResponse(obj: unknown): obj is {
+      content: unknown[]
+      totalElements: number
+      totalPages: number
+      size: number
+      number: number
+      numberOfElements: number
+      first: boolean
+      last: boolean
+      empty: boolean
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'content' in obj &&
+        Array.isArray((obj as {content?: unknown}).content)
+      )
+    }
+
+    function isLegacyResponse(obj: unknown): obj is {
+      data: unknown[]
+      total?: number
+      page?: number
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'data' in obj &&
+        Array.isArray((obj as {data?: unknown}).data)
+      )
+    }
+
+    // Spring Data Page 구조인 경우
+    if (isPageResponse(data)) {
+      content = data.content as PartnerCompanyRaw[]
+      totalElements = data.totalElements || 0
+      totalPages = data.totalPages || 0
+      size = data.size || pageSize
+      number = data.number || 0
+      numberOfElements = data.numberOfElements || content.length
+      first = data.first || false
+      last = data.last || false
+      empty = data.empty || content.length === 0
+    }
+    // 기존 구조인 경우 (data 배열)
+    else if (isLegacyResponse(data)) {
+      content = data.data as PartnerCompanyRaw[]
+      totalElements = data.total || 0
+      totalPages = Math.ceil(totalElements / pageSize)
+      size = pageSize
+      number = (data.page || 1) - 1
+      numberOfElements = content.length
+      first = number === 0
+      last = number >= totalPages - 1
+      empty = content.length === 0
+    }
+    // 직접 배열인 경우
+    else if (Array.isArray(data)) {
+      content = data as PartnerCompanyRaw[]
+      totalElements = content.length
+      totalPages = 1
+      size = pageSize
+      number = 0
+      numberOfElements = content.length
+      first = true
+      last = true
+      empty = content.length === 0
+    }
+    // 예상치 못한 구조인 경우
+    else {
+      console.warn('예상치 못한 응답 구조:', data)
+    }
+
+    return {
+      content: mapPartnerCompanies(content),
+      totalElements,
+      totalPages,
+      size,
+      number,
+      numberOfElements,
+      first,
+      last,
+      empty
+    }
+  } catch (error: unknown) {
+    console.error('❌ 파트너사 목록을 가져오는 중 오류:', error)
+
+    // 에러 세부 정보 로깅
+    if (error && typeof error === 'object') {
+      if ('response' in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number
+            statusText?: string
+            data?: any
+            config?: {url?: string; params?: any}
+          }
+        }
+
+        console.error('📡 API 응답 오류:', {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          url: axiosError.response?.config?.url,
+          params: axiosError.response?.config?.params
+        })
+
+        // "Page index must not be less than zero" 에러 특별 처리
+        if (
+          axiosError.response?.data?.message?.includes(
+            'Page index must not be less than zero'
+          )
+        ) {
+          console.error('🚨 Spring Data 페이지 인덱스 오류 발생!')
+          console.error('🔍 요청 파라미터 분석:', {
+            원본요청: {page, pageSize, companyNameFilter}
+            // 변환된파라미터: {springPageIndex, safePageSize},
+            // 실제전송파라미터: params
+          })
+        }
+      }
+
+      if ('message' in error) {
+        console.error('에러 메시지:', (error as Error).message)
+      }
+    }
+
+    let errorMessage = '파트너사 목록을 가져오는 중 오류가 발생했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다. 다시 로그인해주세요.'
+      } else if (axiosError.response?.status === 403) {
+        errorMessage = '접근 권한이 없습니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -105,48 +257,40 @@ export async function fetchPartnerCompanyById(
   id: string
 ): Promise<PartnerCompany | null> {
   try {
-    // API URL 직접 구성
-    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
+    console.log('파트너사 상세 조회 요청 ID:', id)
 
-    // 인증 토큰 가져오기 및 토큰 형식 검증
-    const token = useAuthStore.getState().accessToken
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
+    const response = await api.get(`/api/v1/partners/partner-companies/${id}`)
 
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    console.log('파트너사 상세 조회 응답:', response.data)
 
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('파트너사 상세 조회 요청 인증:', authToken.substring(0, 15) + '...')
-    } else {
-      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
-    }
-
-    console.log('파트너사 상세 조회 요청 URL:', apiUrl)
-
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers,
-      credentials: 'include'
-    })
-
-    if (response.status === 404) {
-      return null
-    }
-
-    if (!response.ok) {
-      throw new Error(`파트너사 정보를 가져오는데 실패했습니다: ${response.status}`)
-    }
-
-    return await response.json()
-  } catch (error) {
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
     console.error('파트너사 정보 조회 오류:', error)
-    throw error
+
+    // 404 에러인 경우 null 반환
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 404) {
+        return null
+      }
+
+      let errorMessage = '파트너사 정보를 가져오는데 실패했습니다.'
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+
+      throw new Error(errorMessage)
+    }
+
+    throw new Error('파트너사 정보를 가져오는데 실패했습니다.')
   }
 }
 
@@ -161,48 +305,35 @@ export async function createPartnerCompany(partnerInput: {
   contractStartDate: string
 }): Promise<PartnerCompany> {
   try {
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    console.log('파트너사 생성 요청 데이터:', partnerInput)
 
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
+    const response = await api.post('/api/v1/partners/partner-companies', partnerInput)
 
-    if (authToken) {
-      headers.Authorization = authToken
-      // 토큰에서 사용자 ID 추출 (필요한 경우)
-      // headers['X-Member-Id'] = extractMemberId(token)
-      console.log('파트너사 생성 요청 인증:', authToken.substring(0, 15) + '...')
-    } else {
-      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
-    }
+    console.log('파트너사 생성 응답:', response.data)
 
-    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}`
-    console.log('파트너사 생성 요청 URL:', apiUrl)
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify(partnerInput)
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null)
-      throw new Error(
-        `파트너사 등록에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-      )
-    }
-
-    return await response.json()
-  } catch (error) {
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
     console.error('파트너사 등록 오류:', error)
-    throw error
+
+    let errorMessage = '파트너사 등록에 실패했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 400) {
+        errorMessage = '잘못된 요청입니다. 입력 데이터를 확인해주세요.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -217,29 +348,10 @@ export async function updatePartnerCompany(
   partnerData: Partial<Omit<PartnerCompany, 'id'>>
 ): Promise<PartnerCompany | null> {
   try {
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
-
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
-
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('파트너사 수정 요청 인증:', authToken.substring(0, 15) + '...')
-    } else {
-      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
-    }
-
     // API 문서에 맞게 요청 데이터 변환
     const requestData = {
-      companyName: partnerData.companyName,
-      corpCode: partnerData.corp_code,
+      companyName: partnerData.corpName,
+      corpCode: partnerData.corpCode,
       contractStartDate:
         partnerData.contractStartDate instanceof Date
           ? partnerData.contractStartDate.toISOString().split('T')[0]
@@ -247,79 +359,104 @@ export async function updatePartnerCompany(
       status: partnerData.status
     }
 
-    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
-    console.log('파트너사 수정 요청 URL:', apiUrl)
+    console.log('파트너사 수정 요청 데이터:', requestData)
+    console.log('파트너사 수정 요청 ID:', id)
 
-    const response = await fetch(apiUrl, {
-      method: 'PATCH',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify(requestData)
-    })
+    const response = await api.patch(
+      `/api/v1/partners/partner-companies/${id}`,
+      requestData
+    )
 
-    if (response.status === 404) {
-      return null
-    }
+    console.log('파트너사 수정 응답:', response.data)
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null)
-      throw new Error(
-        `파트너사 정보 수정에 실패했습니다: ${response.status} ${
-          errorData?.message || ''
-        }`
-      )
-    }
-
-    return await response.json()
-  } catch (error) {
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
     console.error('파트너사 수정 오류:', error)
-    throw error
+
+    // 상세한 에러 정보 출력
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number
+          statusText?: string
+          data?: any
+          headers?: any
+        }
+        config?: {
+          url?: string
+          method?: string
+          headers?: any
+          data?: any
+        }
+      }
+
+      console.error('📡 수정 API 오류 상세:', {
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        responseData: axiosError.response?.data,
+        requestUrl: axiosError.config?.url,
+        requestMethod: axiosError.config?.method,
+        requestHeaders: axiosError.config?.headers,
+        requestData: axiosError.config?.data
+      })
+
+      if (axiosError.response?.status === 404) {
+        return null
+      }
+
+      let errorMessage = '파트너사 정보 수정에 실패했습니다.'
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 400) {
+        errorMessage = '잘못된 요청입니다. 입력 데이터를 확인해주세요.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.status === 403) {
+        errorMessage = '접근 권한이 없습니다. 관리자에게 문의하세요.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+
+      throw new Error(errorMessage)
+    }
+
+    throw new Error('파트너사 정보 수정에 실패했습니다.')
   }
 }
-
 /**
  * 파트너사를 삭제(비활성화)합니다.
  * @param id 파트너사 ID (UUID)
  */
 export async function deletePartnerCompany(id: string): Promise<void> {
   try {
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    console.log('파트너사 삭제 요청 ID:', id)
 
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
+    await api.delete(`/api/v1/partners/partner-companies/${id}`)
 
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('파트너사 삭제 요청 인증:', authToken.substring(0, 15) + '...')
-    } else {
-      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
-    }
-
-    const apiUrl = `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${id}`
-    console.log('파트너사 삭제 요청 URL:', apiUrl)
-
-    const response = await fetch(apiUrl, {
-      method: 'DELETE',
-      headers,
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null)
-      throw new Error(
-        `파트너사 삭제에 실패했습니다: ${response.status} ${errorData?.message || ''}`
-      )
-    }
-  } catch (error) {
+    console.log('파트너사 삭제 완료')
+  } catch (error: unknown) {
     console.error('파트너사 삭제 오류:', error)
-    throw error
+
+    let errorMessage = '파트너사 삭제에 실패했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 404) {
+        errorMessage = '삭제하려는 파트너사를 찾을 수 없습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -332,113 +469,250 @@ export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
   try {
-    // API URL 직접 구성
-    const apiUrl = DART_CORP_CODES_ENDPOINT
+    console.log('🔍 DART 검색 호출됨:', params)
 
-    console.log('DART API 엔드포인트:', apiUrl)
-    const url = new URL(apiUrl)
-
-    if (params.page !== undefined) {
-      url.searchParams.append('page', params.page.toString())
+    // 입력 파라미터 검증
+    if (!params || typeof params !== 'object') {
+      throw new Error('유효하지 않은 검색 파라미터입니다.')
     }
 
-    if (params.pageSize !== undefined) {
-      url.searchParams.append('pageSize', params.pageSize.toString())
+    // 강화된 페이지 파라미터 검증
+    let validPage = 1
+    let validPageSize = 10
+
+    // page 검증
+    const pageNum = Number(params.page)
+    if (!isNaN(pageNum) && isFinite(pageNum) && pageNum >= 1) {
+      validPage = Math.floor(pageNum)
+    } else {
+      console.warn('⚠️ DART 검색: 잘못된 page 값:', params.page, '-> 1로 설정')
     }
 
-    if (params.listedOnly !== undefined) {
-      url.searchParams.append('listedOnly', params.listedOnly.toString())
+    // pageSize 검증
+    const pageSizeNum = Number(params.pageSize)
+    if (!isNaN(pageSizeNum) && isFinite(pageSizeNum) && pageSizeNum >= 1) {
+      validPageSize = Math.min(100, Math.floor(pageSizeNum))
+    } else {
+      console.warn('⚠️ DART 검색: 잘못된 pageSize 값:', params.pageSize, '-> 10으로 설정')
     }
 
-    if (params.corpNameFilter) {
-      // 한글 인코딩 문제 해결을 위해 명시적으로 인코딩
-      console.log('원본 검색어:', params.corpNameFilter)
-      url.searchParams.append('corpNameFilter', params.corpNameFilter)
-      console.log('인코딩된 URL:', url.toString())
-    }
+    // Spring Data 인덱스 계산 (0-based) - 음수 절대 방지
+    const page = Math.max(0, validPage - 1)
+    const size = validPageSize
 
-    // 인증 토큰 가져오기 및 토큰 형식 검증
-    const token = useAuthStore.getState().accessToken
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
-
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json; charset=utf-8',
-      Accept: 'application/json'
-    }
-
-    // DART API 키는 항상 헤더에 추가
-    const dartApiKey = process.env.NEXT_PUBLIC_DART_API_KEY || ''
-    if (dartApiKey) {
-      headers['X-API-KEY'] = dartApiKey
-    }
-
-    // 인증 토큰이 있으면 추가
-    if (authToken) {
-      headers.Authorization = authToken
-    }
-
-    console.log('DART API 요청 URL:', url.toString())
-    console.log('DART API 요청 헤더:', JSON.stringify(headers, null, 2))
-
-    // URL 인코딩 상태 확인
-    if (params.corpNameFilter) {
-      console.log('URL searchParams 확인:', url.searchParams.toString())
-      console.log('개별 파라미터 확인:', url.searchParams.get('corpNameFilter'))
-    }
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers
+    console.log('✅ DART 검색 검증된 값:', {
+      원본: {page: params.page, pageSize: params.pageSize},
+      변환됨: {validPage, validPageSize},
+      SpringData인덱스: page
     })
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '응답 텍스트를 가져올 수 없음')
-      console.error('DART API 에러 응답:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText
-      })
-
-      let errorMessage = `DART 기업 검색에 실패했습니다: ${response.status}`
-
-      // 401 오류 발생 시 토큰 관련 문제일 가능성이 높음
-      if (response.status === 401) {
-        errorMessage +=
-          ' - 인증 오류가 발생했습니다. 로그인이 필요하거나 세션이 만료되었을 수 있습니다.'
-      } else if (errorText) {
-        errorMessage += ` - ${errorText}`
-      }
-
-      throw new Error(errorMessage)
+    const requestParams: Record<string, string | number | boolean> = {
+      page,
+      size
     }
 
-    return await response.json()
-  } catch (error) {
+    // 검색어가 있을 때만 추가 - 백엔드 DTO와 동일한 파라미터명 사용
+    if (params.corpNameFilter && params.corpNameFilter.trim()) {
+      requestParams.corpNameFilter = params.corpNameFilter.trim()
+    }
+
+    // 상장사 필터
+    if (params.listedOnly !== undefined) {
+      requestParams.listedOnly = params.listedOnly
+    }
+
+    console.log('DART API 요청 파라미터:', requestParams)
+    console.log('원본 파라미터:', params)
+
+    // 기본 헤더만 사용 (API 키 제거)
+    const response = await api.get<unknown>('/api/v1/dart/corp-codes', {
+      params: requestParams,
+      timeout: 30000 // 30초 타임아웃
+    })
+
+    console.log('DART API 응답 상태:', response.status)
+    console.log('DART API 응답 데이터:', response.data)
+
+    // 응답 데이터 구조 처리
+    let dartResponse: DartApiResponse = {
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      size: size,
+      number: page,
+      numberOfElements: 0,
+      first: true,
+      last: true,
+      empty: true
+    }
+
+    const data = response.data as unknown // 타입 안전한 unknown 사용
+
+    // DART API 응답을 위한 타입 가드 함수들
+    function isDartPageResponse(obj: unknown): obj is {
+      content: unknown[]
+      totalElements?: number
+      totalPages?: number
+      size?: number
+      number?: number
+      numberOfElements?: number
+      first?: boolean
+      last?: boolean
+      empty?: boolean
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'content' in obj &&
+        Array.isArray((obj as {content?: unknown}).content)
+      )
+    }
+
+    function isDartLegacyResponse(obj: unknown): obj is {
+      data: unknown[]
+      total?: number
+      totalPages?: number
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'data' in obj &&
+        Array.isArray((obj as {data?: unknown}).data)
+      )
+    }
+
+    // Spring Data Page 구조인 경우
+    if (data && typeof data === 'object') {
+      if (isDartPageResponse(data)) {
+        dartResponse = {
+          content: (data.content as DartCorpInfo[]) || [],
+          totalElements: data.totalElements || 0,
+          totalPages: data.totalPages || 0,
+          size: data.size || size,
+          number: data.number || page,
+          numberOfElements: data.numberOfElements || 0,
+          first: data.first !== undefined ? data.first : true,
+          last: data.last !== undefined ? data.last : true,
+          empty: data.empty !== undefined ? data.empty : true
+        }
+      }
+      // 배열이 직접 있는 경우
+      else if (Array.isArray(data)) {
+        dartResponse = {
+          content: data as DartCorpInfo[],
+          totalElements: data.length,
+          totalPages: 1,
+          size: size,
+          number: 0,
+          numberOfElements: data.length,
+          first: true,
+          last: true,
+          empty: data.length === 0
+        }
+      }
+      // 데이터가 다른 키에 있는 경우
+      else if (isDartLegacyResponse(data)) {
+        dartResponse = {
+          content: data.data as DartCorpInfo[],
+          totalElements: data.total || data.data.length,
+          totalPages: data.totalPages || 1,
+          size: size,
+          number: page,
+          numberOfElements: data.data.length,
+          first: page === 0,
+          last: true,
+          empty: data.data.length === 0
+        }
+      }
+    }
+
+    return dartResponse
+  } catch (error: unknown) {
     console.error('DART 기업 검색 오류:', error)
-    throw error
+
+    const errorDetails = {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      status: undefined as number | undefined,
+      statusText: undefined as string | undefined,
+      data: undefined as unknown,
+      config: undefined as {url?: string; method?: string; params?: unknown} | undefined
+    }
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number
+          statusText?: string
+          data?: unknown
+        }
+        config?: {
+          url?: string
+          method?: string
+          params?: unknown
+        }
+      }
+
+      errorDetails.status = axiosError.response?.status
+      errorDetails.statusText = axiosError.response?.statusText
+      errorDetails.data = axiosError.response?.data
+      errorDetails.config = axiosError.config
+        ? {
+            url: axiosError.config.url,
+            method: axiosError.config.method,
+            params: axiosError.config.params
+          }
+        : undefined
+    }
+
+    console.error('오류 상세:', errorDetails)
+
+    let errorMessage = 'DART 기업 검색에 실패했습니다.'
+
+    if (errorDetails.status === 500) {
+      errorMessage =
+        '서버에서 DART API 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      console.error('500 에러 상세 정보:', errorDetails.data)
+
+      // 500 에러의 경우 빈 결과를 반환하여 UI가 깨지지 않도록 함
+      return {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        size: params.pageSize || 10,
+        number: 0,
+        numberOfElements: 0,
+        first: true,
+        last: true,
+        empty: true
+      }
+    } else if (errorDetails.status === 404) {
+      errorMessage = 'DART API 엔드포인트를 찾을 수 없습니다.'
+    } else if (errorDetails.status === 401) {
+      errorMessage = '인증이 필요합니다. 로그인 상태를 확인해주세요.'
+    } else if (errorDetails.status === 403) {
+      errorMessage = 'DART API 접근 권한이 없습니다.'
+    } else if (errorDetails.status === 400) {
+      errorMessage = '잘못된 요청입니다. 검색 조건을 확인해주세요.'
+    } else if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'ECONNABORTED'
+    ) {
+      errorMessage = '요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.'
+    } else if (
+      errorDetails.data &&
+      typeof errorDetails.data === 'object' &&
+      'message' in errorDetails.data &&
+      typeof errorDetails.data.message === 'string'
+    ) {
+      errorMessage = errorDetails.data.message
+    } else if (errorDetails.message) {
+      errorMessage = `요청 실패: ${errorDetails.message}`
+    }
+
+    throw new Error(errorMessage)
   }
-}
-
-export interface FinancialRiskItem {
-  description: string
-  actualValue: string
-  threshold: string
-  notes: string | null
-  itemNumber: number
-  atRisk: boolean
-}
-
-export interface FinancialRiskAssessment {
-  partnerCompanyId: string
-  partnerCompanyName: string
-  assessmentYear: string
-  reportCode: string
-  riskItems: FinancialRiskItem[]
 }
 
 /**
@@ -452,49 +726,44 @@ export async function fetchFinancialRiskAssessment(
   partnerName?: string
 ): Promise<FinancialRiskAssessment> {
   try {
-    const url = new URL(
-      `${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${corpCode}/financial-risk`
-    )
+    const params: Record<string, string> = {}
 
     if (partnerName) {
-      url.searchParams.append('partnerName', partnerName)
+      params.partnerName = partnerName
     }
 
-    // 인증 토큰 및 기타 필요한 헤더 설정
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    console.log('재무 위험 정보 요청 파라미터:', {corpCode, ...params})
 
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
+    const response = await api.get<FinancialRiskAssessment>(
+      `/api/v1/partners/partner-companies/${corpCode}/financial-risk`,
+      {params}
+    )
 
-    // 서버 문서에 따라 이 API가 인증이 필요한지 여부 확인
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('재무 위험 정보 요청 인증:', authToken.substring(0, 15) + '...')
-    }
+    console.log('재무 위험 정보 응답:', response.data)
 
-    console.log('재무 위험 정보 요청 URL:', url.toString())
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers,
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error(`재무 위험 정보를 가져오는데 실패했습니다: ${response.status}`)
-    }
-
-    return await response.json()
-  } catch (error) {
+    return response.data
+  } catch (error: unknown) {
     console.error('재무 위험 정보 조회 오류:', error)
-    throw error
+
+    let errorMessage = '재무 위험 정보를 가져오는데 실패했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 404) {
+        errorMessage = '재무 위험 정보를 찾을 수 없습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -504,44 +773,35 @@ export async function fetchFinancialRiskAssessment(
  */
 export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
   try {
-    const url = new URL(UNIQUE_PARTNER_COMPANY_NAMES_ENDPOINT)
+    console.log('파트너사 이름 목록 요청')
 
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    const response = await api.get<{companyNames: string[]}>(
+      '/api/v1/partners/unique-partner-companies'
+    )
 
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
+    console.log('파트너사 이름 목록 응답:', response.data)
 
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('파트너사 이름 목록 요청 인증:', authToken.substring(0, 15) + '...')
-    }
-
-    console.log('파트너사 이름 목록 요청 URL:', url.toString())
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers,
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `파트너사 이름 목록을 가져오는 중 오류가 발생했습니다: ${response.status}`
-      )
-    }
-
-    const data = await response.json()
-    return data.companyNames || []
-  } catch (error) {
+    return response.data.companyNames || []
+  } catch (error: unknown) {
     console.error('파트너사 이름 목록을 가져오는 중 오류:', error)
-    throw error
+
+    let errorMessage = '파트너사 이름 목록을 가져오는 중 오류가 발생했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -554,45 +814,34 @@ export async function fetchPartnerCompanyDetail(
   partnerId: string
 ): Promise<PartnerCompany> {
   try {
-    const url = new URL(`${API_BASE_URL}${PARTNER_COMPANIES_BASE_PATH}/${partnerId}`)
+    console.log('파트너사 상세 정보 요청 ID:', partnerId)
 
-    const token = useAuthStore.getState().accessToken
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json'
-    }
+    const response = await api.get(`/api/v1/partners/partner-companies/${partnerId}`)
 
-    // Bearer 접두어가 이미 포함되어 있는지 확인하여 중복 방지
-    const authToken = token
-      ? token.startsWith('Bearer ')
-        ? token
-        : `Bearer ${token}`
-      : null
+    console.log('파트너사 상세 정보 응답:', response.data)
 
-    if (authToken) {
-      headers.Authorization = authToken
-      console.log('파트너사 상세 정보 요청 인증:', authToken.substring(0, 15) + '...')
-    } else {
-      console.warn('인증 토큰이 없습니다. 401 오류가 발생할 수 있습니다.')
-    }
-
-    console.log('파트너사 상세 정보 요청 URL:', url.toString())
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers,
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `파트너사 상세 정보를 가져오는 중 오류가 발생했습니다: ${response.status}`
-      )
-    }
-
-    const data = await response.json()
-    return data
-  } catch (error) {
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
     console.error('파트너사 상세 정보를 가져오는 중 오류:', error)
-    throw error
+
+    let errorMessage = '파트너사 상세 정보를 가져오는 중 오류가 발생했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 404) {
+        errorMessage = '파트너사를 찾을 수 없습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }

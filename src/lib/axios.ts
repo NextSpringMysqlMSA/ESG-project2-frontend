@@ -43,6 +43,9 @@ api.interceptors.request.use(
       config.headers.Authorization = token
     }
 
+    // X-Member-Id 헤더 추가 (모든 요청에 필수)
+    config.headers['X-Member-Id'] = '1'
+
     console.log('📦 요청 헤더:', config.headers)
     console.log('🔗 API URL:', config.baseURL)
 

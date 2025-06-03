@@ -38,9 +38,9 @@ import {useToast} from '@/hooks/use-toast'
 import {LoadingState} from '@/components/ui/loading-state'
 import {
   fetchUniquePartnerCompanyNames,
-  fetchFinancialRiskAssessment,
-  type FinancialRiskAssessment
+  fetchFinancialRiskAssessment
 } from '@/services/partnerCompany'
+import {FinancialRiskAssessment} from '@/types/IFRS/partnerCompany'
 
 // API 응답 타입 정의
 interface RiskItem {
