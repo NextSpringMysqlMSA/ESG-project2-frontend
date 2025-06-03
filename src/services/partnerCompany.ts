@@ -7,10 +7,7 @@ import {
 } from '@/types/IFRS/partnerCompany'
 
 // API 기본 URL
-const API_BASE_URL =
-  process.env.NEXT_DART_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  'http://localhost:8080' // 환경 변수 또는 기본값 사용
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080' // 환경 변수 또는 기본값 사용
 
 // 파트너사 API 엔드포인트 - API_BASE_URL에 이미 /api가 포함될 수 있으므로 중복 방지
 const API_V1_PREFIX = API_BASE_URL.endsWith('/api') ? '/v1' : '/api/v1'
