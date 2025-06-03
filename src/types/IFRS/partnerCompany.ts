@@ -25,9 +25,16 @@ export interface PartnerCompany {
   address?: string
   corpCode: string
   corpName: string
+  companyName: string
   stockCode?: string
-  contractStartDate?: Date
+  contractStartDate?: Date | string
   modifyDate?: string
+  // 백엔드 호환성을 위한 추가 필드들
+  corp_code?: string
+  corp_name?: string
+  stock_code?: string
+  contract_start_date?: string
+  modify_date?: string
 }
 
 /**
@@ -43,6 +50,11 @@ export interface PartnerCompanyResponse {
   first: boolean
   last: boolean
   empty: boolean
+  // 레거시 호환성을 위한 추가 필드들
+  data?: PartnerCompany[]
+  total?: number
+  page?: number
+  pageSize?: number
 }
 
 /**
@@ -64,10 +76,15 @@ export interface PartnerCompanyResponseRaw {
  * DART API 기업 정보 타입
  */
 export interface DartCorpInfo {
-  corp_code: string
-  corp_name: string
+  corpCode: string
+  corpName: string
+  stockCode?: string
+  modifyDate: string
+  // 백엔드 호환성을 위한 추가 필드들
+  corp_code?: string
+  corp_name?: string
   stock_code?: string
-  modify_date: string
+  modify_date?: string
 }
 
 /**
@@ -83,6 +100,11 @@ export interface DartApiResponse {
   first: boolean
   last: boolean
   empty: boolean
+  // 레거시 호환성을 위한 추가 필드들
+  data?: DartCorpInfo[]
+  total?: number
+  page?: number
+  pageSize?: number
 }
 
 /**
@@ -124,11 +146,18 @@ export function mapPartnerCompany(raw: PartnerCompanyRaw): PartnerCompany {
     address: raw.address,
     corpCode: raw.corp_code,
     corpName: raw.corp_name,
+    companyName: raw.corp_name, // companyName을 corp_name으로 매핑
     stockCode: raw.stock_code,
     contractStartDate: raw.contract_start_date
       ? new Date(raw.contract_start_date)
       : undefined,
-    modifyDate: raw.modify_date
+    modifyDate: raw.modify_date,
+    // 백엔드 호환성을 위한 원본 필드들도 포함
+    corp_code: raw.corp_code,
+    corp_name: raw.corp_name,
+    stock_code: raw.stock_code,
+    contract_start_date: raw.contract_start_date,
+    modify_date: raw.modify_date
   }
 }
 

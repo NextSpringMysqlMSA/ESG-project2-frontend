@@ -303,6 +303,7 @@ export async function createPartnerCompany(partnerInput: {
   companyName: string
   corpCode: string
   contractStartDate: string
+  stockCode?: string
 }): Promise<PartnerCompany> {
   try {
     console.log('파트너사 생성 요청 데이터:', partnerInput)
