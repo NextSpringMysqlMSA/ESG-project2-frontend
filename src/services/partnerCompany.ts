@@ -1,63 +1,15 @@
-import {useAuthStore} from '@/stores/authStore'
 import api from '@/lib/axios'
-
-/**
- * 파트너사(협력사) 정보 타입
- */
-export interface PartnerCompany {
-  id?: string // 파트너사 고유 ID
-  status?: 'ACTIVE' | 'INACTIVE' | 'PENDING' // 파트너사 상태
-  industry?: string // 산업군
-  country?: string // 국가
-  address?: string // 주소
-  corpCode: string // DART corpCode (기존 corp_code)
-  companyName: string // 회사명 (API 응답 필드 및 프론트엔드에서 사용, 기존 corp_name과 companyName 통합)
-  stockCode?: string // 주식 코드 (기존 stock_code)
-  contractStartDate?: string | Date // 계약 시작일 (API 응답 필드 - YYYY-MM-DD 문자열 또는 Date 객체)
-  modifyDate?: string // 수정일 (기존 modify_date)
-}
-
-/**
- * 파트너사 목록 API 응답 타입 (페이지네이션 포함)
- */
-export interface PartnerCompanyResponse {
-  data: PartnerCompany[]
-  total: number
-  page: number
-  pageSize: number
-}
-
-/**
- * DART API 기업 정보 타입
- */
-export interface DartCorpInfo {
-  corpCode: string // 기업 고유 코드 (기존 corp_code)
-  companyName: string // 기업명 (기존 corp_name)
-  stockCode?: string // 주식 코드 (상장사만 존재, 기존 stock_code)
-  modifyDate: string // 최종 수정일 (기존 modify_date)
-}
-
-/**
- * DART API 페이지네이션 응답 타입
- */
-export interface DartApiResponse {
-  data: DartCorpInfo[] // 기업 정보 목록
-  total: number // 전체 항목 수
-  page: number // 현재 페이지 번호
-  pageSize: number // 페이지 당 항목 수
-  totalPages: number // 전체 페이지 수
-  hasNextPage: boolean // 다음 페이지 존재 여부
-}
-
-/**
- * 기업 검색 파라미터 타입
- */
-export interface SearchCorpParams {
-  page?: number
-  pageSize?: number
-  listedOnly?: boolean
-  corpNameFilter?: string
-}
+import {
+  DartApiResponse,
+  DartCorpInfo,
+  FinancialRiskAssessment,
+  PartnerCompany,
+  PartnerCompanyRaw,
+  PartnerCompanyResponse,
+  PartnerCompanyResponseRaw,
+  SearchCorpParams,
+  mapPartnerCompanies
+} from '@/types/IFRS/partnerCompany'
 
 /**
  * 파트너사 목록을 조회합니다. (페이지네이션 지원)
@@ -71,27 +23,228 @@ export async function fetchPartnerCompanies(
   pageSize = 10,
   companyNameFilter?: string
 ): Promise<PartnerCompanyResponse> {
-  console.log(
-    `[fetchPartnerCompanies] 호출: page=${page}, pageSize=${pageSize}, companyNameFilter=${
-      companyNameFilter || '없음'
-    }`
-  )
   try {
-    const params: Record<string, any> = {
-      page,
-      pageSize
+    // 최종 방어 로직 - 모든 가능한 에지 케이스 차단
+    console.log('🔍 fetchPartnerCompanies 호출됨:', {page, pageSize, companyNameFilter})
+
+    // 안전한 페이지 값 계산
+    let safePage = 1
+    let safePageSize = 10
+
+    // page 파라미터 검증
+    const pageNum = Number(page)
+    if (!isNaN(pageNum) && isFinite(pageNum) && pageNum >= 1) {
+      safePage = Math.floor(pageNum)
+    } else {
+      console.warn('⚠️ 잘못된 page 값:', page, '-> 1로 설정')
     }
 
-    if (companyNameFilter) {
-      params.companyName = companyNameFilter
+    // pageSize 파라미터 검증
+    const pageSizeNum = Number(pageSize)
+    if (!isNaN(pageSizeNum) && isFinite(pageSizeNum) && pageSizeNum >= 1) {
+      safePageSize = Math.min(100, Math.floor(pageSizeNum))
+    } else {
+      console.warn('⚠️ 잘못된 pageSize 값:', pageSize, '-> 10으로 설정')
     }
 
-    const response = await api.get('/api/v1/partners/partner-companies', {params})
-    console.log(`[fetchPartnerCompanies] 성공: ${response.data.data.length}개 항목 반환`)
-    return response.data
-  } catch (error) {
-    console.error('[fetchPartnerCompanies] 파트너사 목록을 가져오는 중 오류:', error)
-    throw error
+    // Spring Data 페이지 인덱스 계산 (0-based) - 음수 절대 불가
+    const springPageIndex = Math.max(0, safePage - 1)
+
+    console.log('✅ 최종 검증된 값:', {
+      원본: {page, pageSize},
+      변환됨: {safePage, safePageSize},
+      SpringData인덱스: springPageIndex
+    })
+
+    const params: Record<string, string | number> = {
+      page: springPageIndex,
+      size: safePageSize
+    }
+
+    if (
+      companyNameFilter &&
+      typeof companyNameFilter === 'string' &&
+      companyNameFilter.trim()
+    ) {
+      params.companyNameFilter = companyNameFilter.trim()
+    }
+
+    console.log('📡 API 요청 시작:', {url: '/api/v1/partners/partner-companies', params})
+
+    const response = await api.get<unknown>('/api/v1/partners/partner-companies', {
+      params
+    })
+
+    console.log('📡 API 응답 받음:', {
+      status: response.status,
+      headers: response.headers,
+      dataType: typeof response.data,
+      dataKeys:
+        response.data && typeof response.data === 'object'
+          ? Object.keys(response.data)
+          : 'not object'
+    })
+
+    // 서버 응답 구조를 유연하게 처리
+    let content: PartnerCompanyRaw[] = []
+    let totalElements = 0
+    let totalPages = 0
+    let size = pageSize
+    let number = 0
+    let numberOfElements = 0
+    let first = true
+    let last = true
+    let empty = true
+
+    const data = response.data as unknown // 타입 안전한 unknown 사용
+
+    // 타입 가드 함수들
+    function isPageResponse(obj: unknown): obj is {
+      content: unknown[]
+      totalElements: number
+      totalPages: number
+      size: number
+      number: number
+      numberOfElements: number
+      first: boolean
+      last: boolean
+      empty: boolean
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'content' in obj &&
+        Array.isArray((obj as {content?: unknown}).content)
+      )
+    }
+
+    function isLegacyResponse(obj: unknown): obj is {
+      data: unknown[]
+      total?: number
+      page?: number
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'data' in obj &&
+        Array.isArray((obj as {data?: unknown}).data)
+      )
+    }
+
+    // Spring Data Page 구조인 경우
+    if (isPageResponse(data)) {
+      content = data.content as PartnerCompanyRaw[]
+      totalElements = data.totalElements || 0
+      totalPages = data.totalPages || 0
+      size = data.size || pageSize
+      number = data.number || 0
+      numberOfElements = data.numberOfElements || content.length
+      first = data.first || false
+      last = data.last || false
+      empty = data.empty || content.length === 0
+    }
+    // 기존 구조인 경우 (data 배열)
+    else if (isLegacyResponse(data)) {
+      content = data.data as PartnerCompanyRaw[]
+      totalElements = data.total || 0
+      totalPages = Math.ceil(totalElements / pageSize)
+      size = pageSize
+      number = (data.page || 1) - 1
+      numberOfElements = content.length
+      first = number === 0
+      last = number >= totalPages - 1
+      empty = content.length === 0
+    }
+    // 직접 배열인 경우
+    else if (Array.isArray(data)) {
+      content = data as PartnerCompanyRaw[]
+      totalElements = content.length
+      totalPages = 1
+      size = pageSize
+      number = 0
+      numberOfElements = content.length
+      first = true
+      last = true
+      empty = content.length === 0
+    }
+    // 예상치 못한 구조인 경우
+    else {
+      console.warn('예상치 못한 응답 구조:', data)
+    }
+
+    return {
+      content: mapPartnerCompanies(content),
+      totalElements,
+      totalPages,
+      size,
+      number,
+      numberOfElements,
+      first,
+      last,
+      empty
+    }
+  } catch (error: unknown) {
+    console.error('❌ 파트너사 목록을 가져오는 중 오류:', error)
+
+    // 에러 세부 정보 로깅
+    if (error && typeof error === 'object') {
+      if ('response' in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number
+            statusText?: string
+            data?: any
+            config?: {url?: string; params?: any}
+          }
+        }
+
+        console.error('📡 API 응답 오류:', {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          url: axiosError.response?.config?.url,
+          params: axiosError.response?.config?.params
+        })
+
+        // "Page index must not be less than zero" 에러 특별 처리
+        if (
+          axiosError.response?.data?.message?.includes(
+            'Page index must not be less than zero'
+          )
+        ) {
+          console.error('🚨 Spring Data 페이지 인덱스 오류 발생!')
+          console.error('🔍 요청 파라미터 분석:', {
+            원본요청: {page, pageSize, companyNameFilter}
+            // 변환된파라미터: {springPageIndex, safePageSize},
+            // 실제전송파라미터: params
+          })
+        }
+      }
+
+      if ('message' in error) {
+        console.error('에러 메시지:', (error as Error).message)
+      }
+    }
+
+    let errorMessage = '파트너사 목록을 가져오는 중 오류가 발생했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다. 다시 로그인해주세요.'
+      } else if (axiosError.response?.status === 403) {
+        errorMessage = '접근 권한이 없습니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -103,18 +256,41 @@ export async function fetchPartnerCompanies(
 export async function fetchPartnerCompanyById(
   id: string
 ): Promise<PartnerCompany | null> {
-  console.log(`[fetchPartnerCompanyById] 호출: id=${id}`)
   try {
+    console.log('파트너사 상세 조회 요청 ID:', id)
+
     const response = await api.get(`/api/v1/partners/partner-companies/${id}`)
-    console.log(`[fetchPartnerCompanyById] 성공: 파트너사 ID=${id} 정보 반환`)
-    return response.data
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      console.log(`[fetchPartnerCompanyById] 파트너사 ID=${id} 찾을 수 없음`)
-      return null
+
+    console.log('파트너사 상세 조회 응답:', response.data)
+
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
+    console.error('파트너사 정보 조회 오류:', error)
+
+    // 404 에러인 경우 null 반환
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 404) {
+        return null
+      }
+
+      let errorMessage = '파트너사 정보를 가져오는데 실패했습니다.'
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+
+      throw new Error(errorMessage)
     }
-    console.error('[fetchPartnerCompanyById] 파트너사 정보 조회 오류:', error)
-    throw error
+
+    throw new Error('파트너사 정보를 가져오는데 실패했습니다.')
   }
 }
 
@@ -127,28 +303,38 @@ export async function createPartnerCompany(partnerInput: {
   companyName: string
   corpCode: string
   contractStartDate: string
+  stockCode?: string
 }): Promise<PartnerCompany> {
-  console.log(
-    `[createPartnerCompany] 호출: companyName=${partnerInput.companyName}, corpCode=${partnerInput.corpCode}`
-  )
   try {
-    // 회원 ID 헤더 추가 (필요시)
-    const token = useAuthStore.getState().accessToken
-    const headers: Record<string, string> = {}
+    console.log('파트너사 생성 요청 데이터:', partnerInput)
 
-    if (token) {
-      headers['X-MEMBER-ID'] = token
-      console.log('[createPartnerCompany] X-MEMBER-ID 토큰 추가됨')
+    const response = await api.post('/api/v1/partners/partner-companies', partnerInput)
+
+    console.log('파트너사 생성 응답:', response.data)
+
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
+    console.error('파트너사 등록 오류:', error)
+
+    let errorMessage = '파트너사 등록에 실패했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 400) {
+        errorMessage = '잘못된 요청입니다. 입력 데이터를 확인해주세요.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
     }
 
-    const response = await api.post('/api/v1/partners/partner-companies', partnerInput, {
-      headers
-    })
-    console.log(`[createPartnerCompany] 성공: 파트너사 ID=${response.data.id} 생성됨`)
-    return response.data
-  } catch (error) {
-    console.error('[createPartnerCompany] 파트너사 등록 오류:', error)
-    throw error
+    throw new Error(errorMessage)
   }
 }
 
@@ -160,18 +346,12 @@ export async function createPartnerCompany(partnerInput: {
  */
 export async function updatePartnerCompany(
   id: string,
-  partnerData: Partial<{
-    companyName: string
-    corpCode: string
-    contractStartDate: string | Date
-    status: 'ACTIVE' | 'INACTIVE' | 'PENDING'
-  }>
+  partnerData: Partial<Omit<PartnerCompany, 'id'>>
 ): Promise<PartnerCompany | null> {
-  console.log(`[updatePartnerCompany] 호출: id=${id}, data=`, partnerData)
   try {
     // API 문서에 맞게 요청 데이터 변환
     const requestData = {
-      companyName: partnerData.companyName,
+      companyName: partnerData.corpName,
       corpCode: partnerData.corpCode,
       contractStartDate:
         partnerData.contractStartDate instanceof Date
@@ -180,34 +360,104 @@ export async function updatePartnerCompany(
       status: partnerData.status
     }
 
+    console.log('파트너사 수정 요청 데이터:', requestData)
+    console.log('파트너사 수정 요청 ID:', id)
+
     const response = await api.patch(
       `/api/v1/partners/partner-companies/${id}`,
       requestData
     )
-    console.log(`[updatePartnerCompany] 성공: 파트너사 ID=${id} 업데이트됨`)
-    return response.data
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      console.log(`[updatePartnerCompany] 파트너사 ID=${id} 찾을 수 없음`)
-      return null
+
+    console.log('파트너사 수정 응답:', response.data)
+
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
+    console.error('파트너사 수정 오류:', error)
+
+    // 상세한 에러 정보 출력
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number
+          statusText?: string
+          data?: any
+          headers?: any
+        }
+        config?: {
+          url?: string
+          method?: string
+          headers?: any
+          data?: any
+        }
+      }
+
+      console.error('📡 수정 API 오류 상세:', {
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        responseData: axiosError.response?.data,
+        requestUrl: axiosError.config?.url,
+        requestMethod: axiosError.config?.method,
+        requestHeaders: axiosError.config?.headers,
+        requestData: axiosError.config?.data
+      })
+
+      if (axiosError.response?.status === 404) {
+        return null
+      }
+
+      let errorMessage = '파트너사 정보 수정에 실패했습니다.'
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 400) {
+        errorMessage = '잘못된 요청입니다. 입력 데이터를 확인해주세요.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.status === 403) {
+        errorMessage = '접근 권한이 없습니다. 관리자에게 문의하세요.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+
+      throw new Error(errorMessage)
     }
-    console.error('[updatePartnerCompany] 파트너사 수정 오류:', error)
-    throw error
+
+    throw new Error('파트너사 정보 수정에 실패했습니다.')
   }
 }
-
 /**
  * 파트너사를 삭제(비활성화)합니다.
  * @param id 파트너사 ID (UUID)
  */
 export async function deletePartnerCompany(id: string): Promise<void> {
-  console.log(`[deletePartnerCompany] 호출: id=${id}`)
   try {
+    console.log('파트너사 삭제 요청 ID:', id)
+
     await api.delete(`/api/v1/partners/partner-companies/${id}`)
-    console.log(`[deletePartnerCompany] 성공: 파트너사 ID=${id} 삭제됨`)
-  } catch (error) {
-    console.error('[deletePartnerCompany] 파트너사 삭제 오류:', error)
-    throw error
+
+    console.log('파트너사 삭제 완료')
+  } catch (error: unknown) {
+    console.error('파트너사 삭제 오류:', error)
+
+    let errorMessage = '파트너사 삭제에 실패했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 404) {
+        errorMessage = '삭제하려는 파트너사를 찾을 수 없습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -219,61 +469,251 @@ export async function deletePartnerCompany(id: string): Promise<void> {
 export async function searchCompaniesFromDart(
   params: SearchCorpParams
 ): Promise<DartApiResponse> {
-  console.log(`[searchCompaniesFromDart] 호출: params=`, params)
   try {
-    // DART API 키 헤더 추가 (필요한 경우)
-    const headers: Record<string, string> = {}
-    const dartApiKey = process.env.NEXT_PUBLIC_DART_API_KEY
-    if (dartApiKey) {
-      headers['X-API-KEY'] = dartApiKey
-      console.log('[searchCompaniesFromDart] X-API-KEY 추가됨')
+    console.log('🔍 DART 검색 호출됨:', params)
+
+    // 입력 파라미터 검증
+    if (!params || typeof params !== 'object') {
+      throw new Error('유효하지 않은 검색 파라미터입니다.')
     }
 
-    const response = await api.get('/api/v1/dart/corp-codes', {
-      params,
-      headers
+    // 강화된 페이지 파라미터 검증
+    let validPage = 1
+    let validPageSize = 10
+
+    // page 검증
+    const pageNum = Number(params.page)
+    if (!isNaN(pageNum) && isFinite(pageNum) && pageNum >= 1) {
+      validPage = Math.floor(pageNum)
+    } else {
+      console.warn('⚠️ DART 검색: 잘못된 page 값:', params.page, '-> 1로 설정')
+    }
+
+    // pageSize 검증
+    const pageSizeNum = Number(params.pageSize)
+    if (!isNaN(pageSizeNum) && isFinite(pageSizeNum) && pageSizeNum >= 1) {
+      validPageSize = Math.min(100, Math.floor(pageSizeNum))
+    } else {
+      console.warn('⚠️ DART 검색: 잘못된 pageSize 값:', params.pageSize, '-> 10으로 설정')
+    }
+
+    // Spring Data 인덱스 계산 (0-based) - 음수 절대 방지
+    const page = Math.max(0, validPage - 1)
+    const size = validPageSize
+
+    console.log('✅ DART 검색 검증된 값:', {
+      원본: {page: params.page, pageSize: params.pageSize},
+      변환됨: {validPage, validPageSize},
+      SpringData인덱스: page
     })
 
-    // 서버 응답이 아직 snake_case를 사용하는 경우 camelCase로 변환
-    if (response.data && response.data.data) {
-      console.log(
-        `[searchCompaniesFromDart] 원본 결과: ${response.data.data.length}개 회사 찾음`
-      )
-      response.data.data = response.data.data.map((company: any) => ({
-        corpCode: company.corpCode || company.corp_code,
-        companyName: company.companyName || company.corp_name,
-        stockCode: company.stockCode || company.stock_code,
-        modifyDate: company.modifyDate || company.modify_date
-      }))
+    const requestParams: Record<string, string | number | boolean> = {
+      page,
+      size
     }
 
-    console.log(
-      `[searchCompaniesFromDart] 성공: ${
-        response.data.data?.length || 0
-      }개 회사 반환, 페이지=${response.data.page || 1}/${response.data.totalPages || 1}`
-    )
-    return response.data
-  } catch (error) {
-    console.error('[searchCompaniesFromDart] DART 기업 검색 오류:', error)
-    throw error
+    // 검색어가 있을 때만 추가 - 백엔드 DTO와 동일한 파라미터명 사용
+    if (params.corpNameFilter && params.corpNameFilter.trim()) {
+      requestParams.corpNameFilter = params.corpNameFilter.trim()
+    }
+
+    // 상장사 필터
+    if (params.listedOnly !== undefined) {
+      requestParams.listedOnly = params.listedOnly
+    }
+
+    console.log('DART API 요청 파라미터:', requestParams)
+    console.log('원본 파라미터:', params)
+
+    // 기본 헤더만 사용 (API 키 제거)
+    const response = await api.get<unknown>('/api/v1/dart/corp-codes', {
+      params: requestParams,
+      timeout: 30000 // 30초 타임아웃
+    })
+
+    console.log('DART API 응답 상태:', response.status)
+    console.log('DART API 응답 데이터:', response.data)
+
+    // 응답 데이터 구조 처리
+    let dartResponse: DartApiResponse = {
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      size: size,
+      number: page,
+      numberOfElements: 0,
+      first: true,
+      last: true,
+      empty: true
+    }
+
+    const data = response.data as unknown // 타입 안전한 unknown 사용
+
+    // DART API 응답을 위한 타입 가드 함수들
+    function isDartPageResponse(obj: unknown): obj is {
+      content: unknown[]
+      totalElements?: number
+      totalPages?: number
+      size?: number
+      number?: number
+      numberOfElements?: number
+      first?: boolean
+      last?: boolean
+      empty?: boolean
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'content' in obj &&
+        Array.isArray((obj as {content?: unknown}).content)
+      )
+    }
+
+    function isDartLegacyResponse(obj: unknown): obj is {
+      data: unknown[]
+      total?: number
+      totalPages?: number
+    } {
+      return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'data' in obj &&
+        Array.isArray((obj as {data?: unknown}).data)
+      )
+    }
+
+    // Spring Data Page 구조인 경우
+    if (data && typeof data === 'object') {
+      if (isDartPageResponse(data)) {
+        dartResponse = {
+          content: (data.content as DartCorpInfo[]) || [],
+          totalElements: data.totalElements || 0,
+          totalPages: data.totalPages || 0,
+          size: data.size || size,
+          number: data.number || page,
+          numberOfElements: data.numberOfElements || 0,
+          first: data.first !== undefined ? data.first : true,
+          last: data.last !== undefined ? data.last : true,
+          empty: data.empty !== undefined ? data.empty : true
+        }
+      }
+      // 배열이 직접 있는 경우
+      else if (Array.isArray(data)) {
+        dartResponse = {
+          content: data as DartCorpInfo[],
+          totalElements: data.length,
+          totalPages: 1,
+          size: size,
+          number: 0,
+          numberOfElements: data.length,
+          first: true,
+          last: true,
+          empty: data.length === 0
+        }
+      }
+      // 데이터가 다른 키에 있는 경우
+      else if (isDartLegacyResponse(data)) {
+        dartResponse = {
+          content: data.data as DartCorpInfo[],
+          totalElements: data.total || data.data.length,
+          totalPages: data.totalPages || 1,
+          size: size,
+          number: page,
+          numberOfElements: data.data.length,
+          first: page === 0,
+          last: true,
+          empty: data.data.length === 0
+        }
+      }
+    }
+
+    return dartResponse
+  } catch (error: unknown) {
+    console.error('DART 기업 검색 오류:', error)
+
+    const errorDetails = {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      status: undefined as number | undefined,
+      statusText: undefined as string | undefined,
+      data: undefined as unknown,
+      config: undefined as {url?: string; method?: string; params?: unknown} | undefined
+    }
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number
+          statusText?: string
+          data?: unknown
+        }
+        config?: {
+          url?: string
+          method?: string
+          params?: unknown
+        }
+      }
+
+      errorDetails.status = axiosError.response?.status
+      errorDetails.statusText = axiosError.response?.statusText
+      errorDetails.data = axiosError.response?.data
+      errorDetails.config = axiosError.config
+        ? {
+            url: axiosError.config.url,
+            method: axiosError.config.method,
+            params: axiosError.config.params
+          }
+        : undefined
+    }
+
+    console.error('오류 상세:', errorDetails)
+
+    let errorMessage = 'DART 기업 검색에 실패했습니다.'
+
+    if (errorDetails.status === 500) {
+      errorMessage =
+        '서버에서 DART API 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      console.error('500 에러 상세 정보:', errorDetails.data)
+
+      // 500 에러의 경우 빈 결과를 반환하여 UI가 깨지지 않도록 함
+      return {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        size: params.pageSize || 10,
+        number: 0,
+        numberOfElements: 0,
+        first: true,
+        last: true,
+        empty: true
+      }
+    } else if (errorDetails.status === 404) {
+      errorMessage = 'DART API 엔드포인트를 찾을 수 없습니다.'
+    } else if (errorDetails.status === 401) {
+      errorMessage = '인증이 필요합니다. 로그인 상태를 확인해주세요.'
+    } else if (errorDetails.status === 403) {
+      errorMessage = 'DART API 접근 권한이 없습니다.'
+    } else if (errorDetails.status === 400) {
+      errorMessage = '잘못된 요청입니다. 검색 조건을 확인해주세요.'
+    } else if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'ECONNABORTED'
+    ) {
+      errorMessage = '요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.'
+    } else if (
+      errorDetails.data &&
+      typeof errorDetails.data === 'object' &&
+      'message' in errorDetails.data &&
+      typeof errorDetails.data.message === 'string'
+    ) {
+      errorMessage = errorDetails.data.message
+    } else if (errorDetails.message) {
+      errorMessage = `요청 실패: ${errorDetails.message}`
+    }
+
+    throw new Error(errorMessage)
   }
-}
-
-export interface FinancialRiskItem {
-  description: string
-  actualValue: string
-  threshold: string
-  notes: string | null
-  itemNumber: number
-  atRisk: boolean
-}
-
-export interface FinancialRiskAssessment {
-  partnerCompanyId: string
-  partnerCompanyName: string
-  assessmentYear: string
-  reportCode: string
-  riskItems: FinancialRiskItem[]
 }
 
 /**
@@ -286,11 +726,6 @@ export async function fetchFinancialRiskAssessment(
   corpCode: string,
   partnerName?: string
 ): Promise<FinancialRiskAssessment> {
-  console.log(
-    `[fetchFinancialRiskAssessment] 호출: corpCode=${corpCode}, partnerName=${
-      partnerName || '없음'
-    }`
-  )
   try {
     const params: Record<string, string> = {}
 
@@ -298,22 +733,38 @@ export async function fetchFinancialRiskAssessment(
       params.partnerName = partnerName
     }
 
-    const response = await api.get(
+    console.log('재무 위험 정보 요청 파라미터:', {corpCode, ...params})
+
+    const response = await api.get<FinancialRiskAssessment>(
       `/api/v1/partners/partner-companies/${corpCode}/financial-risk`,
-      {
-        params
-      }
+      {params}
     )
 
-    console.log(
-      `[fetchFinancialRiskAssessment] 성공: ${
-        response.data.riskItems?.length || 0
-      }개 위험 항목 발견`
-    )
+    console.log('재무 위험 정보 응답:', response.data)
+
     return response.data
-  } catch (error) {
-    console.error('[fetchFinancialRiskAssessment] 재무 위험 정보 조회 오류:', error)
-    throw error
+  } catch (error: unknown) {
+    console.error('재무 위험 정보 조회 오류:', error)
+
+    let errorMessage = '재무 위험 정보를 가져오는데 실패했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 404) {
+        errorMessage = '재무 위험 정보를 찾을 수 없습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -322,21 +773,36 @@ export async function fetchFinancialRiskAssessment(
  * @returns 파트너사 이름 목록
  */
 export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
-  console.log('[fetchUniquePartnerCompanyNames] 호출')
   try {
-    const response = await api.get('/api/v1/partners/unique-partner-companies')
-    console.log(
-      `[fetchUniquePartnerCompanyNames] 성공: ${
-        response.data.companyNames?.length || 0
-      }개 회사명 반환`
+    console.log('파트너사 이름 목록 요청')
+
+    const response = await api.get<{companyNames: string[]}>(
+      '/api/v1/partners/unique-partner-companies'
     )
+
+    console.log('파트너사 이름 목록 응답:', response.data)
+
     return response.data.companyNames || []
-  } catch (error) {
-    console.error(
-      '[fetchUniquePartnerCompanyNames] 파트너사 이름 목록을 가져오는 중 오류:',
-      error
-    )
-    throw error
+  } catch (error: unknown) {
+    console.error('파트너사 이름 목록을 가져오는 중 오류:', error)
+
+    let errorMessage = '파트너사 이름 목록을 가져오는 중 오류가 발생했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
 
@@ -348,18 +814,35 @@ export async function fetchUniquePartnerCompanyNames(): Promise<string[]> {
 export async function fetchPartnerCompanyDetail(
   partnerId: string
 ): Promise<PartnerCompany> {
-  console.log(`[fetchPartnerCompanyDetail] 호출: partnerId=${partnerId}`)
   try {
+    console.log('파트너사 상세 정보 요청 ID:', partnerId)
+
     const response = await api.get(`/api/v1/partners/partner-companies/${partnerId}`)
-    console.log(
-      `[fetchPartnerCompanyDetail] 성공: 파트너사 ID=${partnerId} 상세 정보 반환`
-    )
-    return response.data
-  } catch (error) {
-    console.error(
-      '[fetchPartnerCompanyDetail] 파트너사 상세 정보를 가져오는 중 오류:',
-      error
-    )
-    throw error
+
+    console.log('파트너사 상세 정보 응답:', response.data)
+
+    return mapPartnerCompanies([response.data])[0]
+  } catch (error: unknown) {
+    console.error('파트너사 상세 정보를 가져오는 중 오류:', error)
+
+    let errorMessage = '파트너사 상세 정보를 가져오는 중 오류가 발생했습니다.'
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as {
+        response?: {status?: number; data?: {message?: string}}
+      }
+
+      if (axiosError.response?.status === 500) {
+        errorMessage = '서버 내부 오류가 발생했습니다.'
+      } else if (axiosError.response?.status === 404) {
+        errorMessage = '파트너사를 찾을 수 없습니다.'
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = '인증이 필요합니다.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      }
+    }
+
+    throw new Error(errorMessage)
   }
 }
