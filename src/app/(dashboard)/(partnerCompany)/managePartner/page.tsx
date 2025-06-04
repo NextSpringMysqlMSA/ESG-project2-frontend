@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useEffect, useCallback} from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
 import {PageHeader} from '@/components/layout/PageHeader'
 import {
   Building2,
@@ -15,6 +15,7 @@ import {
   Edit3,
   Home,
   ChevronRight,
+  ChevronLeft,
   Users
 } from 'lucide-react'
 import {
@@ -114,8 +115,7 @@ export default function ManagePartnerPage() {
     id: '', // 수정 시 사용
     companyName: '',
     corpCode: '',
-    contractStartDate: new Date().toISOString().split('T')[0],
-    status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE' | 'PENDING' // 수정 시 사용
+    contractStartDate: new Date().toISOString().split('T')[0]
   })
 
   const [dialogError, setDialogError] = useState<string | null>(null) // 다이얼로그 내 에러 (origin/develop: error)
@@ -246,8 +246,7 @@ export default function ManagePartnerPage() {
       id: '',
       companyName: '',
       corpCode: '',
-      contractStartDate: new Date().toISOString().split('T')[0],
-      status: 'ACTIVE'
+      contractStartDate: new Date().toISOString().split('T')[0]
     })
     setCompanySearchQuery('')
     setDartSearchResults([])
@@ -283,7 +282,6 @@ export default function ManagePartnerPage() {
           corpName: formData.companyName,
           corpCode: formData.corpCode,
           contractStartDate: formData.contractStartDate,
-          status: formData.status,
           stockCode: stockCode // 주식코드 추가
         })
         toast({title: '성공', description: '파트너사가 수정되었습니다.'})
@@ -374,17 +372,6 @@ export default function ManagePartnerPage() {
   const openEditDialog = (partner: PartnerCompany) => {
     setSelectedPartner(partner)
 
-    // status 타입 처리: PartnerCompany['status'] 타입에 'ACTIVE', 'INACTIVE', 'PENDING'이 포함된다고 가정
-    let finalStatus: PartnerCompany['status'] = 'ACTIVE' // 기본값
-    const validStatuses: Array<PartnerCompany['status']> = [
-      'ACTIVE',
-      'INACTIVE',
-      'PENDING'
-    ]
-    if (partner.status && validStatuses.includes(partner.status)) {
-      finalStatus = partner.status
-    }
-
     setFormData({
       id: partner.id || '',
       companyName: partner.corpName || partner.companyName,
@@ -394,8 +381,7 @@ export default function ManagePartnerPage() {
           ? (partner.contract_start_date || partner.contractStartDate)
               ?.toString()
               .split('T')[0] || new Date().toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0],
-      status: finalStatus
+          : new Date().toISOString().split('T')[0]
     })
     setCompanySearchQuery(partner.corpName || partner.companyName)
     setSelectedDartCompany({
@@ -445,30 +431,32 @@ export default function ManagePartnerPage() {
         module="CSDD"
       />
 
-      <div className="flex flex-col gap-4 mt-6">
-        <div className="flex items-center justify-between">
-          <div className="relative w-full md:w-72">
-            <Search className="absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-muted-foreground" />
+      <div className="flex flex-col gap-6 mt-8">
+        {/* 검색 및 추가 버튼 섹션 */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute w-5 h-5 transform -translate-y-1/2 left-4 top-1/2 text-slate-400" />
             <Input
-              placeholder="파트너사명 검색..."
+              placeholder="파트너사명으로 검색하세요..."
               value={searchQuery || ''}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10"
+              className="h-12 pl-12 pr-12 text-base transition-all duration-200 bg-white border-2 shadow-sm border-slate-200 rounded-xl focus:border-customG focus:ring-customG/20 placeholder:text-slate-400"
             />
             {searchQuery && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSearchQuery('')}
-                className="absolute transform -translate-y-1/2 right-2 top-1/2 h-7 w-7">
-                <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                className="absolute w-8 h-8 transition-colors transform -translate-y-1/2 rounded-lg right-3 top-1/2 hover:bg-slate-100">
+                <X className="w-4 h-4 text-slate-400 hover:text-slate-600" />
               </Button>
             )}
           </div>
 
-          <Button onClick={openAddDialog} className="bg-customG hover:bg-customGDark">
-            <Plus className="w-4 h-4 mr-2" />
-            파트너사 추가
+          <Button
+            onClick={openAddDialog}
+            className="h-12 px-6 font-medium text-white transition-all duration-200 transform shadow-lg bg-gradient-to-r from-customG to-emerald-600 hover:from-customGDark hover:to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105">
+            <Plus className="w-5 h-5 mr-2" />새 파트너사 추가
           </Button>
         </div>
 
@@ -479,108 +467,149 @@ export default function ManagePartnerPage() {
             else if (isAddDialogOpen) setIsAddDialogOpen(true)
             else if (isEditDialogOpen) setIsEditDialogOpen(true)
           }}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditDialogOpen ? '파트너사 수정' : '파트너사 추가'}
+          <DialogContent className="bg-white border-0 shadow-2xl sm:max-w-2xl rounded-2xl">
+            <DialogHeader className="pb-6 border-b border-slate-100">
+              <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-slate-800">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-customG to-emerald-600">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                {isEditDialogOpen ? '파트너사 정보 수정' : '새 파트너사 등록'}
               </DialogTitle>
             </DialogHeader>
-            <div className="py-3 space-y-4">
-              <div>
-                <Label htmlFor="companySearch">회사 검색 (DART)</Label>
-                <div className="relative mt-1">
-                  <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="py-6 space-y-6">
+              <div className="space-y-3">
+                <Label
+                  htmlFor="companySearch"
+                  className="flex items-center gap-2 text-base font-semibold text-slate-700">
+                  <Search className="w-4 h-4" />
+                  회사 검색 (DART 데이터베이스)
+                </Label>
+                <div className="relative">
+                  <Search className="absolute w-5 h-5 transform -translate-y-1/2 left-4 top-1/2 text-slate-400" />
                   <Input
                     id="companySearch"
-                    placeholder="회사명 입력 후 검색"
+                    placeholder="검색할 회사명을 입력하세요"
                     value={companySearchQuery || ''}
                     onChange={e => setCompanySearchQuery(e.target.value)}
-                    className="pl-9"
+                    className="h-12 pl-12 text-base transition-all duration-200 border-2 bg-slate-50 border-slate-200 rounded-xl focus:border-customG focus:ring-customG/20"
                     disabled={isSubmitting}
                   />
                   {isLoading && companySearchQuery && (
-                    <Loader2 className="absolute right-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                    <div className="absolute transform -translate-y-1/2 right-4 top-1/2">
+                      <Loader2 className="w-5 h-5 animate-spin text-customG" />
+                    </div>
                   )}
                 </div>
 
                 {dartSearchResults.length > 0 && (
-                  <div className="mt-2 overflow-y-auto border rounded-md max-h-48">
-                    {dartSearchResults.map((company, index) => (
-                      <button
-                        key={`dart-${company.corpCode || company.corp_code}-${index}`}
-                        type="button"
-                        className={`w-full p-2.5 hover:bg-slate-100 cursor-pointer flex justify-between items-center text-left ${
-                          (selectedDartCompany?.corpCode ||
+                  <div className="mt-4 overflow-hidden bg-white border-2 shadow-sm border-slate-200 rounded-xl">
+                    <div className="overflow-y-auto max-h-64">
+                      {dartSearchResults.map((company, index) => (
+                        <button
+                          key={`dart-${company.corpCode || company.corp_code}-${index}`}
+                          type="button"
+                          className={`w-full p-4 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-left transition-all duration-200 border-b border-slate-100 last:border-b-0 ${
+                            (selectedDartCompany?.corpCode ||
+                              selectedDartCompany?.corp_code) ===
+                            (company.corpCode || company.corp_code)
+                              ? 'bg-customG/5 border-l-4 border-l-customG'
+                              : ''
+                          }`}
+                          onClick={() => handleSelectDartCompany(company)}
+                          disabled={isSubmitting}>
+                          <div className="flex-1">
+                            <p className="mb-1 text-base font-semibold text-slate-800">
+                              {company.corpName || company.corp_name}
+                            </p>
+                            <p className="flex items-center gap-4 text-sm text-slate-500">
+                              <span className="px-2 py-1 font-mono rounded-md bg-slate-100">
+                                DART: {company.corpCode || company.corp_code}
+                              </span>
+                              {(company.stockCode || company.stock_code) &&
+                                String(
+                                  company.stockCode || company.stock_code
+                                ).trim() && (
+                                  <span className="px-2 py-1 font-mono rounded-md bg-emerald-100 text-emerald-700">
+                                    주식: {company.stockCode || company.stock_code}
+                                  </span>
+                                )}
+                            </p>
+                          </div>
+                          {(selectedDartCompany?.corpCode ||
                             selectedDartCompany?.corp_code) ===
-                          (company.corpCode || company.corp_code)
-                            ? 'bg-slate-100'
-                            : ''
-                        }`}
-                        onClick={() => handleSelectDartCompany(company)}
-                        disabled={isSubmitting}>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {company.corpName || company.corp_name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            DART 코드: {company.corpCode || company.corp_code}{' '}
-                            {(company.stockCode || company.stock_code) &&
-                            String(company.stockCode || company.stock_code).trim()
-                              ? `(주식코드: ${company.stockCode || company.stock_code})`
-                              : ''}
-                          </p>
-                        </div>
-                        {selectedDartCompany?.corpCode ===
-                          (company.corpCode || company.corp_code) && (
-                          <Check className="flex-shrink-0 w-4 h-4 text-customG" />
-                        )}
-                      </button>
-                    ))}
+                            (company.corpCode || company.corp_code) && (
+                            <div className="p-2 ml-4 rounded-full bg-customG">
+                              <Check className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {dialogError &&
                   dartSearchResults.length === 0 &&
                   companySearchQuery &&
                   !isLoading && (
-                    <p className="flex items-center mt-2 text-sm text-red-500">
-                      <AlertTriangle className="h-4 w-4 mr-1.5" />
-                      {dialogError}
-                    </p>
+                    <div className="flex items-center gap-3 p-4 mt-4 border border-red-200 bg-red-50 rounded-xl">
+                      <AlertTriangle className="flex-shrink-0 w-5 h-5 text-red-500" />
+                      <p className="text-sm font-medium text-red-700">{dialogError}</p>
+                    </div>
                   )}
               </div>
 
               {/* 회사명, DART 코드, 계약 시작일 입력 필드는 추가 모드일 때는 숨기고, 수정 모드일 때만 보이도록 변경 */}
               {isEditDialogOpen && (
-                <>
-                  <div>
-                    <Label htmlFor="companyName">회사명</Label>
-                    <Input
-                      id="companyName"
-                      value={formData.companyName || ''}
-                      onChange={e =>
-                        setFormData({...formData, companyName: e.target.value})
-                      }
-                      className="mt-1"
-                      placeholder="파트너사 회사명"
-                      disabled={isSubmitting}
-                    />
+                <div className="p-6 space-y-6 border bg-slate-50 rounded-xl border-slate-200">
+                  <h4 className="mb-4 text-lg font-semibold text-slate-800">
+                    파트너사 상세 정보
+                  </h4>
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="companyName"
+                        className="text-sm font-semibold text-slate-700">
+                        회사명
+                      </Label>
+                      <Input
+                        id="companyName"
+                        value={formData.companyName || ''}
+                        onChange={e =>
+                          setFormData({...formData, companyName: e.target.value})
+                        }
+                        className="transition-all duration-200 bg-white border-2 rounded-lg h-11 border-slate-200 focus:border-customG focus:ring-customG/20"
+                        placeholder="파트너사 회사명을 입력하세요"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="corpCode"
+                        className="text-sm font-semibold text-slate-700">
+                        DART 코드
+                      </Label>
+                      <Input
+                        id="corpCode"
+                        value={formData.corpCode || ''}
+                        onChange={e =>
+                          setFormData({...formData, corpCode: e.target.value})
+                        }
+                        className="font-mono transition-all duration-200 bg-white border-2 rounded-lg h-11 border-slate-200 focus:border-customG focus:ring-customG/20"
+                        placeholder="8자리 DART 고유번호"
+                        maxLength={8}
+                        disabled={isSubmitting}
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="corpCode">DART 코드</Label>
-                    <Input
-                      id="corpCode"
-                      value={formData.corpCode || ''}
-                      onChange={e => setFormData({...formData, corpCode: e.target.value})}
-                      className="mt-1"
-                      placeholder="DART 고유번호 (8자리)"
-                      maxLength={8}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contractStartDate">계약 시작일</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="contractStartDate"
+                      className="text-sm font-semibold text-slate-700">
+                      계약 시작일
+                    </Label>
                     <Input
                       id="contractStartDate"
                       type="date"
@@ -588,54 +617,28 @@ export default function ManagePartnerPage() {
                       onChange={e =>
                         setFormData({...formData, contractStartDate: e.target.value})
                       }
-                      className="mt-1"
+                      className="transition-all duration-200 bg-white border-2 rounded-lg h-11 border-slate-200 focus:border-customG focus:ring-customG/20"
                       disabled={isSubmitting}
                     />
                   </div>
-                </>
-              )}
-
-              {isEditDialogOpen && (
-                <div>
-                  <Label htmlFor="status">상태</Label>
-                  <select
-                    id="status"
-                    value={formData.status || ''}
-                    onChange={e => {
-                      const selectedValue = e.target.value
-                      if (
-                        selectedValue === 'ACTIVE' ||
-                        selectedValue === 'INACTIVE' ||
-                        selectedValue === 'PENDING'
-                      ) {
-                        setFormData({...formData, status: selectedValue})
-                      } else {
-                        setFormData({...formData, status: 'ACTIVE'})
-                      }
-                    }}
-                    className="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-customG focus:border-customG sm:text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
-                    disabled={isSubmitting}>
-                    <option value="ACTIVE">활성</option>
-                    <option value="INACTIVE">비활성</option>
-                    <option value="PENDING">보류</option>
-                  </select>
                 </div>
               )}
 
               {dialogError && !companySearchQuery && (
-                <p className="text-sm text-red-500">
-                  <AlertTriangle className="h-4 w-4 mr-1.5 inline-block" />
-                  {dialogError}
-                </p>
+                <div className="flex items-center gap-3 p-4 border border-red-200 bg-red-50 rounded-xl">
+                  <AlertTriangle className="flex-shrink-0 w-5 h-5 text-red-500" />
+                  <p className="text-sm font-medium text-red-700">{dialogError}</p>
+                </div>
               )}
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-3 pt-6 border-t border-slate-100">
               <DialogClose asChild>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={resetModalStateAndClose}
-                  disabled={isSubmitting}>
+                  disabled={isSubmitting}
+                  className="px-6 transition-all duration-200 border-2 rounded-lg h-11 border-slate-200 hover:border-slate-300">
                   취소
                 </Button>
               </DialogClose>
@@ -650,15 +653,21 @@ export default function ManagePartnerPage() {
                       !formData.corpCode ||
                       !formData.contractStartDate)) // 수정 모드: 기존 조건 (모든 필드 필요)
                 }
-                className="bg-customG hover:bg-customGDark">
+                className="px-8 font-semibold text-white transition-all duration-200 transform rounded-lg shadow-lg h-11 bg-gradient-to-r from-customG to-emerald-600 hover:from-customGDark hover:to-emerald-700 hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:transform-none">
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> 처리 중...
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" /> 처리 중...
                   </>
                 ) : isEditDialogOpen ? (
-                  '저장'
+                  <>
+                    <Edit3 className="w-4 h-4 mr-2" />
+                    정보 저장
+                  </>
                 ) : (
-                  '추가'
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    파트너사 등록
+                  </>
                 )}
               </Button>
             </DialogFooter>
@@ -666,59 +675,92 @@ export default function ManagePartnerPage() {
         </Dialog>
 
         {isLoading && partners.length === 0 && !isPageLoading ? (
-          <div className="flex items-center justify-center p-12">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-            <p className="ml-3 text-muted-foreground">파트너사 목록을 불러오는 중...</p>
+          <div className="flex items-center justify-center p-16">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-customG" />
+              <p className="text-lg font-medium text-slate-700">
+                파트너사 목록을 불러오는 중...
+              </p>
+              <p className="mt-1 text-sm text-slate-500">잠시만 기다려주세요</p>
+            </div>
           </div>
         ) : partners.length === 0 && !searchQuery ? (
-          <div className="py-10 text-center">
-            <Users className="w-12 h-12 mx-auto text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              등록된 파트너사 없음
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              아직 등록된 파트너사가 없습니다. 먼저 파트너사를 추가해주세요.
-            </p>
-            <div className="mt-6">
-              <Button onClick={openAddDialog} className="bg-customG hover:bg-customGDark">
-                <Plus className="w-4 h-4 mr-2" />
-                파트너사 추가하기
+          <div className="bg-white border-2 shadow-lg border-slate-200 rounded-2xl">
+            <div className="py-16 text-center">
+              <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl">
+                <Users className="w-12 h-12 text-slate-400" />
+              </div>
+              <h3 className="mb-2 text-2xl font-bold text-slate-800">
+                아직 등록된 파트너사가 없습니다
+              </h3>
+              <p className="max-w-md mx-auto mb-8 text-base text-slate-500">
+                ESG 경영을 함께할 파트너사를 등록해보세요. DART 데이터베이스와 연동하여
+                손쉽게 관리할 수 있습니다.
+              </p>
+              <Button
+                onClick={openAddDialog}
+                className="h-12 px-8 font-semibold text-white transition-all duration-200 transform shadow-lg bg-gradient-to-r from-customG to-emerald-600 hover:from-customGDark hover:to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105">
+                <Plus className="w-5 h-5 mr-2" />첫 번째 파트너사 등록하기
               </Button>
             </div>
           </div>
         ) : partners.length === 0 && searchQuery ? (
-          <div className="py-10 text-center">
-            <Search className="w-12 h-12 mx-auto text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">검색 결과 없음</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              '<span className="font-semibold">{searchQuery}</span>'에 대한 검색 결과가
-              없습니다.
-            </p>
+          <div className="bg-white border-2 shadow-lg border-slate-200 rounded-2xl">
+            <div className="py-16 text-center">
+              <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl">
+                <Search className="w-12 h-12 text-slate-400" />
+              </div>
+              <h3 className="mb-2 text-2xl font-bold text-slate-800">
+                검색 결과가 없습니다
+              </h3>
+              <p className="mb-2 text-base text-slate-500">
+                '<span className="font-semibold text-slate-700">{searchQuery}</span>'와
+                일치하는 파트너사를 찾을 수 없습니다.
+              </p>
+              <p className="text-sm text-slate-400">
+                다른 검색어로 시도해보시거나, 새로운 파트너사를 등록해보세요.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="overflow-hidden border rounded-lg shadow-sm">
+          <div className="overflow-hidden bg-white border-2 shadow-lg border-slate-200 rounded-2xl">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[25%]">회사명</TableHead>
-                  <TableHead className="w-[15%]">DART 코드</TableHead>
-                  <TableHead className="w-[15%]">상장 정보</TableHead>
-                  <TableHead className="w-[15%]">계약 시작일</TableHead>
-                  <TableHead className="text-right w-[15%]">관리</TableHead>
+                <TableRow className="border-b-2 bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-150 border-slate-200">
+                  <TableHead className="px-6 text-base font-bold h-14 text-slate-800">
+                    회사명
+                  </TableHead>
+                  <TableHead className="px-6 text-base font-bold h-14 text-slate-800">
+                    DART 코드
+                  </TableHead>
+                  <TableHead className="px-6 text-base font-bold h-14 text-slate-800">
+                    상장 정보
+                  </TableHead>
+                  <TableHead className="px-6 text-base font-bold h-14 text-slate-800">
+                    계약 시작일
+                  </TableHead>
+                  <TableHead className="px-6 text-base font-bold text-center h-14 text-slate-800">
+                    관리
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {partners.map((partner, index) => (
                   <TableRow
                     key={partner.id || `partner-${index}`}
-                    className="hover:bg-slate-50">
-                    <TableCell className="py-3 font-medium">
-                      {partner.corpName || partner.companyName}
+                    className="transition-all duration-200 border-b hover:bg-slate-50/80 border-slate-100 last:border-b-0">
+                    <TableCell className="h-16 px-6 text-base font-semibold text-slate-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-customG"></div>
+                        {partner.corpName || partner.companyName}
+                      </div>
                     </TableCell>
-                    <TableCell className="py-3">
-                      {partner.corpCode || partner.corp_code}
+                    <TableCell className="h-16 px-6">
+                      <code className="px-3 py-1 font-mono text-sm font-medium rounded-lg bg-slate-100 text-slate-700">
+                        {partner.corpCode || partner.corp_code}
+                      </code>
                     </TableCell>
-                    <TableCell className="py-3">
+                    <TableCell className="h-16 px-6">
                       {(() => {
                         const stockCode = partner.stockCode || partner.stock_code
 
@@ -763,7 +805,8 @@ export default function ManagePartnerPage() {
                           return (
                             <Badge
                               variant="outline"
-                              className="font-medium border-emerald-300 text-emerald-700 bg-emerald-50">
+                              className="px-3 py-1 font-semibold border-2 rounded-lg text-emerald-700 bg-emerald-50 border-emerald-200">
+                              <div className="w-2 h-2 mr-2 rounded-full bg-emerald-500"></div>
                               {String(stockCode).trim()}
                             </Badge>
                           )
@@ -771,41 +814,53 @@ export default function ManagePartnerPage() {
                           return (
                             <Badge
                               variant="secondary"
-                              className="text-gray-600 bg-gray-100 border-gray-200">
+                              className="px-3 py-1 font-semibold border-2 rounded-lg text-slate-600 bg-slate-100 border-slate-200">
+                              <div className="w-2 h-2 mr-2 rounded-full bg-slate-400"></div>
                               비상장
                             </Badge>
                           )
                         }
                       })()}
                     </TableCell>
-                    <TableCell className="py-3">
+                    <TableCell className="h-16 px-6 font-medium text-slate-600">
                       {partner.contract_start_date || partner.contractStartDate
                         ? new Date(
                             (partner.contract_start_date || partner.contractStartDate)!
-                          ).toLocaleDateString()
+                          ).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })
                         : '-'}
                     </TableCell>
-                    <TableCell className="text-right py-2.5">
+                    <TableCell className="h-16 px-6 text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="w-8 h-8">
-                            <MoreHorizontal className="w-4 h-4" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 transition-colors rounded-lg hover:bg-slate-100">
+                            <MoreHorizontal className="w-5 h-5 text-slate-600" />
                             <span className="sr-only">메뉴 열기</span>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditDialog(partner)}>
-                            <Edit3 className="w-4 h-4 mr-2" />
-                            수정
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-48 p-2 bg-white border-2 shadow-xl border-slate-200 rounded-xl">
+                          <DropdownMenuItem
+                            onClick={() => openEditDialog(partner)}
+                            className="flex items-center gap-3 px-4 py-3 transition-colors rounded-lg cursor-pointer hover:bg-slate-50">
+                            <Edit3 className="w-4 h-4 text-slate-600" />
+                            <span className="font-medium text-slate-700">정보 수정</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setSelectedPartner(partner)
                               setIsDeleteDialogOpen(true)
                             }}
-                            className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                            <Trash className="w-4 h-4 mr-2" />
-                            삭제
+                            className="flex items-center gap-3 px-4 py-3 text-red-600 transition-colors rounded-lg cursor-pointer hover:bg-red-50 focus:text-red-600 focus:bg-red-50">
+                            <Trash className="w-4 h-4" />
+                            <span className="font-medium">파트너사 삭제</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -818,74 +873,101 @@ export default function ManagePartnerPage() {
         )}
 
         {totalPages > 1 && partners.length > 0 && (
-          <div className="flex items-center justify-center gap-2 pt-4 mt-6 border-t">
+          <div className="flex items-center justify-center gap-3 pt-8 mt-8 border-t-2 border-slate-100">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 text-sm">
+              className="h-10 px-4 font-medium transition-all duration-200 border-2 rounded-lg border-slate-200 hover:border-customG hover:bg-customG/5">
+              <ChevronLeft className="w-4 h-4 mr-1" />
               이전
             </Button>
 
-            {Array.from({length: totalPages}, (_, i) => i + 1)
-              .filter(
-                page =>
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1)
-              )
-              .map(page => (
-                <Button
-                  key={`page-${page}`}
-                  variant={currentPage === page ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handlePageChange(page)}
-                  className="w-9 h-9 px-3 py-1.5 text-sm">
-                  {page}
-                </Button>
-              ))}
+            <div className="flex items-center gap-1">
+              {Array.from({length: totalPages}, (_, i) => i + 1)
+                .filter(
+                  page =>
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                )
+                .map((page, index, array) => (
+                  <React.Fragment key={`page-${page}`}>
+                    {index > 0 && array[index - 1] !== page - 1 && (
+                      <span className="px-2 text-slate-400">...</span>
+                    )}
+                    <Button
+                      variant={currentPage === page ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => handlePageChange(page)}
+                      className={`w-10 h-10 rounded-lg font-semibold transition-all duration-200 ${
+                        currentPage === page
+                          ? 'bg-customG text-white border-customG shadow-lg hover:bg-customGDark'
+                          : 'border-2 border-slate-200 hover:border-customG hover:bg-customG/5'
+                      }`}>
+                      {page}
+                    </Button>
+                  </React.Fragment>
+                ))}
+            </div>
 
             <Button
               variant="outline"
               size="sm"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 text-sm">
+              className="h-10 px-4 font-medium transition-all duration-200 border-2 rounded-lg border-slate-200 hover:border-customG hover:bg-customG/5">
               다음
+              <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         )}
       </div>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>파트너사 삭제 확인</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="bg-white border-0 shadow-2xl sm:max-w-lg rounded-2xl">
+          <AlertDialogHeader className="pb-6 text-center">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
+              <Trash className="w-8 h-8 text-red-600" />
+            </div>
+            <AlertDialogTitle className="mb-2 text-2xl font-bold text-slate-800">
+              파트너사 삭제 확인
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base leading-relaxed text-slate-600">
               정말로{' '}
-              <span className="font-semibold">
+              <span className="px-2 py-1 font-bold rounded-md text-slate-800 bg-slate-100">
                 {selectedPartner?.corpName || selectedPartner?.companyName}
               </span>{' '}
-              파트너사를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              파트너사를 삭제하시겠습니까?
+              <br />
+              <span className="block mt-2 font-semibold text-red-600">
+                이 작업은 되돌릴 수 없습니다.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="gap-3 pt-6">
             <AlertDialogCancel
               onClick={() => setSelectedPartner(null)}
-              disabled={isSubmitting}>
+              disabled={isSubmitting}
+              className="px-6 font-medium transition-all duration-200 border-2 rounded-lg h-11 border-slate-200 hover:border-slate-300">
               취소
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeletePartner}
-              className="text-white bg-red-600 hover:bg-red-700 focus-visible:ring-red-500"
+              className="px-6 font-semibold text-white transition-all duration-200 transform bg-red-600 rounded-lg shadow-lg h-11 hover:bg-red-700 hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:transform-none"
               disabled={isSubmitting}>
               {isSubmitting ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  삭제 중...
+                </>
               ) : (
-                <Trash className="w-4 h-4 mr-2" />
+                <>
+                  <Trash className="w-4 h-4 mr-2" />
+                  완전 삭제
+                </>
               )}
-              삭제
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
